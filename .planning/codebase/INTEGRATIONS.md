@@ -1,156 +1,85 @@
-# External Integrations
+# Carpetify — External Integrations
 
-**Analysis Date:** 2025-03-20
+## Project Status
+No integrations are implemented yet. This documents the planned integration architecture per `directives/app_spec.md`.
 
-## APIs & External Services
+## Primary Integrations
 
-**Anthropic Claude API:**
-- SDK: `anthropic` >=0.39.0
-- Used in: `skills/mcp-builder/scripts/` - MCP server development and evaluation
-- Auth: ANTHROPIC_API_KEY (environment variable)
-- Purpose: LLM capabilities for agent decision-making and task execution
+### 1. Anthropic API (Claude) — AI Document Generation
+- **Purpose:** Generate ~20 EFICINE submission documents from screenplay analysis + project data
+- **Integration Type:** API calls via Firebase Cloud Functions
+- **Data Flow:** Screenplay data + project metadata → Spanish system prompt (from `prompts/*.md`) + injected variables → Claude → structured Spanish document output → Firestore
+- **Prompts:** 7 sequential passes, each building on prior outputs:
+  - Pass 1: Screenplay analysis (scene breakdown, locations, characters, complexity)
+  - Pass 2: Line producer docs (production proposal, shooting schedule, budget)
+  - Pass 3: Financial docs (cash flow, financial scheme, contribution letter)
+  - Pass 4: Legal docs (contract templates, commitment letters)
+  - Pass 5: Combined docs (executive summary, synopsis, team sheet, exhibition proposal, technical data sheet)
+  - Pass 6: Cross-validation
+- **Language Constraint:** All prompts and outputs in Mexican Spanish with EFICINE terminology
 
-**Model Context Protocol (MCP):**
-- SDK: `mcp` >=1.1.0
-- Used in: `skills/mcp-builder/` - Building MCP servers for tool integration
-- Purpose: Standardized protocol for LLMs to interact with external services
-- Connection types supported:
-  - stdio - Local process execution
-  - streamable HTTP - HTTP-based server communication
-  - SSE - Server-Sent Events for real-time updates
+### 2. Firebase Authentication
+- **Purpose:** Producer user accounts
+- **Auth Methods:** TBD (likely email/password at minimum)
+- **User Type:** Mexican film producers submitting to EFICINE
 
-## Browser Automation
+### 3. Cloud Firestore
+- **Purpose:** Primary data store for all project data
+- **Collections:** `projects/{projectId}` with subcollections for team, financials, documents, generated docs, validation
+- **Schema:** Defined in `schemas/modulo_a.json` through `schemas/export_manager.json` (6 schema files)
 
-**Web Automation:**
-- Playwright ^1.57.0 - Browser automation and web scraping
-  - Location: `skills/playwright-browser-automation/`
-  - Supported browsers: Chromium, Firefox, WebKit
-  - Headless mode: Configurable via environment
-  - Header injection: Supports custom HTTP headers via environment variables
-  - Entry point: `skills/playwright-browser-automation/run.js`
-  - Supports inline code execution, file-based scripts, and stdin input
+### 4. Firebase Storage
+- **Purpose:** File storage for:
+  - Uploaded screenplay PDFs
+  - User-provided legal documents (contracts, IDs, bank statements, INDAUTOR certs)
+  - AI-generated PDF documents
+  - Final export ZIP packages
 
-## Media Processing
+### 5. PDF Parsing (pdf-parse / pdf.js)
+- **Purpose:** Extract text from uploaded screenplay PDFs
+- **Output:** Scene count, page count, locations, characters, INT/EXT/DAY/NIGHT breakdown
+- **Constraint:** Must handle professional screenplay format (Courier 12pt, standard margins)
 
-**Image & Video Services:**
-- FFmpeg (via imageio-ffmpeg) - Video encoding and frame capture
-- No external service; local processing only
-- Used in: `skills/slack-gif-creator/core/` for GIF creation from frames
+### 6. PDF Generation (@react-pdf/renderer / jsPDF)
+- **Purpose:** Generate final submission-ready PDFs from Firestore data
+- **Constraints:**
+  - Max 40 MB per file
+  - File names max 15 characters, pattern `^[A-Za-z0-9_]+$`
+  - No decorative cover pages
+  - Spanish content throughout
+  - Autograph or digital signatures supported
 
-**File Storage:**
-- Local filesystem only
-- Intermediate files: `.tmp/` directory (not committed)
-- Output files generated to project directories
+## External Systems (No Direct API Integration)
 
-## Data Processing
+### SHCP Portal (estimulosfiscales.hacienda.gob.mx)
+- **Relationship:** Manual upload target — the app generates the carpeta, user uploads it manually
+- **No API:** The SHCP system has no public API; registration requires e.firma (electronic signature)
+- **Registration Periods 2026:** Jan 30–Feb 13 (Period 1), Jul 1–Jul 15 (Period 2)
 
-**Document Processing:**
-- LibreOffice (soffice) - Office document automation
-  - Used in: `skills/xlsx/scripts/office/`
-  - Handles: XLSX, DOCX, PPTX files
-  - No external service required; local installation needed
-- PDF processing: Local PDF manipulation libraries
-  - Used in: `skills/pdf/scripts/` for form filling, field extraction
+### IMCINE
+- **Relationship:** Regulatory body that evaluates submissions
+- **No direct integration** — the app follows IMCINE's Lineamientos and scoring rubric
 
-## Authentication & Identity
+### INDAUTOR (Copyright Office)
+- **Relationship:** Users must register screenplays and rights transfer contracts at INDAUTOR independently
+- **App responsibility:** Validate that INDAUTOR certificate data matches project data
 
-**External Auth:**
-- Not detected as primary system
-- Individual skills may include auth (e.g., Stripe, Supabase, GitHub)
-- MCP connection types support various auth mechanisms:
-  - HTTP headers for token-based auth
-  - Environment variables for credentials
-  - Service account credentials (if implemented in specific MCP servers)
+### SAT (Tax Authority)
+- **Relationship:** Provides Constancia de Situación Fiscal directly to the Comité
+- **User provides:** e.firma for system registration, Constancia for ERPI general requirements
 
-## Caching
-
-**Caching Strategy:**
-- Not detected in core framework
-- Individual skills may implement caching (e.g., skill libraries like `cal-com-automation`, `notion-automation`)
-
-## Monitoring & Observability
-
-**Error Tracking:**
-- Custom logging via Python logging module
-  - Configured in: `execution/utils.py`
-  - Log level: INFO
-  - Format: timestamp [LEVEL] message
-  - Logger name: "carpetify"
-
-**Logging Framework:**
-- Python `logging` module (standard library)
-- No external APM/monitoring detected
-
-## CI/CD & Deployment
-
-**Version Control:**
-- Git repository (/.git present)
-- Main branch for deployment
-
-**Continuous Integration:**
-- Not detected
-- Manual execution model via CLI
-
-**Local Execution:**
-- Scripts run via Python (`python3`) or Node.js (`node`)
-- npm setup for Playwright skill dependencies
-- No containerization (Docker) detected
-
-## Environment Configuration
-
-**Required Environment Variables:**
-- ANTHROPIC_API_KEY - For Claude API access (mcp-builder skill)
-- HEADLESS - Playwright headless mode (default: true)
-- SLOW_MO - Playwright action delay in ms (optional)
-- PW_HEADER_NAME / PW_HEADER_VALUE - Single custom HTTP header for auth
-- PW_EXTRA_HEADERS - JSON object with multiple headers
-
-**Configuration Files:**
-- `.env` - Secrets and API keys (not committed)
-- `.env.example` - Not detected; recommend creating for documentation
-- JSON config files in individual skills (e.g., `skills/mcp-builder/scripts/example_evaluation.xml`)
-
-**Secrets Storage:**
-- `.env` file (recommended practice)
-- credentials.json, token.json - OAuth tokens (in .gitignore)
-- Never commit secrets to git
-
-## Webhooks & Callbacks
-
-**Incoming Webhooks:**
-- Not detected in core framework
-- Individual skills may support webhooks (e.g., Slack, GitHub, Stripe skills)
-
-**Outgoing Webhooks/Events:**
-- No direct webhook support detected
-- MCP protocol enables event-based communication with external services
-- Individual MCP servers may implement event streaming
-
-## Integration Patterns
-
-**MCP Server Pattern:**
-- `skills/mcp-builder/scripts/connections.py` - Lightweight connection handling
-  - Abstracts stdio, HTTP, and SSE connection types
-  - Supports async context manager pattern
-  - Manages ClientSession lifecycle
-
-**Skill Architecture:**
-- Each skill in `skills/` directory is self-contained
-- Skills can be standalone or require external service integration
-- No shared integration library detected; each skill manages its own dependencies
-
-## External Service Skills
-
-**Skills with External Integrations (partial list detected):**
-- `skills/stripe-integration-expert/` - Stripe payment platform
-- `skills/cal-com-automation/` - Calendar automation
-- `skills/supabase-automation/` - Database and auth (Supabase)
-- `skills/mailchimp-automation/` - Email marketing
-- `skills/notion-automation/` - Note-taking and database
-- `skills/freshservice-automation/` - IT service management
-- `skills/bamboohr-automation/` - HR management
-- And 200+ other skill integrations (see `skills/MANIFEST.md`)
-
----
-
-*Integration audit: 2025-03-20*
+## Cross-Module Validation (13 Rules)
+The app implements 13 cross-module validation rules (defined in `references/validation_rules.md`) that enforce consistency across all integrations:
+1. Financial reconciliation (budget = cash flow = financial scheme)
+2. Title consistency across all documents
+3. Fee cross-matching (contracts = budget = cash flow)
+4. Date compliance (all docs < 3 months old)
+5. Experience thresholds (producer/director minimums)
+6. ERPI eligibility checks
+7. Prohibited expenditure detection
+8. Document completeness verification
+9. File format compliance (PDF, ≤40MB, ≤15 char names)
+10. Hyperlink accessibility
+11. Ruta crítica ↔ cash flow sync
+12. Co-production special rules
+13. Bonus points eligibility

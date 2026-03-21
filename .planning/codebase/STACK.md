@@ -1,116 +1,61 @@
-# Technology Stack
+# Carpetify — Technology Stack
 
-**Analysis Date:** 2025-03-20
+## Project Status
 
-## Languages
+**Pre-code / Specification phase.** No source code, build system, or runtime dependencies exist yet. The repository contains only specification documents, JSON schemas, AI prompt templates, and reference materials.
 
-**Primary:**
-- Python 3.9.6 - Core execution scripts, skill implementations
-- JavaScript (Node.js) - Browser automation with Playwright
-- Markdown - Documentation and skill definitions
+## Planned Stack (per `directives/app_spec.md`)
 
-**Secondary:**
-- YAML - Configuration (Claude/Gemini/Agent instructions)
-- JSON - Configuration files, data interchange
+### Frontend
+- **Framework:** React
+- **Styling:** Tailwind CSS + shadcn/ui component library
+- **Language:** TypeScript (implied by React + modern tooling)
+- **UI Language:** 100% Mexican Spanish — no English in user-facing text
 
-## Runtime
+### Backend / Infrastructure
+- **Platform:** Firebase
+  - **Auth:** Firebase Authentication (producer login)
+  - **Database:** Cloud Firestore (document-oriented, project data)
+  - **Storage:** Firebase Storage (screenplay PDFs, generated documents, user uploads)
+  - **Functions:** Firebase Cloud Functions (server-side processing)
+- **Hosting:** Firebase Hosting (implied)
 
-**Environment:**
-- Node.js v25.6.1 - JavaScript/Playwright execution
-- Python 3.9.6 - Python script execution
+### AI / Document Generation
+- **Provider:** Anthropic API (Claude)
+- **Prompt Architecture:** 7 sequential Spanish system prompts in `prompts/` folder
+- **Execution Order:**
+  1. `analisis_guion.md` — screenplay parsing (foundation)
+  2. `a7_propuesta_produccion.md` — production proposal
+  3. `a8_plan_rodaje_y_ruta_critica.md` — shooting schedule + critical path
+  4. `a9_presupuesto.md` — budget (summary + detail)
+  5. `documentos_financieros.md` — cash flow, financial scheme, contribution letter
+  6. `documentos_legales.md` — contract templates, commitment letters
+  7. `documentos_combinados.md` — executive summary, synopsis, team sheet, exhibition proposal, technical data sheet, pitch
 
-**Package Manager:**
-- npm - JavaScript dependencies (Playwright skill)
-- pip - Python dependencies (no central lock file; managed per-skill)
-- No monolithic lock file strategy detected
+### PDF Processing
+- **Parsing (input):** pdf-parse or pdf.js — extract screenplay text from uploaded PDFs
+- **Generation (output):** @react-pdf/renderer or jsPDF — produce final submission PDFs
 
-## Frameworks
+### Data Model (Firestore)
+```
+projects/{projectId}
+├── metadata (title, genre, category, ERPI info, dates)
+├── screenplay (parsed data: scenes, locations, characters, breakdown)
+├── team/{memberId} (name, role, nationality, filmography, fee)
+├── financials (budget, esquema, flujo, contributions)
+├── documents/{docId} (uploaded files: references, URLs, status)
+├── generated/{docId} (AI-generated documents: content, version, timestamp)
+└── validation (check results, completeness score, flags)
+```
 
-**Browser Automation:**
-- Playwright ^1.57.0 - Browser automation and web testing
-  - Location: `skills/playwright-browser-automation/`
-  - Supports: Chromium, Firefox, WebKit engines
+## Configuration Files Present
+- `.env` — environment variables (exists, contents not inspected for security)
+- `.gitignore` — git ignore rules
+- No `package.json`, `tsconfig.json`, or build configuration exists yet
 
-**Python Core:**
-- python-dotenv >=1.0.0 - Environment variable management
-- anthropic >=0.39.0 - Anthropic Claude API client (in mcp-builder)
-- mcp >=1.1.0 - Model Context Protocol (in mcp-builder)
-
-**Image/Media Processing:**
-- Pillow >=10.0.0 - Image manipulation
-- imageio >=2.31.0 - Image I/O and video reading
-- imageio-ffmpeg >=0.4.9 - FFmpeg bindings for video encoding
-- numpy >=1.24.0 - Numerical computing (for frame data)
-  - Location: `skills/slack-gif-creator/core/`
-
-**Office Document Processing:**
-- LibreOffice (soffice) - OpenOffice/LibreOffice automation
-  - Location: `skills/xlsx/scripts/office/`
-
-**PDF Processing:**
-- Libraries in `skills/pdf/scripts/` - PDF manipulation (form filling, extraction)
-
-## Key Dependencies
-
-**Critical Infrastructure:**
-- anthropic - Claude API access for agent operations
-- mcp - Model Context Protocol for extensible tool communication
-- python-dotenv - Secure environment variable loading (.env)
-
-**Media & Image Processing:**
-- imageio + imageio-ffmpeg - Video frame capture and encoding pipeline
-- Pillow - Core image operations
-- numpy - Array-based image data manipulation
-
-**Browser Automation:**
-- Playwright - Cross-browser automation (headless + headed modes)
-
-## Configuration
-
-**Environment:**
-- `.env` file (not committed, in .gitignore) - Stores API keys, auth tokens
-- Environment variables via `python-dotenv.load_dotenv()`
-- Playwright helpers read environment variables:
-  - `HEADLESS` - Control headless mode (default: true)
-  - `SLOW_MO` - Add delay between actions (ms)
-  - `PW_HEADER_NAME` / `PW_HEADER_VALUE` - Single HTTP header for authentication
-  - `PW_EXTRA_HEADERS` - JSON object for multiple headers
-
-**Build:**
-- npm scripts in `skills/playwright-browser-automation/package.json`:
-  - `setup` - Install dependencies and Chromium browser
-  - `install-all-browsers` - Install Chromium, Firefox, WebKit
-
-## Platform Requirements
-
-**Development:**
-- Python 3.9+ with pip
-- Node.js 14.0+ with npm
-- LibreOffice (for XLSX/DOCX processing in skills)
-
-**Production:**
-- Node.js 14.0+ for Playwright skill execution
-- Python 3.9+ for execution scripts
-- FFmpeg (via imageio-ffmpeg wheel) for video encoding
-- LibreOffice (for document processing skills)
-- Anthropic API access for Claude models
-
-## Scripts & Entry Points
-
-**Python:**
-- `execution/utils.py` - Shared utility functions for all execution scripts
-  - Environment loading via `load_dotenv()`
-  - JSON read/write helpers
-  - Temp file management (`.tmp/` directory)
-  - Logging setup
-
-**JavaScript:**
-- `skills/playwright-browser-automation/run.js` - Universal Playwright executor
-  - Auto-installs Playwright if missing
-  - Accepts code from: file path, inline string, or stdin
-  - Supports multiple browser types (chromium, firefox, webkit)
-  - Uses helpers from `lib/helpers.js`
-
----
-
-*Stack analysis: 2025-03-20*
+## Key Constraints
+- All currency amounts: `$X,XXX,XXX MXN` format (comma thousands, no decimals, peso sign, MXN suffix)
+- All dates: Spanish format (`15 de julio de 2026` or `Agosto 2026`)
+- Domain model field names in Spanish (matching EFICINE/IMCINE terminology)
+- Code infrastructure names in English (component names, functions, git)
+- AI prompts 100% Spanish with `{{variable}}` placeholder injection

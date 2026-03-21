@@ -1,226 +1,107 @@
-# Codebase Structure
+# Carpetify — Directory Structure
 
-**Analysis Date:** 2026-03-20
+## Project Status
+**Pre-code / Specification phase.** Repository contains only specification documents — no source code, no build artifacts, no node_modules.
 
-## Directory Layout
+## Current Directory Layout
 
 ```
 CARPETIFY/
-├── .planning/              # GSD planning documents and analysis
-│   └── codebase/          # Architecture, conventions, concerns analysis
-├── .tmp/                  # Intermediate files (always regenerated, never committed)
-├── directives/            # Layer 1: Procedural SOPs in Markdown
-│   └── _TEMPLATE.md       # Template for creating new directives
-├── execution/             # Layer 3: Deterministic Python scripts
-│   └── utils.py           # Shared utilities (env, logging, JSON, paths)
-├── skills/                # 402 installed Claude Skills (indexed by MANIFEST.md)
-│   ├── playwright-browser-automation/  # JavaScript-based browser automation
-│   ├── api-design-reviewer/           # Markdown documentation
-│   ├── algorithmic-art/               # Templates and code examples
-│   ├── MANIFEST.md                    # Auto-generated index of all skills
-│   └── [400+ more skills...]
-├── .cursor/               # Cursor IDE configuration (rules in .cursor/rules/)
-├── .claude/               # Claude Code configuration
-├── .env                   # Secrets and API keys (gitignored)
-├── credentials.json       # Google OAuth credentials (gitignored)
-├── token.json            # Google Workspace tokens (gitignored)
-├── .gitignore            # Excludes .tmp/, .env, credentials, Python caches
-├── CLAUDE.md             # Agent instructions (mirrored)
-├── GEMINI.md             # Agent instructions (mirrored)
-├── agents.md             # Agent instructions (mirrored)
-├── SKILL.md              # Portable skill definition (this system's YAML+Markdown)
-├── requirements.txt      # Python dependencies (python-dotenv>=1.0.0)
-└── firebase-debug.log    # Firebase debug output (not committed)
+├── .claude/                          # Claude Code configuration
+│   ├── settings.json
+│   ├── settings.local.json
+│   └── get-shit-done/               # GSD workflow tooling
+├── .cursor/                          # Cursor IDE config
+│   └── mcp.json
+├── .env                              # Environment variables (secrets — gitignored)
+├── .gitignore                        # Git ignore rules
+├── .planning/                        # GSD planning directory
+│   └── codebase/                     # Codebase map documents (this file)
+├── .tmp/                             # Temporary files
+│
+├── CLAUDE.md                         # Project instructions for Claude Code
+│
+├── directives/                       # Project specification documents
+│   ├── app_spec.md                   # Full application architecture spec (~800 lines)
+│   │                                   Complete document map, scoring rubric, data flow,
+│   │                                   intake screens, AI pipeline, validation rules,
+│   │                                   budget generation rules, legal doc rules,
+│   │                                   file naming convention, output package structure
+│   ├── politica_idioma.md            # Language policy + linguistic guardrails (~250 lines)
+│   │                                   Three-layer language architecture, protected terms,
+│   │                                   UI Spanish rules, prose guidelines, format rules
+│   └── phase_tracker.md              # Build phase status tracker (all phases: NOT STARTED)
+│
+├── schemas/                          # Firestore data model schemas (JSON Schema draft-07)
+│   ├── README.md                     # Schema map + corrections log
+│   ├── modulo_a.json                 # Section A — Propuesta Cinematográfica (A1-A11)
+│   ├── modulo_b.json                 # Section B — Personal Creativo (CVs, contracts)
+│   ├── modulo_c.json                 # Section C — ERPI Legal (INDAUTOR, commitments)
+│   ├── modulo_d.json                 # Section D — Cotizaciones (insurance, CPA)
+│   ├── modulo_e.json                 # Section E — Esquema Financiero (funding structure)
+│   └── export_manager.json           # File compilation rules + ERPI requirements
+│
+├── prompts/                          # AI generation prompts (100% Spanish, for runtime)
+│   ├── README.md                     # Execution order + conventions
+│   ├── analisis_guion.md             # Pass 1: Screenplay analysis
+│   ├── a7_propuesta_produccion.md    # Pass 2: Production proposal
+│   ├── a8_plan_rodaje_y_ruta_critica.md  # Pass 2: Shooting schedule + critical path
+│   ├── a9_presupuesto.md             # Pass 2: Budget (summary + detail)
+│   ├── documentos_financieros.md     # Pass 3: Cash flow, financial scheme
+│   ├── documentos_legales.md         # Pass 4: Contracts, commitment letters
+│   ├── documentos_combinados.md      # Pass 5: Combined docs (exec summary, synopsis, etc.)
+│   ├── a1_resumen_ejecutivo.md       # Pass 5: Executive summary
+│   ├── a2_sinopsis.md                # Pass 5: Synopsis
+│   └── a10_propuesta_exhibicion.md   # Pass 5: Exhibition proposal
+│
+├── references/                       # Reference materials for validation + scoring
+│   ├── scoring_rubric.md             # EFICINE scoring breakdown (100 pts + 5 bonus)
+│   └── validation_rules.md           # 13 cross-module validation rules (blocker/warning)
+│
+├── skills/                           # Claude Code skills (large collection, not project-specific)
+│   └── [~80+ skill directories]      # Various automation/tooling skills
+│
+├── execution/                        # (Deleted) Previously contained utils.py
+└── requirements.txt                  # (Deleted) Previously existed
 ```
 
-## Directory Purposes
+## Key Locations
 
-**`.planning/codebase/`:**
-- Purpose: GSD codebase analysis documents consumed by `/gsd:plan-phase` and `/gsd:execute-phase`
-- Contains: ARCHITECTURE.md, STRUCTURE.md, CONVENTIONS.md, TESTING.md, CONCERNS.md, STACK.md, INTEGRATIONS.md
-- Key files: ARCHITECTURE.md (patterns), STRUCTURE.md (file locations), CONCERNS.md (technical debt)
-
-**`.tmp/`:**
-- Purpose: Intermediate files that are always regeneratable
-- Contains: Scraped data, temporary exports, processing artifacts
-- Generated by: Execution scripts
-- Committed: No (in `.gitignore`)
-
-**`directives/`:**
-- Purpose: Procedural SOPs written in Markdown
-- Contains: Goal, Inputs, Tools/Scripts, Steps, Outputs, Edge Cases sections
-- Key files: `_TEMPLATE.md` (starting point for new directives)
-- New directives: Create with name pattern `[purpose].md` (e.g., `scrape_pricing.md`, `weekly_kpi_digest.md`)
-
-**`execution/`:**
-- Purpose: Deterministic Python scripts for API calls, data transforms, file I/O
-- Contains: Task-specific scripts (one script = one focused job)
-- Key files:
-  - `utils.py` — Shared helpers: `env()`, `log`, `read_json()`, `write_json()`, `tmp_path()`
-- New scripts: Create with pattern `[task_name].py` (e.g., `scrape_pricing.py`, `send_email.py`)
-
-**`skills/`:**
-- Purpose: 402 installed Claude Skills (portable, reusable capabilities)
-- Contains: Subdirectories, one per skill, each with SKILL.md + optional code
-- Structure: Some skills are JavaScript (with package.json, run.js), some are Markdown documentation
-- Key files: `MANIFEST.md` (index of all 402 skills across 27 categories)
-- Subcategories (by MANIFEST):
-  - App Automation (via Composio): CRM, Calendar, Code/DevOps, Communication, Design, E-commerce, Email, HR, Marketing, Project Management, Social Media, Spreadsheets, Storage, Support, Zoom
-  - Business & Marketing
-  - Collaboration & Project Management
-  - Communication & Writing
-  - Creative & Media
-  - Data & Analysis
-  - Development & Code Tools
-  - Document Processing
-  - Productivity & Organization
-  - Security & Systems
-  - Uncategorized (273 skills)
-
-**`.cursor/`:**
-- Purpose: Cursor IDE configuration
-- Contains: `.cursor/rules/` for IDE-specific rules
-- Committed: Rules are committed, caches are ignored
-
-**`.claude/`:**
-- Purpose: Claude Code configuration and context
-- Contains: IDE settings for Claude Code environment
-
-## Key File Locations
-
-**Entry Points:**
-- `CLAUDE.md`: Agent instructions (primary entry point)
-- `GEMINI.md`: Agent instructions (alternative entry point)
-- `agents.md`: Agent instructions (alternative entry point)
-- `SKILL.md`: Portable skill definition with YAML frontmatter + Markdown guide
-
-**Configuration:**
-- `.env`: Environment variables and secrets (e.g., API keys, database credentials) — NOT committed
-- `credentials.json`: Google OAuth credentials — NOT committed
-- `token.json`: Google Workspace tokens — NOT committed
-- `requirements.txt`: Python dependencies (`python-dotenv>=1.0.0`)
-- `.gitignore`: Excludes `.tmp/`, `.env`, credentials, Python caches
-
-**Core Logic:**
-- `execution/utils.py`: Shared utilities for all execution scripts
-  - `env(key, default=None)` — Get environment variable with required/default semantics
-  - `read_json(path)` — Parse JSON file
-  - `write_json(path, data)` — Write JSON to file with logging
-  - `tmp_path(filename)` — Get path inside `.tmp/` for intermediates
-  - `log` — Pre-configured logger
-
-**Testing:**
-- Not yet implemented (see TESTING.md in `.planning/codebase/`)
-
-**Skills Index:**
-- `skills/MANIFEST.md`: Auto-generated catalog of all 402 installed skills
+| Need | Location |
+|------|----------|
+| Full app spec | `directives/app_spec.md` |
+| Language rules | `directives/politica_idioma.md` |
+| Build progress | `directives/phase_tracker.md` |
+| Data model | `schemas/*.json` (6 files) |
+| AI prompts | `prompts/*.md` (10 prompt files + README) |
+| Validation rules | `references/validation_rules.md` |
+| Scoring rubric | `references/scoring_rubric.md` |
+| Project instructions | `CLAUDE.md` |
 
 ## Naming Conventions
 
-**Files:**
+### Specification Files
+- Directives: English filenames, mixed-language content (`app_spec.md`, `politica_idioma.md`)
+- Schemas: Spanish field names following EFICINE terminology (`modulo_a.json`)
+- Prompts: Spanish filenames matching EFICINE document IDs (`a7_propuesta_produccion.md`)
+- References: English filenames (`scoring_rubric.md`, `validation_rules.md`)
 
-- **Directives:** `[purpose].md` (e.g., `scrape_pricing.md`, `weekly_kpi_digest.md`)
-  - All lowercase, hyphens for word boundaries
-  - Descriptive verb-noun pair
-  - Template: `_TEMPLATE.md` (leading underscore)
+### Planned Code Conventions (from `CLAUDE.md` + `directives/politica_idioma.md`)
+- **Component names:** English (`BudgetSummary`, `ScreenplayParser`, `ValidationEngine`)
+- **Function names:** English (`calculatePercentage`, `validateDateRange`)
+- **Firebase collections:** English (`projects`, `team_members`, `generated_docs`)
+- **Schema field names:** Spanish (`titulo_proyecto`, `monto_solicitado_eficine_mxn`)
+- **Enum values:** Spanish EFICINE terms (`Ficción`, `Documental`, `Animación`)
+- **UI text:** Spanish hardcoded (no English placeholders)
+- **Git:** English (commits, branches, PRs)
 
-- **Execution Scripts:** `[task_name].py` (e.g., `scrape_pricing.py`, `send_email.py`)
-  - All lowercase, underscores for word boundaries
-  - Descriptive, single responsibility
-  - Shared utilities: `utils.py`
-
-- **Skills:** `[skill-name]/` directory (e.g., `playwright-browser-automation/`, `api-design-reviewer/`)
-  - Lowercase with hyphens
-  - Each skill has `SKILL.md` documentation
-  - Optional: `package.json` (for Node/JavaScript skills), templates, code examples
-
-## Directories
-
-- **Root-level documentation:** `CLAUDE.md`, `GEMINI.md`, `agents.md`, `SKILL.md` (agent instructions and skill definitions)
-- **Temporary files:** `.tmp/` (not committed)
-- **Configuration:** `.env`, `credentials.json`, `token.json` (not committed)
-
-## Where to Add New Code
-
-**New Directive (Procedural SOP):**
-- Location: Create `directives/[purpose].md`
-- Pattern: Copy `directives/_TEMPLATE.md` and fill in sections
-- Example: `directives/scrape_competitor_pricing.md`
-- Sections to fill:
-  - Goal: One-sentence purpose
-  - Inputs: What orchestrator needs before starting
-  - Tools / Scripts: Which execution scripts to call
-  - Steps: Ordered procedure
-  - Outputs: Cloud deliverables or status
-  - Edge Cases & Learnings: Failures, API limits, timing notes
-
-**New Execution Script (Deterministic Task):**
-- Location: Create `execution/[task_name].py`
-- Pattern: Import from `execution/utils.py`
-- Example: `execution/scrape_competitor_pricing.py`
-- Structure:
-  ```python
-  import sys
-  from execution.utils import env, log, read_json, write_json, tmp_path
-
-  def main(arg1: str, arg2: str) -> None:
-      """One-line description."""
-      log.info(f"Starting task with {arg1}, {arg2}")
-
-      # Your work here
-      api_key = env("API_KEY")
-      result = perform_work(api_key, arg1)
-
-      output_path = tmp_path("output.json")
-      write_json(output_path, result)
-      log.info(f"Complete")
-
-  if __name__ == "__main__":
-      main(sys.argv[1], sys.argv[2])
-  ```
-
-**New Utility Function:**
-- Location: Add to `execution/utils.py`
-- Pattern: Keep utilities reusable across multiple scripts
-- Examples: `env()`, `tmp_path()`, `read_json()`, `write_json()`
-
-**New Skill:**
-- Location: Create `skills/[skill-name]/` directory
-- Minimum content: `skills/[skill-name]/SKILL.md`
-- Optional content: Code (JavaScript with `package.json`, `run.js`), templates, examples, `LICENSE.txt`
-- Structure:
-  ```
-  skills/[skill-name]/
-  ├── SKILL.md              # Markdown documentation
-  ├── package.json          # Optional: if Node-based
-  ├── run.js                # Optional: entry point
-  ├── templates/            # Optional: code/design templates
-  ├── lib/                  # Optional: helper code
-  └── LICENSE.txt           # Optional: license file
-  ```
-
-## Special Directories
-
-**`.tmp/` (Intermediates):**
-- Purpose: Temporary files created during task execution
-- Generated: Yes (scripts create files here)
-- Committed: No (in `.gitignore`)
-- Lifecycle: Safe to delete and regenerate anytime
-- Pattern: Use `tmp_path(filename)` utility to get consistent paths
-
-**`.cursor/` (IDE Configuration):**
-- Purpose: Cursor IDE settings and rules
-- Generated: Partially (caches generated, rules committed)
-- Committed: `.cursor/rules/` are committed, caches are ignored
-- Contains: IDE-specific configuration for Cursor environment
-
-**`skills/` (Skill Library):**
-- Purpose: 402 pre-installed, reusable capabilities
-- Generated: No (skills are installed/updated externally)
-- Committed: Yes (entire directory committed)
-- Indexed: `skills/MANIFEST.md` (auto-generated) catalogs all skills by category
-- Subcategories: 27 categories from Composio integrations to custom skills
-
----
-
-*Structure analysis: 2026-03-20*
+## Files Not Yet Created
+No source code directories exist yet. Expected when Phase 1 begins:
+- `src/` — React application source
+- `public/` — Static assets
+- `functions/` — Firebase Cloud Functions
+- `package.json` — Dependencies
+- `tsconfig.json` — TypeScript config
+- `firebase.json` — Firebase project config
+- `firestore.rules` — Security rules
+- `locales/es.json` or equivalent — Spanish UI strings
