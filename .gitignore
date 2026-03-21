@@ -1,0 +1,18 @@
+# Intermediates — always regenerated
+.tmp/
+
+# Secrets
+.env
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
