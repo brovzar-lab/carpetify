@@ -96,7 +96,7 @@
 
 ### Additional Modalities
 
-- **MODAL-01**: EFICINE Postproducción modality — different document requirements, different scoring rubric (65 pts for filmed material vs 40 for screenplay), different FORMATO structures
+- **MODAL-01**: EFICINE Postproduccion modality — different document requirements, different scoring rubric (65 pts for filmed material vs 40 for screenplay), different FORMATO structures
 - **MODAL-02**: Previously-authorized project modality — projects that were previously approved but need to resubmit updated documentation (different requirements per enrutador_modalidad in export_manager.json)
 
 ## Out of Scope
@@ -107,7 +107,7 @@
 | Mobile responsive UI | 30-document dossier assembly requires desktop screen; mobile is unusable |
 | SaaS features (billing, onboarding) | Not a product for sale; internal competitive advantage tool |
 | Screenplay writing/editing | Tool consumes screenplays, doesn't create them; separate tools exist (Final Draft, etc.) |
-| EFICINE Postproducción | Different program, different rules, different rubric — would double validation logic |
+| EFICINE Postproduccion | Different program, different rules, different rubric — would double validation logic |
 | Direct SHCP portal integration | No API; scraping government tax portal is legally risky and fragile |
 | AI screenplay quality critique | Tool ensures compliance, not creative judgment on the screenplay itself |
 | Automatic INDAUTOR registration | Requires author credentials and in-person/portal interaction |
@@ -119,65 +119,65 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INTK-01 | — | Pending |
-| INTK-02 | — | Pending |
-| INTK-03 | — | Pending |
-| INTK-04 | — | Pending |
-| INTK-05 | — | Pending |
-| INTK-06 | — | Pending |
-| INTK-07 | — | Pending |
-| INTK-08 | — | Pending |
-| INTK-09 | — | Pending |
-| INTK-10 | — | Pending |
-| INTK-11 | — | Pending |
-| SCRN-01 | — | Pending |
-| SCRN-02 | — | Pending |
-| SCRN-03 | — | Pending |
-| SCRN-04 | — | Pending |
-| AIGEN-01 | — | Pending |
-| AIGEN-02 | — | Pending |
-| AIGEN-03 | — | Pending |
-| AIGEN-04 | — | Pending |
-| AIGEN-05 | — | Pending |
-| AIGEN-06 | — | Pending |
-| AIGEN-07 | — | Pending |
-| AIGEN-08 | — | Pending |
-| AIGEN-09 | — | Pending |
-| AIGEN-10 | — | Pending |
-| AIGEN-11 | — | Pending |
-| VALD-01 | — | Pending |
-| VALD-02 | — | Pending |
-| VALD-03 | — | Pending |
-| VALD-04 | — | Pending |
-| VALD-05 | — | Pending |
-| VALD-06 | — | Pending |
-| VALD-07 | — | Pending |
-| VALD-08 | — | Pending |
-| VALD-09 | — | Pending |
-| VALD-10 | — | Pending |
-| VALD-11 | — | Pending |
-| VALD-12 | — | Pending |
-| VALD-13 | — | Pending |
-| VALD-14 | — | Pending |
-| VALD-15 | — | Pending |
-| VALD-16 | — | Pending |
-| VALD-17 | — | Pending |
-| EXPRT-01 | — | Pending |
-| EXPRT-02 | — | Pending |
-| EXPRT-03 | — | Pending |
-| EXPRT-04 | — | Pending |
-| EXPRT-05 | — | Pending |
-| LANG-01 | — | Pending |
-| LANG-02 | — | Pending |
-| LANG-03 | — | Pending |
-| LANG-04 | — | Pending |
-| LANG-05 | — | Pending |
+| INTK-01 | Phase 1 | Pending |
+| INTK-02 | Phase 1 | Pending |
+| INTK-03 | Phase 1 | Pending |
+| INTK-04 | Phase 1 | Pending |
+| INTK-05 | Phase 1 | Pending |
+| INTK-06 | Phase 1 | Pending |
+| INTK-07 | Phase 1 | Pending |
+| INTK-08 | Phase 1 | Pending |
+| INTK-09 | Phase 1 | Pending |
+| INTK-10 | Phase 1 | Pending |
+| INTK-11 | Phase 1 | Pending |
+| SCRN-01 | Phase 2 | Pending |
+| SCRN-02 | Phase 2 | Pending |
+| SCRN-03 | Phase 2 | Pending |
+| SCRN-04 | Phase 2 | Pending |
+| AIGEN-01 | Phase 3 | Pending |
+| AIGEN-02 | Phase 3 | Pending |
+| AIGEN-03 | Phase 3 | Pending |
+| AIGEN-04 | Phase 3 | Pending |
+| AIGEN-05 | Phase 3 | Pending |
+| AIGEN-06 | Phase 3 | Pending |
+| AIGEN-07 | Phase 3 | Pending |
+| AIGEN-08 | Phase 3 | Pending |
+| AIGEN-09 | Phase 3 | Pending |
+| AIGEN-10 | Phase 3 | Pending |
+| AIGEN-11 | Phase 3 | Pending |
+| VALD-01 | Phase 4 | Pending |
+| VALD-02 | Phase 4 | Pending |
+| VALD-03 | Phase 4 | Pending |
+| VALD-04 | Phase 4 | Pending |
+| VALD-05 | Phase 4 | Pending |
+| VALD-06 | Phase 4 | Pending |
+| VALD-07 | Phase 4 | Pending |
+| VALD-08 | Phase 4 | Pending |
+| VALD-09 | Phase 4 | Pending |
+| VALD-10 | Phase 4 | Pending |
+| VALD-11 | Phase 4 | Pending |
+| VALD-12 | Phase 4 | Pending |
+| VALD-13 | Phase 4 | Pending |
+| VALD-14 | Phase 4 | Pending |
+| VALD-15 | Phase 4 | Pending |
+| VALD-16 | Phase 4 | Pending |
+| VALD-17 | Phase 4 | Pending |
+| EXPRT-01 | Phase 5 | Pending |
+| EXPRT-02 | Phase 5 | Pending |
+| EXPRT-03 | Phase 5 | Pending |
+| EXPRT-04 | Phase 5 | Pending |
+| EXPRT-05 | Phase 5 | Pending |
+| LANG-01 | Phase 3 | Pending |
+| LANG-02 | Phase 1 | Pending |
+| LANG-03 | Phase 1 | Pending |
+| LANG-04 | Phase 3 | Pending |
+| LANG-05 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 49 total
-- Mapped to phases: 0
-- Unmapped: 49 ⚠️
+- Mapped to phases: 49
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after initial definition*
+*Last updated: 2026-03-21 after roadmap creation*
