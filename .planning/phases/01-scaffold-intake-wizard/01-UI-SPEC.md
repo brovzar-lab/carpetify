@@ -54,14 +54,15 @@ Exceptions:
 
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
-| Body | 14px | 400 (regular) | 1.5 | Form field values, table cells, paragraph text, compliance panel values |
-| Label | 14px | 500 (medium) | 1.4 | Form labels, sidebar items, card metadata, section subheadings |
+| Body | 14px | 400 (regular) | 1.5 | Form field values, table cells, paragraph text, compliance panel values, form labels, sidebar items, card metadata, section subheadings |
 | Heading | 20px | 600 (semibold) | 1.2 | Screen titles ("Datos del Proyecto"), section headers, card titles |
 | Display | 28px | 600 (semibold) | 1.2 | Dashboard title ("Mis Proyectos"), ERPI settings title |
 
 **Font stack:** `Inter, system-ui, -apple-system, sans-serif`
 
-**Rationale:** 14px body accommodates the density of a 5-screen data-entry wizard on desktop without feeling cramped. Spanish text runs longer than English, so 14px at 1.5 line height provides readability for labels like "Monto solicitado al estimulo EFICINE" without excessive line wrapping. Two weights (400 + 600) with a supporting 500 for labels keeps the type hierarchy clean per D-12 (Notion/Linear feel).
+**Weights:** 2 total -- 400 (regular) and 600 (semibold). Where label-vs-body distinction is needed visually at 14px, use 600 for the label and 400 for the value. This provides hierarchy at the same size while keeping total weights at 2.
+
+**Rationale:** 14px body accommodates the density of a 5-screen data-entry wizard on desktop without feeling cramped. Spanish text runs longer than English, so 14px at 1.5 line height provides readability for labels like "Monto solicitado al estimulo EFICINE" without excessive line wrapping. Two weights (400 + 600) keep the type hierarchy clean per D-12 (Notion/Linear feel).
 
 ---
 
@@ -111,7 +112,7 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`.
 | Delete confirmation body | Se eliminara permanentemente "{titulo_proyecto}" y todos sus datos. Esta accion no se puede deshacer. |
 | Delete confirmation confirm | Eliminar |
 | Delete confirmation cancel | Cancelar |
-| Clone button label | Duplicar |
+| Clone button label | Duplicar proyecto |
 | Clone toast | Proyecto duplicado exitosamente |
 | Period group headers | Periodo 1 (Ene-Feb {anio}) / Periodo 2 (Jul {anio}) |
 | Card readiness: ready | Listo para enviar |
@@ -159,7 +160,7 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`.
 | Empty state body | Sube el guion en formato PDF para generar el analisis automatico de escenas, locaciones y personajes. |
 | Parser failed warning | No se pudo extraer el texto correctamente. Puedes ingresar los datos manualmente. |
 | Re-upload confirmation | Reemplazar guion borrara el analisis anterior. ¿Continuar? |
-| Re-upload confirm | Reemplazar |
+| Re-upload confirm | Reemplazar guion |
 | Re-upload cancel | Cancelar |
 | Summary card labels | Escenas / Locaciones / Personajes / INT-EXT / DIA-NOCHE |
 | Add location button | + Agregar locacion |
@@ -252,7 +253,7 @@ shadcn/ui components needed for Phase 1 (install via `npx shadcn@latest add`):
 | Tabs | Potential use in ERPI settings (company / prior projects) |
 | Skeleton | Loading states (Claude's discretion area) |
 | Sonner (toast) | Auto-save status, clone confirmation, error notifications |
-| Sidebar | Wizard navigation (D-01, D-02) — shadcn sidebar component |
+| Sidebar | Wizard navigation (D-01, D-02) -- shadcn sidebar component |
 | ScrollArea | PDF viewer scroll, long form scroll |
 
 No third-party registries required. shadcn official registry only.
@@ -260,6 +261,18 @@ No third-party registries required. shadcn official registry only.
 ---
 
 ## Layout Contract
+
+### Screen Focal Points
+
+| Screen | Primary Focal Point |
+|--------|-------------------|
+| Dashboard | The "+ Nuevo Proyecto" CTA button anchored top-right, drawing the eye to project creation as the primary action. |
+| Screen 1 -- Datos del Proyecto | The period selector at the top of the form, as it determines the submission deadline and cascading field behavior. |
+| Screen 2 -- Guion | The PDF upload drop zone centered in the left panel, as screenplay upload unlocks all downstream analysis. |
+| Screen 3 -- Equipo Creativo | The team member list with "+ Agregar miembro" button, as building the creative team is the screen's sole purpose. |
+| Screen 4 -- Estructura Financiera | The compliance panel on the right edge, as real-time EFICINE rule validation is the key differentiator of this screen. |
+| Screen 5 -- Documentos | The document checklist with upload/missing status badges, as completeness tracking drives this screen. |
+| ERPI Settings | The company data form section, as ERPI identity data is shared across all projects and must be filled first. |
 
 ### Dashboard Layout
 
@@ -306,7 +319,7 @@ No third-party registries required. shadcn official registry only.
 
 - Sidebar: 240px fixed width, full height, dark secondary background
 - Content area: fills remaining width, max 800px for form content (except Screen 2 and Screen 4)
-- Screen 2 (Guion): side-by-side split — left 50% PDF viewer, right 50% parsed data (per D-23)
+- Screen 2 (Guion): side-by-side split -- left 50% PDF viewer, right 50% parsed data (per D-23)
 - Screen 4 (Financiera): form area + fixed 280px right compliance panel (per D-14, D-22)
 - Auto-save indicator: top-right of content area, subtle text
 
