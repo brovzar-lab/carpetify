@@ -110,8 +110,8 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`.
 | Empty state CTA | + Crear Proyecto |
 | Delete confirmation title | Eliminar proyecto |
 | Delete confirmation body | Se eliminara permanentemente "{titulo_proyecto}" y todos sus datos. Esta accion no se puede deshacer. |
-| Delete confirmation confirm | Eliminar |
-| Delete confirmation cancel | Cancelar |
+| Delete confirmation confirm | Eliminar proyecto |
+| Delete confirmation cancel | Conservar proyecto |
 | Clone button label | Duplicar proyecto |
 | Clone toast | Proyecto duplicado exitosamente |
 | Period group headers | Periodo 1 (Ene-Feb {anio}) / Periodo 2 (Jul {anio}) |
@@ -161,7 +161,7 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`.
 | Parser failed warning | No se pudo extraer el texto correctamente. Puedes ingresar los datos manualmente. |
 | Re-upload confirmation | Reemplazar guion borrara el analisis anterior. ¿Continuar? |
 | Re-upload confirm | Reemplazar guion |
-| Re-upload cancel | Cancelar |
+| Re-upload cancel | Conservar guion actual |
 | Summary card labels | Escenas / Locaciones / Personajes / INT-EXT / DIA-NOCHE |
 | Add location button | + Agregar locacion |
 | Add character button | + Agregar personaje |
