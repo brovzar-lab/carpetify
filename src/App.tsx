@@ -1,28 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router'
+import { WizardShell } from '@/components/wizard/WizardShell'
+import { DashboardPage } from '@/components/dashboard/DashboardPage'
+import { AppHeader } from '@/components/layout/AppHeader'
 
-function DashboardPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-semibold">Mis Proyectos</h1>
-      <p className="mt-4 text-muted-foreground">
-        Crea tu primer proyecto para comenzar a armar tu carpeta EFICINE.
-      </p>
-    </div>
-  )
-}
-
-function WizardPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-semibold">Datos del Proyecto</h1>
-      <p className="mt-4 text-muted-foreground">
-        Completa los datos basicos de tu proyecto cinematografico.
-      </p>
-    </div>
-  )
-}
-
-function ERPISettingsPage() {
+function ERPISettingsPagePlaceholder() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-semibold">Datos ERPI</h1>
@@ -36,12 +17,14 @@ function ERPISettingsPage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/project/:projectId" element={<WizardPage />} />
-        <Route path="/project/:projectId/:screen" element={<WizardPage />} />
-        <Route path="/erpi" element={<ERPISettingsPage />} />
-      </Routes>
+      <AppHeader>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/project/:projectId" element={<WizardShell />} />
+          <Route path="/project/:projectId/:screen" element={<WizardShell />} />
+          <Route path="/erpi" element={<ERPISettingsPagePlaceholder />} />
+        </Routes>
+      </AppHeader>
     </BrowserRouter>
   )
 }
