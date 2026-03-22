@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-03-22T01:10:34.446Z"
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-03-22T19:55:29.664Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -49,6 +49,7 @@ Plan: 4 of 4
 | Phase 01 P01 | 12min | 2 tasks | 41 files |
 | Phase 01 P02 | 4min | 2 tasks | 10 files |
 | Phase 01 P03 | 4min | 2 tasks | 9 files |
+| Phase 01 P04 | 10min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 01]: QueryClientProvider and Toaster in main.tsx wrapping App for global access
 - [Phase 01]: React Hook Form onTouched mode for progressive validation (errors after blur per D-17)
 - [Phase 01]: Each TeamMemberForm has independent useForm instance enabling per-member auto-save
+- [Phase 01]: react-pdf v10 with local pdfjs-dist worker for screenplay PDF display
+- [Phase 01]: Compliance panel reads team subcollection for in-kind totals and screenwriter fee, uses watch() for real-time updates
+- [Phase 01]: Document checklist hardcodes 13 required upload types matching EFICINE requirements
 
 ### Pending Todos
 
@@ -79,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T01:10:34.441Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-03-22T19:55:29.656Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None

@@ -10,11 +10,11 @@
 - [x] **INTK-01**: User can create a new project with title, genre, category, duration, format, aspect ratio, languages, budget, EFICINE request amount, and ERPI information
 - [x] **INTK-02**: User selects target EFICINE registration period (Period 1: Jan 30–Feb 13 or Period 2: Jul 1–Jul 15) per project, driving date validation
 - [x] **INTK-03**: User can manage up to 3 projects simultaneously, with isolated data per project and a project selector
-- [ ] **INTK-04**: User can upload screenplay PDF and view parsed breakdown (scenes, locations, characters, INT/EXT/DAY/NIGHT)
-- [ ] **INTK-05**: User can correct/override parsed screenplay data when extraction is inaccurate
+- [x] **INTK-04**: User can upload screenplay PDF and view parsed breakdown (scenes, locations, characters, INT/EXT/DAY/NIGHT)
+- [x] **INTK-05**: User can correct/override parsed screenplay data when extraction is inaccurate
 - [x] **INTK-06**: User can enter creative team data per role (producer, director, screenwriter, DP, art director, editor) — name, nationality, filmography, fee, in-kind contribution
 - [x] **INTK-07**: User can enter financial structure — ERPI contribution (cash + in-kind), third-party contributors (name, type, amount), EFICINE request
-- [ ] **INTK-08**: User can upload documents the app cannot generate (acta constitutiva, poder notarial, IDs, constancia fiscal, INDAUTOR certs, bank statements, insurance quote, CPA quote, signed contracts, co-production recognition)
+- [x] **INTK-08**: User can upload documents the app cannot generate (acta constitutiva, poder notarial, IDs, constancia fiscal, INDAUTOR certs, bank statements, insurance quote, CPA quote, signed contracts, co-production recognition)
 - [x] **INTK-09**: User can track upload status per document and see which required uploads are missing
 - [x] **INTK-10**: Entire intake wizard UI is in Mexican Spanish with no English visible — labels, buttons, placeholders, errors, tooltips
 - [x] **INTK-11**: International co-production flag per project — when enabled, adds required fields: FX conversion rate + date, territorial spend split (national vs foreign), IMCINE co-production recognition certificate upload, pertinence justification in propuesta de producción. Affects budget, flujo, esquema financiero, and contracts
@@ -122,11 +122,11 @@
 | INTK-01 | Phase 1 | Complete |
 | INTK-02 | Phase 1 | Complete |
 | INTK-03 | Phase 1 | Complete |
-| INTK-04 | Phase 1 | Pending |
-| INTK-05 | Phase 1 | Pending |
+| INTK-04 | Phase 1 | Complete |
+| INTK-05 | Phase 1 | Complete |
 | INTK-06 | Phase 1 | Complete |
 | INTK-07 | Phase 1 | Complete |
-| INTK-08 | Phase 1 | Pending |
+| INTK-08 | Phase 1 | Complete |
 | INTK-09 | Phase 1 | Complete |
 | INTK-10 | Phase 1 | Complete |
 | INTK-11 | Phase 1 | Complete |
