@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Modulo_B_Personal_Creativo",
+  "description": "Capítulo IV, Sección I, Apartado B — Lineamientos EFICINE Producción enero 2026. PASS/FAIL: If ANY element is missing, project is NOT evaluated and CANNOT be considered susceptible.",
+  "type": "object",
+  "properties": {
+
+    "b1_experiencia_productor_y_director": {
+      "type": "object",
+      "description": "FORMATO 2 CVs. The producer and director have specific minimum experience thresholds that are hard requirements.",
+      "properties": {
+
+        "productor_responsable": {
+          "type": "object",
+          "properties": {
+            "nombre_completo": { "type": "string" },
+            "es_socio_erpi": {
+              "type": "boolean",
+              "description": "MANDATORY: The producer MUST be a partner/shareholder of the ERPI. If false, project is automatically disqualified. For persona física ERPI, producer IS the ERPI."
+            },
+            "responsabilidades": {
+              "type": "string",
+              "const": "Gestión del financiamiento, supervisión integral de la producción, responsabilidad final de la terminación y exhibición de la obra.",
+              "description": "Per Lineamientos: 'tendrá a su cargo la gestión del financiamiento, la supervisión integral de la producción y la responsabilidad final de la terminación y exhibición.'"
+            },
+            "filmografia_comprobatoria": {
+              "type": "array",
+              "description": "Must prove prior producer experience.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "titulo": { "type": "string" },
+                  "tipo": { "type": "string", "enum": ["Largometraje", "Cortometraje"] },
+                  "exhibicion_comercial": {
+                    "type": "boolean",
+                    "description": "Must have been exhibited in: commercial theaters, AND/OR festivals in official selection, AND/OR subscription/rental/purchase VOD platforms per Regla 1 inciso k)."
+                  },
+                  "venue_exhibicion": { "type": "string", "description": "Specify where: theater chain, festival name, platform name" }
+                },
+                "required": ["titulo", "tipo", "exhibicion_comercial"]
+              }
+            },
+            "cumple_umbral": {
+              "type": "boolean",
+              "description": "VALIDATION: Fiction/Documentary = at least 1 feature exhibited commercially. Animation = 1 feature OR 3 shorts exhibited. If false → FATAL ERROR: project cannot proceed."
+            }
+          },
+          "required": ["nombre_completo", "es_socio_erpi", "filmografia_comprobatoria"]
+        },
+
+        "director": {
+          "type": "object",
+          "properties": {
+            "nombre_completo": { "type": "string" },
+            "filmografia_comprobatoria": {
+              "type": "array",
+              "description": "Must prove prior directing experience with HYPERLINKS to completed works.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "titulo": { "type": "string" },
+                  "tipo": { "type": "string", "enum": ["Largometraje", "Cortometraje", "Obra audiovisual"] },
+                  "anio": { "type": "integer" },
+                  "fue_codirector": { "type": "boolean" },
+                  "enlace_visionado": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "MANDATORY. Must be freely accessible — no password, no email registration required."
+                  }
+                },
+                "required": ["titulo", "tipo", "enlace_visionado"]
+              }
+            },
+            "cumple_umbral": {
+              "type": "boolean",
+              "description": "VALIDATION: Fiction/Documentary = 1 feature OR 2 shorts/audiovisual works completed (as director or co-director). Animation = 1 feature OR 1 short completed. If false → FATAL ERROR."
+            }
+          },
+          "required": ["nombre_completo", "filmografia_comprobatoria"]
+        }
+      },
+      "required": ["productor_responsable", "director"]
+    },
+
+    "b1_resto_equipo_creativo_formato_2": {
+      "type": "array",
+      "description": "FORMATO 2 for remaining creative team. Required roles: Guionista, Director de Fotografía, Director de Arte / Diseñador de Producción, Editor. Their CVs are evaluated for: trajectory, capacity to complete the project, coherence with proposals and budget.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nombre_completo": { "type": "string" },
+          "cargo": {
+            "type": "string",
+            "enum": ["Guionista", "Dirección de Fotografía", "Dirección de Arte", "Diseño de Producción", "Edición"]
+          },
+          "filmografia": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "titulo": { "type": "string" },
+                "anio": { "type": "integer" },
+                "cargo_en_obra": { "type": "string" },
+                "formato": { "type": "string" },
+                "exhibicion": { "type": "string" }
+              }
+            }
+          },
+          "formacion": { "type": "string" },
+          "premios_selecciones": { "type": "array", "items": { "type": "string" } },
+          "enlaces_obras": { "type": "array", "items": { "type": "string", "format": "uri" } },
+          "es_mujer": { "type": "boolean", "description": "Used for bonus points calculation (category d)." },
+          "es_indigena_afromexicano": { "type": "boolean", "description": "Used for bonus points calculation (category d)." }
+        },
+        "required": ["nombre_completo", "cargo"]
+      }
+    },
+
+    "b2_acreditacion_nacionalidad": {
+      "type": "array",
+      "description": "Valid nationality/work authorization for ALL creative team members.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nombre_completo": { "type": "string" },
+          "cargo": { "type": "string" },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "Credencial para votar (INE)",
+              "Pasaporte",
+              "Cédula Profesional",
+              "Tarjeta de Residencia Temporal con permiso de trabajo",
+              "Tarjeta de Residencia Permanente con permiso de trabajo"
+            ]
+          },
+          "vigente": { "type": "boolean", "description": "Must be current/valid. Expired documents = rejection." },
+          "carta_autoadscripcion_indigena": {
+            "type": "boolean",
+            "description": "Required ONLY if director claims indigenous/Afro-Mexican identity for bonus points."
+          }
+        },
+        "required": ["nombre_completo", "cargo", "tipo_documento", "vigente"]
+      }
+    },
+
+    "b3_contratos_productor_director": {
+      "type": "array",
+      "description": "Signed contracts between ERPI and the producer AND director. MANDATORY elements — missing ANY = project not evaluated.",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo_contrato": {
+            "type": "string",
+            "enum": ["Productor", "Director"]
+          },
+          "titulo_proyecto": {
+            "type": "string",
+            "description": "MUST match the registered project title EXACTLY."
+          },
+          "cargo_asignado": { "type": "string" },
+          "justificacion_funciones": {
+            "type": "string",
+            "description": "Description of duties to be performed."
+          },
+          "honorarios": {
+            "type": "object",
+            "properties": {
+              "monto_mxn": {
+                "type": "integer",
+                "description": "CRITICAL CROSS-CHECK: Must match EXACTLY the corresponding line item in presupuesto desglose AND flujo de efectivo. Lineamientos recommend highlighting in a colored box."
+              },
+              "tipo_aportacion": {
+                "type": "string",
+                "enum": ["Efectivo", "Especie"],
+                "description": "If 'Especie', must be stated in contract AND must match esquema financiero."
+              }
+            },
+            "required": ["monto_mxn", "tipo_aportacion"]
+          },
+          "vigencia": {
+            "type": "string",
+            "description": "Contract term MUST cover preproducción, producción, and/or postproducción as appropriate to the role, congruent with ruta crítica."
+          },
+          "tiene_firma_erpi": { "type": "boolean", "description": "Autograph or digital signature of ERPI legal representative." },
+          "tiene_firma_contratado": { "type": "boolean", "description": "Autograph or digital signature of the producer/director." },
+          "carta_uso_imagen_documental": {
+            "type": "boolean",
+            "description": "ONLY for documentary: authorization letter from main participants for use of their image. Must have autograph or digital signature."
+          }
+        },
+        "required": ["tipo_contrato", "titulo_proyecto", "cargo_asignado", "justificacion_funciones", "honorarios", "vigencia", "tiene_firma_erpi", "tiene_firma_contratado"]
+      }
+    }
+  },
+  "required": ["b1_experiencia_productor_y_director", "b2_acreditacion_nacionalidad", "b3_contratos_productor_director"]
+}

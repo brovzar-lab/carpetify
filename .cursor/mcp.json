@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "notebooklm-mcp": {
+      "command": "/Users/quantumcode/.local/bin/notebooklm-mcp"
+    }
+  }
+}

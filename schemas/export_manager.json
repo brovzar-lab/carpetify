@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Export_Manager_y_Requisitos_Generales_ERPI",
+  "description": "File compilation rules (Lineamientos Ch. II + Reglas Generales) and ERPI general registration requirements. This module runs LAST, after all A-E modules are complete.",
+  "type": "object",
+  "properties": {
+
+    "requisitos_generales_erpi_capitulo_ii": {
+      "type": "object",
+      "description": "Chapter II of the Lineamientos. Documents the ERPI must upload to the SHCP online system. These are separate from the A-E evaluation documents.",
+      "properties": {
+        "ii_1_acta_constitutiva": {
+          "type": "object",
+          "description": "For persona moral: full notarial instrument(s) showing incorporation + any name/denomination changes. Suggest including a free-form letter explaining the chronology of notarizations.",
+          "properties": {
+            "tipo_erpi": { "type": "string", "enum": ["Persona Física", "Persona Moral"] },
+            "documento_persona_fisica": { "type": "string", "description": "INE, passport, cédula, or residency card with work permit." },
+            "acta_constitutiva_completa": { "type": "boolean", "description": "Must include the ORIGINAL constitutive act. Modifications, transformations, or share purchases are NOT substitutes." },
+            "instrumentos_modificatorios": { "type": "array", "items": { "type": "string" }, "description": "All subsequent notarial instruments if name/denomination changed." },
+            "escrito_cronologia": { "type": "boolean", "description": "Recommended: free-form letter explaining the timeline of all notarizations." }
+          }
+        },
+        "ii_2_poder_notarial": {
+          "type": "object",
+          "description": "General power of attorney for acts of dominion OR administration. Must be granted BY the ERPI entity (not by a parent company or individual).",
+          "properties": {
+            "tipo_poder": { "type": "string", "enum": ["Actos de Dominio", "Actos de Administración"] },
+            "otorgado_por_erpi": { "type": "boolean", "description": "MUST be granted by the entity that is the ERPI. Other powers are not accepted." },
+            "pagina_poder_resaltada": { "type": "boolean", "description": "Lineamientos recommend highlighting the power clause in a colored box and indicating the page number." }
+          }
+        },
+        "ii_3_id_representante_legal": {
+          "type": "object",
+          "properties": {
+            "tipo_documento": { "type": "string", "enum": ["Credencial para votar (INE)", "Pasaporte", "Cédula Profesional", "Tarjeta de Residencia Temporal con permiso de trabajo", "Tarjeta de Residencia Permanente con permiso de trabajo"] },
+            "vigente": { "type": "boolean" }
+          }
+        },
+        "ii_4_constancia_situacion_fiscal": {
+          "type": "object",
+          "description": "Current tax status certificate from SAT. Legal name and fiscal address must be current.",
+          "properties": {
+            "razon_social_coincide": { "type": "boolean", "description": "Must match the ERPI name in the online system and all documents." },
+            "domicilio_fiscal_vigente": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "registro_sistema_en_linea": {
+      "type": "object",
+      "description": "Registration on the SHCP online system (estimulosfiscales.hacienda.gob.mx).",
+      "properties": {
+        "requiere_efirma": { "type": "boolean", "const": true, "description": "Registration is validated through the ERPI's Firma Electrónica Avanzada (e.firma)." },
+        "periodos_2026": {
+          "type": "object",
+          "properties": {
+            "periodo_1": { "type": "string", "const": "30 de enero al 13 de febrero 2026" },
+            "periodo_2": { "type": "string", "const": "1 al 15 de julio 2026" }
+          }
+        }
+      }
+    },
+
+    "reglas_archivos_pdf": {
+      "type": "object",
+      "description": "Technical requirements for all uploaded files.",
+      "properties": {
+        "formato": { "type": "string", "const": "PDF" },
+        "tamano_maximo_mb": { "type": "integer", "const": 40 },
+        "idioma": { "type": "string", "const": "Español", "description": "All documents in Spanish. Foreign-language originals must include original + Spanish translation." },
+        "firma": { "type": "string", "const": "Autógrafa o digital", "description": "Digitized documents may contain autograph or digital signatures." },
+        "hipervinculos": { "type": "string", "const": "Libre acceso, sin contraseña, sin solicitar correo electrónico." },
+        "nomenclatura": {
+          "type": "object",
+          "properties": {
+            "max_caracteres": { "type": "integer", "const": 15 },
+            "patron_permitido": { "type": "string", "const": "^[A-Za-z0-9_]{1,15}$" },
+            "prohibidos": { "type": "array", "items": { "type": "string" }, "default": ["comas", "acentos", "ñ", "&", "espacios", "otros símbolos"] },
+            "formato_recomendado": { "type": "string", "const": "{SECCION}{NUM}_{ABREV}_{PROY}" },
+            "ejemplos": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["A1_RE_UNL", "A2_SIN_UNL", "A3_GUION_UNL", "B1_CV_UNL", "C2_IND_UNL", "D1_COT_UNL", "E1_EF_UNL"]
+            }
+          }
+        },
+        "sin_portadas_decorativas": {
+          "type": "boolean",
+          "const": true,
+          "description": "The Lineamientos explicitly recommend NOT including design covers/title pages on each document, to facilitate review and evaluation."
+        }
+      }
+    },
+
+    "compilacion_final": {
+      "type": "object",
+      "description": "Final compilation checklist before export.",
+      "properties": {
+        "archivos_generados": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "seccion": { "type": "string", "enum": ["A", "B", "C", "D", "E", "ERPI"] },
+              "id_requisito": { "type": "string" },
+              "nombre_archivo_saneado": { "type": "string", "maxLength": 15, "pattern": "^[A-Za-z0-9_]+$" },
+              "peso_mb": { "type": "number", "maximum": 40 },
+              "generado_por_ai": { "type": "boolean" },
+              "requiere_firma_usuario": { "type": "boolean" },
+              "es_documento_usuario": { "type": "boolean", "description": "User-uploaded document (contracts, IDs, bank statements, etc.)" },
+              "estado": { "type": "string", "enum": ["completo", "pendiente_usuario", "error_validacion"] }
+            }
+          }
+        },
+        "alertas_bloqueantes": {
+          "type": "array",
+          "description": "Fatal errors that BLOCK export. Must be resolved before download.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tipo": { "type": "string", "enum": ["documento_faltante", "monto_no_coincide", "fecha_vencida", "nombre_archivo_invalido", "archivo_excede_40mb", "titulo_no_coincide", "regla_financiera_violada", "experiencia_insuficiente", "firma_faltante"] },
+              "descripcion": { "type": "string" },
+              "seccion_afectada": { "type": "string" },
+              "accion_requerida": { "type": "string" }
+            }
+          }
+        },
+        "alertas_advertencia": {
+          "type": "array",
+          "description": "Warnings that don't block but should be addressed. Exported with the package.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tipo": { "type": "string" },
+              "descripcion": { "type": "string" },
+              "recomendacion": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "enrutador_modalidad": {
+      "type": "object",
+      "description": "Branching engine: the app must determine project type at intake and route to the correct schema requirements.",
+      "properties": {
+        "modalidad": {
+          "type": "string",
+          "enum": [
+            "produccion_nuevo",
+            "postproduccion",
+            "previamente_autorizado_sin_material",
+            "previamente_autorizado_con_material",
+            "previamente_evaluado_produccion",
+            "previamente_evaluado_postproduccion"
+          ],
+          "description": "Each modalidad has different document requirements. 'produccion_nuevo' is the default and most complete. 'postproduccion' replaces screenplay with first cut + written statement. 'previamente_autorizado' requires comparative budgets."
+        },
+        "es_coproduccion_internacional": {
+          "type": "boolean",
+          "description": "If true, activates additional requirements: IMCINE co-production recognition, FX conversion documentation, territorial spend split, pertinence justification in propuesta de producción."
+        }
+      },
+      "required": ["modalidad"]
+    }
+  }
+}

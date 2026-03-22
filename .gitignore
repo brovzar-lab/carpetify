@@ -13,6 +13,11 @@ __pycache__/
 .venv/
 venv/
 
+# Cursor — track rules and mcp config, ignore caches
+.cursor/*
+!.cursor/rules/
+!.cursor/mcp.json
+
 # OS
 .DS_Store
 Thumbs.db

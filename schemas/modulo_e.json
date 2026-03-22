@@ -1,0 +1,263 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Modulo_E_Esquema_Financiero",
+  "description": "Capítulo IV, Sección I, Apartado E — Lineamientos EFICINE Producción enero 2026. PASS/FAIL. The financial structure proving the project is fully funded. Missing ANY element = not evaluated.",
+  "type": "object",
+  "properties": {
+
+    "e1_esquema_financiero_formato_9": {
+      "type": "object",
+      "description": "FORMATO 9. Master financing table. Must be dated and signed by ERPI legal representative.",
+      "properties": {
+        "fecha": { "type": "string", "format": "date" },
+        "firmado_representante_legal": { "type": "boolean" },
+        "costo_total_proyecto_mxn": { "type": "integer" },
+        "fuentes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nombre_aportante": { "type": "string" },
+              "tipo": {
+                "type": "string",
+                "enum": ["ERPI Aportación Exclusiva (Efectivo)", "ERPI Aportación Exclusiva (Especie)", "Donativo Tercero (Efectivo)", "Donativo Tercero (Especie)", "Coproductor Nacional", "Coproductor Internacional", "Anticipo Distribución / MG", "Plataforma VOD México", "Estímulo EFICINE", "FOCINE / IMCINE / Otro Federal", "Apoyo Estatal / Municipal"]
+              },
+              "monto_mxn": { "type": "integer" },
+              "porcentaje": { "type": "number" }
+            },
+            "required": ["nombre_aportante", "tipo", "monto_mxn", "porcentaje"]
+          }
+        },
+        "total_mxn": { "type": "integer", "description": "Must equal costo_total_proyecto_mxn. Must equal budget total. Must equal flujo de efectivo total." },
+        "total_porcentaje": { "type": "number", "description": "Must equal 100.0" }
+      },
+      "required": ["fecha", "firmado_representante_legal", "costo_total_proyecto_mxn", "fuentes", "total_mxn"]
+    },
+
+    "e1_validaciones_financieras": {
+      "type": "object",
+      "description": "Hard compliance checks. ALL must pass or the project is rejected.",
+      "properties": {
+        "erpi_aportacion_porcentaje": {
+          "type": "number",
+          "minimum": 20.0,
+          "description": "ERPI exclusive contribution (cash + in-kind + third-party donations registered in carta de aportación) must be >= 20% of total cost."
+        },
+        "eficine_porcentaje": {
+          "type": "number",
+          "maximum": 80.0,
+          "description": "EFICINE stimulus cannot exceed 80% of total cost."
+        },
+        "eficine_monto_mxn": {
+          "type": "integer",
+          "maximum": 25000000,
+          "description": "EFICINE stimulus cannot exceed $25,000,000 MXN (2026 cap for production)."
+        },
+        "total_recursos_federales_porcentaje": {
+          "type": "number",
+          "maximum": 80.0,
+          "description": "Sum of ALL federal resources (EFICINE + FOCINE + any other IMCINE/federal grants) cannot exceed 80% of total cost."
+        },
+        "especie_honorarios_porcentaje_total": {
+          "type": "number",
+          "maximum": 10.0,
+          "description": "Total in-kind contributions via professional fees (honorarios) cannot exceed 10% of total budget."
+        },
+        "todos_montos_coinciden": {
+          "type": "boolean",
+          "description": "esquema_financiero_total == presupuesto_resumen_total == flujo_efectivo_total == solicitud_en_sistema_en_linea"
+        }
+      }
+    },
+
+    "e2_carta_aportacion_exclusiva_formato_10": {
+      "type": "object",
+      "description": "FORMATO 10. ERPI declares its exclusive contribution. Signed by legal representative. Accompanied by proof of funds.",
+      "properties": {
+        "firmado_representante_legal": { "type": "boolean" },
+        "aportacion_efectivo_mxn": { "type": "integer" },
+        "aportacion_especie_mxn": { "type": "integer" },
+        "donativos_terceros_incluidos": {
+          "type": "array",
+          "description": "Third-party donations received by ERPI are registered HERE and added to ERPI's contribution in the esquema financiero.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nombre_donante": { "type": "string" },
+              "monto_mxn": { "type": "integer" },
+              "tipo": { "type": "string", "enum": ["Efectivo", "Especie"] }
+            }
+          }
+        },
+        "prueba_fondos_efectivo": {
+          "type": "object",
+          "description": "For cash contributions: proof of solvency.",
+          "properties": {
+            "tipo_documento": {
+              "type": "string",
+              "enum": ["Estados de cuenta bancarios completos a nombre de ERPI", "Carta de institución bancaria firmada por responsable autorizado"],
+              "description": "ONLY these two forms are accepted. Screenshots of online banking, tickets, credit letters, or any other document that doesn't guarantee fund availability are EXPLICITLY REJECTED."
+            },
+            "monto_acreditado_mxn": { "type": "integer" },
+            "fecha_documento": {
+              "type": "string",
+              "format": "date",
+              "description": "Must be no more than 3 months old at registration close."
+            }
+          }
+        },
+        "prueba_fondos_especie": {
+          "type": "object",
+          "description": "For in-kind contributions: proof of ownership and availability.",
+          "properties": {
+            "tipo_documentos": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Cotizaciones vigentes (< 3 meses)", "CFDI", "Certificados de propiedad", "Contratos (for honorarios coproducción)", "Cartas de apoyo / convenio (for honorarios donativo)"]
+              }
+            }
+          }
+        }
+      },
+      "required": ["firmado_representante_legal"]
+    },
+
+    "e3_donativos_terceros": {
+      "type": "object",
+      "description": "Required if ERPI declares third-party donations in esquema financiero. ALL documents in a SINGLE PDF file.",
+      "properties": {
+        "aplica": { "type": "boolean" },
+        "donantes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nombre_donante": { "type": "string" },
+              "personalidad_juridica": {
+                "type": "object",
+                "properties": {
+                  "acta_constitutiva": { "type": "boolean", "description": "Not required for federal/state/municipal entities. Not required translation for foreign entities." },
+                  "poder_notarial": { "type": "boolean", "description": "Only for national companies. Highlight the power clause." },
+                  "id_representante_legal": { "type": "boolean" }
+                }
+              },
+              "carta_apoyo_o_convenio": {
+                "type": "object",
+                "description": "Must include: project title (matching system), donor name, amount (highlighted), signature.",
+                "properties": {
+                  "titulo_proyecto_coincide": { "type": "boolean" },
+                  "monto_mxn": { "type": "integer" },
+                  "tipo_donacion": { "type": "string", "enum": ["Efectivo", "Especie"] },
+                  "firmado": { "type": "boolean" }
+                }
+              },
+              "prueba_fondos": {
+                "type": "object",
+                "properties": {
+                  "efectivo_estados_cuenta_o_carta_banco": { "type": "boolean" },
+                  "especie_cotizaciones_o_cfdi_o_certificados": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "e4_coproductores_y_anticipos": {
+      "type": "object",
+      "description": "Required if project has co-producers, distribution advances (MG), or VOD platform pre-sales. ALL documents in a SINGLE PDF file.",
+      "properties": {
+        "aplica": { "type": "boolean" },
+        "aportantes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nombre": { "type": "string" },
+              "tipo": { "type": "string", "enum": ["Coproductor Público Nacional", "Coproductor Privado Nacional", "Coproductor Internacional", "Anticipo Distribución / MG", "Plataforma VOD México"] },
+              "personalidad_juridica": {
+                "type": "object",
+                "properties": {
+                  "acta_constitutiva": { "type": "boolean" },
+                  "poder_notarial": { "type": "boolean" },
+                  "id_representante_legal": { "type": "boolean" }
+                }
+              },
+              "contrato": {
+                "type": "object",
+                "description": "Contract must include all required elements.",
+                "properties": {
+                  "titulo_proyecto_coincide": { "type": "boolean" },
+                  "costo_total_proyecto_mxn": { "type": "integer", "description": "Must match esquema financiero. Highlight." },
+                  "monto_aportacion_mxn": { "type": "integer", "description": "Cash or in-kind. Highlight." },
+                  "tipo_aportacion": { "type": "string", "enum": ["Efectivo", "Especie"] },
+                  "desglose_especie": { "type": "string", "description": "If in-kind, must detail each item." },
+                  "tipo_cambio_mxn": {
+                    "type": "string",
+                    "description": "For foreign currency contributions: must state MXN equivalent and the exchange rate as of the system registration date."
+                  },
+                  "condiciones_intercambio": { "type": "string" },
+                  "firmado_ambas_partes": { "type": "boolean" }
+                }
+              },
+              "reconocimiento_coproduccion_imcine": {
+                "type": "boolean",
+                "description": "ONLY for international co-productions: prior recognition from IMCINE's Dirección de Apoyo a la Producción Cinematográfica. MUST be obtained BEFORE submission."
+              },
+              "prueba_fondos": {
+                "type": "object",
+                "properties": {
+                  "efectivo_estados_cuenta_o_carta_banco": { "type": "boolean" },
+                  "especie_cotizaciones_o_cfdi_o_certificados": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "e5_reglas_acreditacion_aportaciones": {
+      "type": "object",
+      "description": "Universal rules for ALL contributions (ERPI and third parties). These are hard rejections if violated.",
+      "properties": {
+        "documentos_menos_3_meses": {
+          "type": "boolean",
+          "description": "ALL supporting documents must have issue dates no more than 3 months before registration close."
+        },
+        "gastos_previos_comprobados": {
+          "type": "string",
+          "enum": ["CFDI (FORMATO 11)", "Informe de contador público registrado SAT"],
+          "description": "If claiming prior cash expenses, must prove with CFDIs per FORMATO 11 OR a CPA financial report per Art. 52 CFF."
+        },
+        "aportante_multiproyecto_solvencia": {
+          "type": "boolean",
+          "description": "If same contributor is in multiple projects: bank statements must show sufficient balance for ALL committed contributions."
+        },
+        "no_son_aportaciones_efectivo": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["Impuestos pagados", "Cuentas por cobrar", "Capital pasivo", "Créditos", "Recursos de EFICINE anterior"]
+        },
+        "documentos_invalidos": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["Capturas de pantalla de banca en línea", "Tickets o recibos simples", "Cartas de crédito de instituciones financieras", "Cualquier documento que no garantice disponibilidad real"]
+        },
+        "especie_reglas": {
+          "type": "object",
+          "properties": {
+            "tipos_permitidos": { "type": "string", "const": "Servicios profesionales (honorarios), bienes, o derechos patrimoniales — siempre susceptibles de valoración económica comprobable y SIN impuestos." },
+            "total_especie_honorarios_max_porcentaje_presupuesto": { "type": "number", "maximum": 10.0 },
+            "especie_por_persona_max_porcentaje_honorario": { "type": "number", "maximum": 50.0 },
+            "descuentos_no_son_aportaciones": { "type": "boolean", "const": true },
+            "tipo_aportacion_debe_corresponder_objeto_social": { "type": "boolean", "const": true, "description": "The contribution type must match the contributor's corporate purpose or economic activity (proven by acta constitutiva or constancia de situación fiscal)." }
+          }
+        }
+      }
+    }
+  },
+  "required": ["e1_esquema_financiero_formato_9", "e2_carta_aportacion_exclusiva_formato_10"]
+}

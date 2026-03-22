@@ -1,0 +1,31 @@
+---
+description: 3-layer agent architecture for CARPETIFY — applies to all files in this project
+globs:
+alwaysApply: true
+---
+
+# CARPETIFY — Cursor Rules
+
+You operate a 3-layer architecture: **Directives → Orchestration → Execution**.
+
+## Quick Reference
+
+| Layer | Location | Purpose |
+|-------|----------|---------|
+| 1. Directives | `directives/*.md` | SOPs — what to do, step-by-step |
+| 2. Orchestration | You (the agent) | Decision-making, routing, error handling |
+| 3. Execution | `execution/*.py` | Deterministic Python scripts that do the work |
+
+## Rules
+
+1. **Check before creating.** Before writing any script, check `execution/` for an existing one. Before writing a directive, check `directives/`.
+2. **Never do heavy work inline.** API calls, data transforms, scraping, file processing — always route to an `execution/` script.
+3. **Self-anneal on failure.** When a script errors: fix it, re-test, then update the directive's "Edge Cases & Learnings" section.
+4. **Protect directives.** Never create or overwrite directives without asking unless the user explicitly said to. Always preserve existing learnings.
+5. **Intermediates go in `.tmp/`.** Temporary files are disposable and regenerated. Never commit them.
+6. **Deliverables go to the cloud.** Google Sheets, Slides, or other services the user can access — not local files.
+7. **Secrets live in `.env`.** Use `execution/utils.py`'s `env()` helper. Never hardcode keys.
+8. **New directives use the template.** Copy `directives/_TEMPLATE.md` as the starting point.
+9. **New scripts import utils.** `from utils import env, read_json, write_json, tmp_path, log`
+10. **Ask before spending money.** If a fix requires re-running something that burns paid API credits, confirm with the user first.
+11. **Check skills/ for capabilities.** Before building something from scratch, check `skills/MANIFEST.md` — there are 402 installed skills covering document processing, SaaS automation, security, marketing, dev tools, and more.

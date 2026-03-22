@@ -1,0 +1,514 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Modulo_A_Propuesta_Cinematografica",
+  "description": "Capítulo IV, Sección I, Apartado A — Lineamientos EFICINE Producción enero 2026. Covers scoring categories A1-A11. Total possible: 62 pts artistic + 38 pts viability = 100 pts + 5 bonus.",
+  "type": "object",
+  "properties": {
+
+    "a1_resumen_ejecutivo_formato_1": {
+      "type": "object",
+      "description": "FORMATO 1. Executive summary of the project. Auto-populated from other modules where possible.",
+      "properties": {
+        "titulo_proyecto": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "CRITICAL: Must be IDENTICAL across every document, every contract, INDAUTOR certificate, and the SHCP online system. Zero tolerance for mismatches."
+        },
+        "nombre_erpi": { "type": "string" },
+        "categoria_cinematografica": {
+          "type": "string",
+          "enum": ["Ficción", "Documental", "Animación"]
+        },
+        "categoria_director": {
+          "type": "string",
+          "enum": ["Ópera Prima", "Segundo largometraje y subsecuentes"],
+          "description": "Determines which evaluation group reviews the project. Opera prima <20M and >20M are separate groups; 2nd+ <25M and >25M are separate groups."
+        },
+        "duracion_estimada_minutos": {
+          "type": "integer",
+          "minimum": 60,
+          "description": "Must be a feature film (largometraje). EFICINE does not fund shorts."
+        },
+        "formato_filmacion": { "type": "string", "description": "Digital, 35mm, etc." },
+        "relacion_aspecto": { "type": "string", "description": "e.g. 2.39:1, 1.85:1, 1.78:1" },
+        "idiomas": { "type": "array", "items": { "type": "string" } },
+        "costo_total_proyecto_mxn": { "type": "integer" },
+        "monto_solicitado_eficine_mxn": {
+          "type": "integer",
+          "maximum": 25000000,
+          "description": "Cannot exceed $25M MXN (2026 cap) NOR 80% of total cost."
+        },
+        "director_nombre": { "type": "string" },
+        "productor_nombre": { "type": "string" },
+        "locaciones_filmacion": { "type": "array", "items": { "type": "string" } },
+        "fecha_estimada_rodaje": { "type": "string", "description": "Month/year range" },
+        "fecha_estimada_terminacion": { "type": "string" },
+        "fecha_estimada_exhibicion": { "type": "string" }
+      },
+      "required": ["titulo_proyecto", "nombre_erpi", "categoria_cinematografica", "categoria_director", "duracion_estimada_minutos", "costo_total_proyecto_mxn", "monto_solicitado_eficine_mxn", "director_nombre", "productor_nombre"]
+    },
+
+    "a2_sinopsis": {
+      "type": "object",
+      "description": "Synopsis of the screenplay. MAX 3 cuartillas. NOT 6,200 characters (that limit is FOCINE, not EFICINE).",
+      "properties": {
+        "texto_sinopsis": {
+          "type": "string",
+          "description": "Maximum 3 cuartillas (~2,100 words / ~12,000 characters as upper bound). The Lineamientos say 'extensión máxima de tres cuartillas' — no character count specified."
+        }
+      },
+      "required": ["texto_sinopsis"]
+    },
+
+    "a3_guion": {
+      "type": "object",
+      "description": "The screenplay itself. User uploads — AI does NOT generate this. Evaluators score: dramatic progression, character coherence, dialogue, structure, originality, theme relevance. Worth 40/100 points.",
+      "properties": {
+        "archivo_guion_pdf": { "type": "string", "description": "Path to uploaded screenplay PDF" },
+        "formato": {
+          "type": "string",
+          "enum": ["Profesional (screenplay format)", "Libre"],
+          "description": "The Lineamientos recommend 'formato profesional que permita establecer de manera clara su relación con el plan de trabajo y el presupuesto propuesto.'"
+        },
+        "num_paginas": { "type": "integer" },
+        "num_escenas": { "type": "integer" }
+      },
+      "required": ["archivo_guion_pdf"]
+    },
+
+    "a4_propuesta_creativa_direccion": {
+      "type": "object",
+      "description": "Director's creative vision. MAX 3 cuartillas for ALL categories (fiction, documentary, animation). Worth 12/100 points. PLUS filmography and hyperlinks evaluated separately.",
+      "properties": {
+        "vision_narrativa_y_tecnica": {
+          "type": "string",
+          "description": "How the director plans to realize the film: creative approach, technical choices, language use, coherence with screenplay, actor direction. Max 3 cuartillas."
+        },
+        "especificaciones_animacion": {
+          "type": "string",
+          "description": "ONLY for animation: technique description, work stages, collaboration strategy. Included within the 3 cuartillas."
+        },
+        "especificaciones_documental": {
+          "type": "string",
+          "description": "ONLY for documentary: approach to participants and community where filming takes place. Included within the 3 cuartillas."
+        },
+        "filmografia_direccion": {
+          "type": "array",
+          "description": "Director's prior work in direction. MINIMUM required: Fiction/Doc = 1 feature OR 2 shorts completed. Animation = 1 feature OR 1 short completed. Must include hyperlinks.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "titulo": { "type": "string" },
+              "tipo": { "type": "string", "enum": ["Largometraje", "Cortometraje", "Obra audiovisual"] },
+              "anio": { "type": "integer" },
+              "enlace_visionado": {
+                "type": "string",
+                "format": "uri",
+                "description": "MUST be freely accessible — no password, no email required."
+              }
+            },
+            "required": ["titulo", "tipo", "enlace_visionado"]
+          }
+        },
+        "premios_y_reconocimientos": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["vision_narrativa_y_tecnica", "filmografia_direccion"]
+    },
+
+    "a5_material_visual": {
+      "type": "object",
+      "description": "Visual materials and creative team proposals. MAX 30 cuartillas (NOT 20 — corrected per 2026 Lineamientos). Worth 10/100 points combined with personal creativo proposals.",
+      "properties": {
+        "propuestas_areas_creativas": {
+          "type": "object",
+          "description": "Proposals from: DP, art direction/production design, editing. Also: participants, research, locations, wardrobe, makeup, SFX/VFX, casting proposal, reference images.",
+          "properties": {
+            "direccion_fotografia": { "type": "string" },
+            "diseno_arte_o_produccion": { "type": "string" },
+            "edicion": { "type": "string" },
+            "vestuario_y_maquillaje": { "type": "string" },
+            "efectos_especiales_y_visuales": { "type": "string" },
+            "propuesta_casting": { "type": "string" },
+            "imagenes_referencia": { "type": "string", "description": "Description of included reference images" },
+            "locaciones": { "type": "string" },
+            "investigacion_tematica": { "type": "string" }
+          }
+        },
+        "disenos_animacion": {
+          "type": "object",
+          "description": "ONLY for animation: character designs, backgrounds, storyboards. Evaluated for aesthetic and narrative capacity.",
+          "properties": {
+            "disenos_personajes": { "type": "string" },
+            "fondos": { "type": "string" },
+            "storyboards": { "type": "string" }
+          }
+        },
+        "enlaces_propuestas_audiovisuales": {
+          "type": "array",
+          "maxItems": 2,
+          "description": "Up to 2 hyperlinks to visual/audio proposals. Must be freely accessible.",
+          "items": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+
+    "a6_solidez_equipo_creativo_formato_2": {
+      "type": "object",
+      "description": "FORMATO 2. Team CVs: production, direction, screenwriting, cinematography, art direction/production design, editing. Worth 2/100 points. Evaluates: trajectory in features/shorts/audiovisual, capacity to complete project, national/international circulation, coherence of experience with proposals and budget, prior collaborations.",
+      "properties": {
+        "miembros": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nombre_completo": { "type": "string" },
+              "cargo": {
+                "type": "string",
+                "enum": ["Producción", "Dirección", "Guion", "Dirección de Fotografía", "Dirección de Arte", "Diseño de Producción", "Edición"]
+              },
+              "nacionalidad": { "type": "string" },
+              "filmografia": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "titulo": { "type": "string" },
+                    "anio": { "type": "integer" },
+                    "cargo_en_obra": { "type": "string" },
+                    "formato": { "type": "string", "enum": ["Largometraje", "Cortometraje", "Obra audiovisual"] },
+                    "exhibicion": { "type": "string", "description": "Where exhibited: theaters, festivals (specify), VOD platforms, etc." }
+                  },
+                  "required": ["titulo", "anio", "cargo_en_obra", "formato"]
+                }
+              },
+              "formacion": { "type": "string" },
+              "premios_selecciones": { "type": "array", "items": { "type": "string" } },
+              "enlaces_obras": { "type": "array", "items": { "type": "string", "format": "uri" } }
+            },
+            "required": ["nombre_completo", "cargo", "filmografia"]
+          }
+        }
+      },
+      "required": ["miembros"]
+    },
+
+    "a7_propuesta_produccion": {
+      "type": "object",
+      "description": "Production proposal. MAX 3 cuartillas. Worth 12/100 points. Evaluates: producer's creative contribution, work plan solidity, timeline coherence per stage, crew organization, identification of practical and budgetary challenges, commitment to respectful work environment.",
+      "properties": {
+        "contribucion_creativa_productor": { "type": "string" },
+        "plan_trabajo_y_organizacion": { "type": "string" },
+        "retos_practicos_y_presupuestales": { "type": "string" },
+        "compromiso_ambiente_respetuoso": {
+          "type": "string",
+          "description": "MANDATORY: Must include commitment to respectful environment, zero tolerance for abuse/violence. The Lineamientos explicitly evaluate this."
+        },
+        "pertinencia_coproduccion_internacional": {
+          "type": "string",
+          "description": "ONLY if international co-production: justify Mexican creative participation, locations, crew. Must distinguish co-production from mere production services."
+        }
+      },
+      "required": ["contribucion_creativa_productor", "plan_trabajo_y_organizacion", "retos_practicos_y_presupuestales", "compromiso_ambiente_respetuoso"]
+    },
+
+    "a8_plan_produccion": {
+      "type": "object",
+      "description": "Shooting schedule + critical path. Combined worth 10/100 points.",
+      "properties": {
+        "a8a_plan_rodaje": {
+          "type": "array",
+          "description": "Day-by-day or week-by-week shooting schedule. Must be congruent with screenplay, dirección proposal, and producción proposal. Evaluates: clarity of day organization, feasibility of assigned time, correspondence with budget.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dia_numero": { "type": "integer" },
+              "semana_numero": { "type": "integer" },
+              "escenas": { "type": "array", "items": { "type": "string" } },
+              "personajes": { "type": "array", "items": { "type": "string" } },
+              "locacion": { "type": "string" },
+              "int_ext": { "type": "string", "enum": ["INT", "EXT", "INT/EXT"] },
+              "dia_noche": { "type": "string", "enum": ["DÍA", "NOCHE", "ATARDECER", "AMANECER"] },
+              "paginas_estimadas": { "type": "number" },
+              "notas_complejidad": { "type": "string", "description": "Stunts, VFX, water, children, animals, company moves, etc." }
+            },
+            "required": ["dia_numero", "escenas", "locacion"]
+          }
+        },
+        "a8b_ruta_critica": {
+          "type": "array",
+          "description": "Month-by-month critical path. MUST cover: preproducción, producción (rodaje), postproducción, terminación/copia final, exhibición. Must correspond with dirección/producción proposals and budget. Evaluates: risk anticipation, workflow continuity, integral planning.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mes_numero": { "type": "integer" },
+              "mes_calendario": { "type": "string", "description": "e.g. 'Agosto 2026'" },
+              "etapa": {
+                "type": "string",
+                "enum": ["Preproducción", "Producción (Rodaje)", "Postproducción", "Terminación / Copia Final", "Exhibición"]
+              },
+              "actividades": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "required": ["mes_numero", "etapa", "actividades"]
+          }
+        }
+      },
+      "required": ["a8a_plan_rodaje", "a8b_ruta_critica"]
+    },
+
+    "a9_presupuesto": {
+      "type": "object",
+      "description": "Budget in three parts + optional quotes. Combined worth 10/100 points. Evaluates: clarity, coherence, viability of financial structure.",
+      "properties": {
+        "a9a_resumen": {
+          "type": "object",
+          "description": "Budget summary by IMCINE standard accounts, in MXN. Must be clear, coherent, and viable.",
+          "properties": {
+            "cuentas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "numero_cuenta": { "type": "string", "description": "e.g. '100', '200', etc." },
+                  "nombre_cuenta": { "type": "string" },
+                  "subtotal_mxn": { "type": "integer" }
+                },
+                "required": ["numero_cuenta", "nombre_cuenta", "subtotal_mxn"]
+              }
+            },
+            "total_presupuesto_mxn": { "type": "integer" }
+          },
+          "required": ["cuentas", "total_presupuesto_mxn"]
+        },
+        "a9b_desglose": {
+          "type": "object",
+          "description": "Detailed budget by accounts AND sub-accounts, in MXN. Must show pertinence and justification of resource allocation per line item.",
+          "properties": {
+            "cuentas_desglosadas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "numero_cuenta": { "type": "string" },
+                  "nombre_cuenta": { "type": "string" },
+                  "subcuentas": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "numero_subcuenta": { "type": "string" },
+                        "concepto": { "type": "string" },
+                        "unidad": { "type": "string", "description": "e.g. 'semanas', 'días', 'global'" },
+                        "cantidad": { "type": "number" },
+                        "costo_unitario_mxn": { "type": "integer" },
+                        "subtotal_mxn": { "type": "integer" },
+                        "tipo_aportacion": {
+                          "type": "string",
+                          "enum": ["Efectivo", "Especie"],
+                          "description": "Must distinguish cash vs. in-kind, congruent with flujo and esquema financiero."
+                        }
+                      },
+                      "required": ["concepto", "subtotal_mxn"]
+                    }
+                  },
+                  "subtotal_cuenta_mxn": { "type": "integer" }
+                },
+                "required": ["numero_cuenta", "nombre_cuenta", "subcuentas", "subtotal_cuenta_mxn"]
+              }
+            },
+            "total_desglose_mxn": { "type": "integer" }
+          },
+          "required": ["cuentas_desglosadas", "total_desglose_mxn"]
+        },
+        "a9_reglas_gasto_eficine": {
+          "type": "object",
+          "description": "EFICINE funds CANNOT be applied to these items. The app must flag any budget line allocated to EFICINE that falls in a prohibited category.",
+          "properties": {
+            "prohibidos": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": [
+                "Gastos realizados ANTES de obtener el estímulo fiscal",
+                "Costos de distribución, difusión o comercialización",
+                "Elaboración de la carpeta del proyecto",
+                "Servicios que generen ganancia directa para la ERPI (mark-up, completion bond, distributor fees)",
+                "Pagos a gestores de recursos por encima del 4% (>$10M) o 5% (≤$10M) del monto EFICINE",
+                "Honorarios a personas físicas que SEAN la ERPI",
+                "Adquisición de activos fijos",
+                "En coprod internacional donde extranjero es mayoritario: gastos administrativos de post (renta oficina, teléfono, luz, agua, internet)"
+              ]
+            }
+          }
+        },
+        "a9d_flujo_efectivo_formato_3": {
+          "type": "object",
+          "description": "FORMATO 3. Cash flow by: accounts × funding sources × production stages. Must reconcile with budget summary.",
+          "properties": {
+            "fuentes_financiamiento": {
+              "type": "array",
+              "description": "Must include ALL contributors from esquema financiero, including EFICINE.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "nombre_aportante": { "type": "string" },
+                  "tipo": { "type": "string", "enum": ["ERPI Exclusiva", "Donativo Tercero", "Coproductor", "Anticipo Distribución", "MG", "Plataforma VOD", "Estímulo EFICINE", "Otro Federal"] }
+                }
+              }
+            },
+            "etapas": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Preproducción", "Producción (Rodaje)", "Postproducción hasta Copia Final"]
+              }
+            },
+            "regla_aplicacion_eficine": {
+              "type": "string",
+              "const": "Los recursos EFICINE deben comenzar a aplicarse máximo 20 días hábiles después de la transferencia recibida (Regla 26)."
+            },
+            "matriz_flujo": {
+              "type": "array",
+              "description": "Each row = budget account. Columns = amount per source per stage. Totals must match a9a_resumen.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "cuenta": { "type": "string" },
+                  "desglose_por_fuente_y_etapa": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fuente": { "type": "string" },
+                        "etapa": { "type": "string" },
+                        "monto_mxn": { "type": "integer" }
+                      }
+                    }
+                  },
+                  "total_cuenta_mxn": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "a9e_cotizaciones_opcionales": {
+          "type": "array",
+          "description": "Optional strategic quotes for high-impact budget items. Helps evaluators assess cost accuracy.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rubro": { "type": "string" },
+              "proveedor": { "type": "string" },
+              "monto_mxn": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "required": ["a9a_resumen", "a9b_desglose", "a9d_flujo_efectivo_formato_3"]
+    },
+
+    "a10_propuesta_exhibicion": {
+      "type": "object",
+      "description": "Exhibition proposal. Worth 4/100 points.",
+      "properties": {
+        "estrategia_distribucion": {
+          "type": "string",
+          "description": "Distribution/commercialization strategy. Must be coherent with exhibition circuit type."
+        },
+        "circuito_exhibicion": {
+          "type": "string",
+          "enum": ["Comercial", "Cultural", "Mixto"]
+        },
+        "estrategia_circulacion_cultural": {
+          "type": "string",
+          "description": "How the film contributes to cultural/social identity strengthening."
+        },
+        "publico_objetivo": {
+          "type": "object",
+          "properties": {
+            "edad": { "type": "string" },
+            "genero": { "type": "string" },
+            "justificacion": { "type": "string", "description": "Must be coherent with the film's genre and content." }
+          },
+          "required": ["edad", "genero", "justificacion"]
+        },
+        "estimaciones_comerciales": {
+          "type": "object",
+          "properties": {
+            "numero_copias_pantallas_proyecciones": { "type": "integer" },
+            "espectadores_estimados": { "type": "integer" },
+            "ingresos_o_regalias_estimados_mxn": {
+              "type": "integer",
+              "description": "Must be coherent with both the film's genre/content AND the production cost."
+            }
+          },
+          "required": ["numero_copias_pantallas_proyecciones", "espectadores_estimados"]
+        },
+        "ruta_festivales": {
+          "type": "array",
+          "description": "If applicable. Must justify selection: explain relevance to the film's nature, genre, and theme.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nombre_festival": { "type": "string" },
+              "pais": { "type": "string" },
+              "justificacion_pertinencia": { "type": "string" }
+            },
+            "required": ["nombre_festival", "justificacion_pertinencia"]
+          }
+        }
+      },
+      "required": ["circuito_exhibicion", "publico_objetivo", "estimaciones_comerciales"]
+    },
+
+    "a11_puntos_adicionales": {
+      "type": "object",
+      "description": "+5 bonus points. NON-CUMULATIVE — only ONE category can apply. Not evaluated by the CE; verified administratively.",
+      "properties": {
+        "categoria_reclamada": {
+          "type": "string",
+          "enum": [
+            "a_directora_mujer",
+            "b_director_indigena_afromexicano",
+            "c_descentralizacion_regional",
+            "d_equipo_creativo_100_mujeres_o_indigena",
+            "ninguno"
+          ],
+          "description": "a) Female director (not co-directing with a man). b) Indigenous/Afro-Mexican director (not co-directing with non-member). c) Regional: director/producer from outside ZMCM + 75%+ filming outside ZMCM + 50%+ local crew + ERPI domiciled outside ZMCM. d) 100% female OR indigenous/afro-Mexican creative team (producer, screenwriter, DP, art director, editor)."
+        },
+        "documentos_soporte": {
+          "type": "object",
+          "properties": {
+            "carta_autoadscripcion": { "type": "boolean", "description": "Required for categories b and d (indigenous/afro-Mexican)." },
+            "comprobante_domicilio_director_o_productor": { "type": "boolean", "description": "Required for category c." },
+            "constancia_domicilio_fiscal_erpi_fuera_zmcm": { "type": "boolean", "description": "Required for category c." }
+          }
+        },
+        "validacion_categoria_c": {
+          "type": "object",
+          "description": "Only evaluated if categoria_reclamada = c_descentralizacion_regional",
+          "properties": {
+            "porcentaje_rodaje_fuera_zmcm": { "type": "integer", "minimum": 75 },
+            "porcentaje_personal_creativo_local": { "type": "integer", "minimum": 50 },
+            "porcentaje_personal_tecnico_local": { "type": "integer", "minimum": 50 },
+            "domicilio_fiscal_erpi_fuera_zmcm": { "type": "boolean" }
+          }
+        },
+        "validacion_categoria_d": {
+          "type": "object",
+          "description": "Only evaluated if categoria_reclamada = d_equipo_creativo_100_mujeres_o_indigena. Creative team = producer, screenwriter, DP, art direction, editor. If project doesn't have all 5 roles, post-production roles can substitute (post supervisor, sound design, music composition).",
+          "properties": {
+            "todos_cargos_creativos_cubiertos": { "type": "boolean" },
+            "todos_son_mujeres_o_indigena": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["categoria_reclamada"]
+    }
+  },
+  "required": ["a1_resumen_ejecutivo_formato_1", "a2_sinopsis", "a3_guion", "a4_propuesta_creativa_direccion", "a6_solidez_equipo_creativo_formato_2", "a7_propuesta_produccion", "a8_plan_produccion", "a9_presupuesto", "a10_propuesta_exhibicion"]
+}

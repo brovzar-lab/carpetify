@@ -1,0 +1,224 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Modulo_C_ERPI_Legal",
+  "description": "Capítulo IV, Sección I, Apartado C — Lineamientos EFICINE Producción enero 2026. PASS/FAIL. Covers: prior EFICINE status, copyright/INDAUTOR, good practices commitments, public data sheet. Missing ANY element = not evaluated.",
+  "type": "object",
+  "properties": {
+
+    "c0_erpi_elegibilidad": {
+      "type": "object",
+      "description": "Pre-check: ERPI must meet eligibility criteria BEFORE submitting.",
+      "properties": {
+        "proyectos_autorizados_no_exhibidos": {
+          "type": "integer",
+          "maximum": 1,
+          "description": "ERPI + partners cannot have 2+ authorized EFICINE projects that haven't been exhibited yet. If >=2 → INELIGIBLE."
+        },
+        "solicitudes_este_periodo": {
+          "type": "integer",
+          "maximum": 3,
+          "description": "Cannot submit more than 3 applications in the same period."
+        },
+        "intentos_previos_este_proyecto": {
+          "type": "integer",
+          "maximum": 3,
+          "description": "A project can be registered up to 3 times (for rejection or non-susceptible). 4th attempt = invalid. NOTE: not receiving funds due to cap exhaustion does NOT count as an attempt."
+        }
+      }
+    },
+
+    "c1_estatus_proyectos_formato_4": {
+      "type": "object",
+      "description": "FORMATO 4. Declaration of prior EFICINE/IMCINE project status. Required if ERPI or partners have any prior authorized project.",
+      "properties": {
+        "tiene_proyectos_previos_eficine": { "type": "boolean" },
+        "al_corriente_obligaciones": {
+          "type": "boolean",
+          "description": "If has prior projects: MUST be current on ALL obligations (bank data, transfer receipts, semestral reports, completion report, CPA report, exhibition report, updated ruta crítica). If false → CANNOT participate."
+        },
+        "tiene_apoyos_imcine_previos": { "type": "boolean" },
+        "al_corriente_imcine": {
+          "type": "boolean",
+          "description": "If benefited by IMCINE programs: no delays, no contractual/legal/administrative non-compliance."
+        },
+        "proyectos_detalle": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "titulo": { "type": "string" },
+              "fecha_autorizacion": { "type": "string" },
+              "estatus_actual": { "type": "string" },
+              "obligaciones_cumplidas": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "required": ["tiene_proyectos_previos_eficine", "tiene_apoyos_imcine_previos"]
+    },
+
+    "c2_derechos_autor_guion": {
+      "type": "object",
+      "description": "Copyright chain and screenwriter payment. This is where most rejections happen due to calculation errors.",
+      "properties": {
+
+        "c2a_certificado_indautor_guion": {
+          "type": "object",
+          "properties": {
+            "numero_certificado": { "type": "string" },
+            "titulo_registrado": {
+              "type": "string",
+              "description": "MUST match project title in SHCP system and ALL other documents. Any mismatch = rejection."
+            },
+            "es_registro_extranjero": {
+              "type": "boolean",
+              "description": "If registered abroad, certificate from equivalent institution is accepted."
+            }
+          },
+          "required": ["numero_certificado", "titulo_registrado"]
+        },
+
+        "c2b_contrato_cesion_derechos_patrimoniales": {
+          "type": "object",
+          "description": "Contract transferring patrimonial rights to ERPI, registered at INDAUTOR.",
+          "properties": {
+            "guionista_nombre": { "type": "string" },
+            "coguionistas": { "type": "array", "items": { "type": "string" } },
+            "monto_total_guion_con_iva": {
+              "type": "integer",
+              "description": "THE 3% RULE: Must be >= 3% of total project cost (IVA included). This 3% is ONLY for final screenplay authorship. Cannot include: adaptation rights, script doctor, consultants, translations, readings, or similar services."
+            },
+            "costo_total_proyecto_para_calculo": {
+              "type": "integer",
+              "description": "The total project cost used as base for the 3% calculation."
+            },
+            "minimo_3_porciento_mxn": {
+              "type": "integer",
+              "description": "Calculated: costo_total_proyecto * 0.03. The Lineamientos allow a cap: 3% of the average EFICINE project cost from the prior year (published annually by IMCINE)."
+            },
+            "cumple_regla_3_porciento": {
+              "type": "boolean",
+              "description": "VALIDATION: monto_total_guion_con_iva >= minimo_3_porciento_mxn. If false → FATAL ERROR."
+            },
+            "es_obra_por_encargo": {
+              "type": "boolean",
+              "description": "If true: producer commissioned the script. Different rules apply — must use adelanto (advance), NOT profit participation."
+            },
+            "tipo_comprobante_pago": {
+              "type": "string",
+              "enum": ["anticipo_10_porciento_cfdi_y_transferencia", "contraprestacion_10_porciento_derechos_patrimoniales"],
+              "description": "Option A: 10% advance of total screenplay cost, proven with CFDI + bank transfer. Option B: 10% profit participation in patrimonial rights, established in the INDAUTOR-registered contract (or in co-production contract for international co-prods). IMPORTANT: If obra por encargo, ONLY option A is valid — option B is not available."
+            },
+            "monto_comprobante_mxn": {
+              "type": "integer",
+              "description": "For option A: must be >= 10% of total screenplay cost."
+            },
+            "certificado_indautor_del_contrato": {
+              "type": "boolean",
+              "description": "The cesión contract itself must be registered at INDAUTOR."
+            },
+            "monto_coincide_presupuesto": {
+              "type": "boolean",
+              "description": "CROSS-CHECK: The screenplay fee in this contract must match the budget line item, the flujo de efectivo, and (if applicable) the esquema financiero."
+            }
+          },
+          "required": ["guionista_nombre", "monto_total_guion_con_iva", "tipo_comprobante_pago", "certificado_indautor_del_contrato"]
+        },
+
+        "c2c_cadena_cesiones_formato_5": {
+          "type": "object",
+          "description": "FORMATO 5. Required ONLY if rights passed through intermediaries before reaching the ERPI.",
+          "properties": {
+            "es_necesario": { "type": "boolean" },
+            "eslabones": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "autor_o_titular_anterior": { "type": "string" },
+                  "titular_siguiente": { "type": "string" },
+                  "tipo_transferencia": { "type": "string" },
+                  "fecha": { "type": "string" },
+                  "documento_soporte": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+
+        "c2d_cesion_obra_semejante": {
+          "type": "object",
+          "description": "Required ONLY if the screenplay is adapted from another work (novel, play, TV show, film, etc.).",
+          "properties": {
+            "es_adaptacion": { "type": "boolean" },
+            "tipo_obra_original": { "type": "string" },
+            "contrato_cesion_registrado_indautor": { "type": "boolean" },
+            "cadena_cesiones_obra_original": { "type": "boolean", "description": "If rights passed through intermediaries, FORMATO 5 needed for the original work too." }
+          }
+        },
+
+        "c2f_coproduccion_internacional": {
+          "type": "object",
+          "description": "ONLY for international co-productions.",
+          "properties": {
+            "es_coproduccion_internacional": { "type": "boolean" },
+            "contrato_registrado_indautor": { "type": "boolean", "description": "Must establish ERPI has authorization to use and exploit the work, granted by coproducer." },
+            "incluye_pago_3_porciento": { "type": "boolean" }
+          }
+        },
+
+        "c2g_obra_por_encargo_adaptacion_version": {
+          "type": "object",
+          "description": "Alternative: single INDAUTOR certificate covering both script registration and rights transfer to ERPI, citing applicable national copyright law.",
+          "properties": {
+            "aplica": { "type": "boolean" },
+            "certificado_indautor_unificado": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["c2a_certificado_indautor_guion", "c2b_contrato_cesion_derechos_patrimoniales"]
+    },
+
+    "c3_compromisos": {
+      "type": "object",
+      "properties": {
+        "c3a_buenas_practicas_formato_6": {
+          "type": "boolean",
+          "description": "FORMATO 6. Commitment letter for good practices in film production. MANDATORY."
+        },
+        "c3b_pics_formato_7": {
+          "type": "boolean",
+          "description": "FORMATO 7. Commitment to participate in IMCINE's Cultural and Social Interaction Program. MANDATORY."
+        }
+      },
+      "required": ["c3a_buenas_practicas_formato_6", "c3b_pics_formato_7"]
+    },
+
+    "c4_ficha_tecnica_formato_8": {
+      "type": "object",
+      "description": "FORMATO 8. Public-facing data sheet for the SHCP contributor platform. AUTO-POPULATE from other modules to avoid transcription errors.",
+      "properties": {
+        "titulo": { "type": "string" },
+        "genero": { "type": "string" },
+        "duracion_estimada": { "type": "integer" },
+        "formato": { "type": "string" },
+        "nombre_erpi": { "type": "string" },
+        "director": { "type": "string" },
+        "productor": { "type": "string" },
+        "guionista": { "type": "string" },
+        "cinefotografo": { "type": "string" },
+        "editor": { "type": "string" },
+        "director_arte": { "type": "string" },
+        "elenco": { "type": "array", "items": { "type": "string" } },
+        "logline": { "type": "string" },
+        "sinopsis": { "type": "string" },
+        "semblanza_director": { "type": "string" },
+        "semblanza_casa_productora": { "type": "string" },
+        "costo_total_mxn": { "type": "integer", "description": "AUTO-PULL from esquema financiero total." },
+        "monto_solicitado_eficine_mxn": { "type": "integer", "description": "AUTO-PULL from esquema financiero." }
+      },
+      "required": ["titulo", "genero", "nombre_erpi", "director", "productor", "costo_total_mxn", "monto_solicitado_eficine_mxn"]
+    }
+  },
+  "required": ["c1_estatus_proyectos_formato_4", "c2_derechos_autor_guion", "c3_compromisos", "c4_ficha_tecnica_formato_8"]
+}

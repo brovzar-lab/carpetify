@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Modulo_D_Cotizaciones",
+  "description": "Capítulo IV, Sección I, Apartado D — Lineamientos EFICINE Producción enero 2026. PASS/FAIL. Two mandatory quotes: production insurance and CPA report. Missing either = not evaluated.",
+  "type": "object",
+  "properties": {
+
+    "d1_cotizacion_seguro_filmico": {
+      "type": "object",
+      "description": "Insurance must provide sufficient coverage for the ENTIRE project cost, protecting against any incident during preproduction, production, and postproduction through final copy.",
+      "properties": {
+        "nombre_aseguradora_o_razon_social": { "type": "string" },
+        "emitida_a_nombre_de": {
+          "type": "string",
+          "description": "MUST be issued to the ERPI's legal name (razón social). NOT to the producer personally. NOT to the project name alone."
+        },
+        "titulo_proyecto_en_cotizacion": {
+          "type": "string",
+          "description": "MUST match the registered project title. If the quote doesn't mention the project name, it will be rejected."
+        },
+        "fecha_emision": {
+          "type": "string",
+          "format": "date",
+          "description": "VALIDATION: Must be no more than 3 months before the registration period close date. If older → REJECTED."
+        },
+        "monto_cotizado_mxn": {
+          "type": "integer",
+          "description": "CROSS-CHECK: Must match EXACTLY the insurance line item in presupuesto desglosado (cuenta Seguros)."
+        },
+        "tiene_firma_proveedor": {
+          "type": "boolean",
+          "description": "Must have autograph or digital signature of the provider."
+        },
+        "detalla_servicio_producto": {
+          "type": "boolean",
+          "description": "Must detail the service/product being quoted."
+        }
+      },
+      "required": ["nombre_aseguradora_o_razon_social", "emitida_a_nombre_de", "titulo_proyecto_en_cotizacion", "fecha_emision", "monto_cotizado_mxn", "tiene_firma_proveedor"]
+    },
+
+    "d1_cotizacion_informe_contador": {
+      "type": "object",
+      "description": "CPA (contador público) must be registered with SAT. The report is required per Regla 30.",
+      "properties": {
+        "nombre_contador_o_despacho": { "type": "string" },
+        "numero_registro_sat": {
+          "type": "string",
+          "description": "CRITICAL: The CPA must be registered with SAT. If this number is missing from the quote → ALERT. Must also include despacho name if applicable."
+        },
+        "emitida_a_nombre_de": {
+          "type": "string",
+          "description": "MUST be issued to the ERPI's legal name."
+        },
+        "titulo_proyecto_en_cotizacion": {
+          "type": "string",
+          "description": "MUST match the registered project title."
+        },
+        "fecha_emision": {
+          "type": "string",
+          "format": "date",
+          "description": "VALIDATION: Must be no more than 3 months before the registration period close date."
+        },
+        "monto_cotizado_mxn": {
+          "type": "integer",
+          "description": "CROSS-CHECK: Must match EXACTLY the CPA/auditor line item in presupuesto desglosado."
+        },
+        "tiene_firma_proveedor": { "type": "boolean" },
+        "detalla_servicio_producto": { "type": "boolean" }
+      },
+      "required": ["nombre_contador_o_despacho", "numero_registro_sat", "emitida_a_nombre_de", "titulo_proyecto_en_cotizacion", "fecha_emision", "monto_cotizado_mxn", "tiene_firma_proveedor"]
+    },
+
+    "cotizaciones_opcionales_estrategicas": {
+      "type": "array",
+      "description": "Optional but recommended (Lineamientos A9e): strategic quotes for high-impact budget items to help evaluators assess cost accuracy. VFX, special equipment, major location rentals, etc.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rubro": { "type": "string" },
+          "proveedor": { "type": "string" },
+          "monto_cotizado_mxn": { "type": "integer" },
+          "fecha_emision": { "type": "string", "format": "date" }
+        }
+      }
+    }
+  },
+  "required": ["d1_cotizacion_seguro_filmico", "d1_cotizacion_informe_contador"]
+}
