@@ -7,17 +7,17 @@
 
 ### Intake & Data Management
 
-- [ ] **INTK-01**: User can create a new project with title, genre, category, duration, format, aspect ratio, languages, budget, EFICINE request amount, and ERPI information
-- [ ] **INTK-02**: User selects target EFICINE registration period (Period 1: Jan 30–Feb 13 or Period 2: Jul 1–Jul 15) per project, driving date validation
+- [x] **INTK-01**: User can create a new project with title, genre, category, duration, format, aspect ratio, languages, budget, EFICINE request amount, and ERPI information
+- [x] **INTK-02**: User selects target EFICINE registration period (Period 1: Jan 30–Feb 13 or Period 2: Jul 1–Jul 15) per project, driving date validation
 - [ ] **INTK-03**: User can manage up to 3 projects simultaneously, with isolated data per project and a project selector
 - [ ] **INTK-04**: User can upload screenplay PDF and view parsed breakdown (scenes, locations, characters, INT/EXT/DAY/NIGHT)
 - [ ] **INTK-05**: User can correct/override parsed screenplay data when extraction is inaccurate
-- [ ] **INTK-06**: User can enter creative team data per role (producer, director, screenwriter, DP, art director, editor) — name, nationality, filmography, fee, in-kind contribution
-- [ ] **INTK-07**: User can enter financial structure — ERPI contribution (cash + in-kind), third-party contributors (name, type, amount), EFICINE request
+- [x] **INTK-06**: User can enter creative team data per role (producer, director, screenwriter, DP, art director, editor) — name, nationality, filmography, fee, in-kind contribution
+- [x] **INTK-07**: User can enter financial structure — ERPI contribution (cash + in-kind), third-party contributors (name, type, amount), EFICINE request
 - [ ] **INTK-08**: User can upload documents the app cannot generate (acta constitutiva, poder notarial, IDs, constancia fiscal, INDAUTOR certs, bank statements, insurance quote, CPA quote, signed contracts, co-production recognition)
 - [ ] **INTK-09**: User can track upload status per document and see which required uploads are missing
-- [ ] **INTK-10**: Entire intake wizard UI is in Mexican Spanish with no English visible — labels, buttons, placeholders, errors, tooltips
-- [ ] **INTK-11**: International co-production flag per project — when enabled, adds required fields: FX conversion rate + date, territorial spend split (national vs foreign), IMCINE co-production recognition certificate upload, pertinence justification in propuesta de producción. Affects budget, flujo, esquema financiero, and contracts
+- [x] **INTK-10**: Entire intake wizard UI is in Mexican Spanish with no English visible — labels, buttons, placeholders, errors, tooltips
+- [x] **INTK-11**: International co-production flag per project — when enabled, adds required fields: FX conversion rate + date, territorial spend split (national vs foreign), IMCINE co-production recognition certificate upload, pertinence justification in propuesta de producción. Affects budget, flujo, esquema financiero, and contracts
 
 ### Screenplay Processing
 
@@ -71,8 +71,8 @@
 ### Language & Formatting
 
 - [ ] **LANG-01**: All generated documents use Mexican Spanish with IMCINE/EFICINE terminology never translated (protected terms per `politica_idioma.md`)
-- [ ] **LANG-02**: Monetary amounts formatted as $X,XXX,XXX MXN throughout — comma thousands separator, no decimals, peso sign, MXN suffix
-- [ ] **LANG-03**: Dates formatted in Spanish: "15 de julio de 2026" or "Agosto 2026"
+- [x] **LANG-02**: Monetary amounts formatted as $X,XXX,XXX MXN throughout — comma thousands separator, no decimals, peso sign, MXN suffix
+- [x] **LANG-03**: Dates formatted in Spanish: "15 de julio de 2026" or "Agosto 2026"
 - [ ] **LANG-04**: Generated prose uses formal but non-bureaucratic Mexican Spanish — precise, concrete, cinematographic vocabulary per politica_idioma.md guidelines
 - [ ] **LANG-05**: Pre-export language check — scan for anglicisms, verify format consistency, confirm title identity across all documents
 
@@ -119,17 +119,17 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INTK-01 | Phase 1 | Pending |
-| INTK-02 | Phase 1 | Pending |
+| INTK-01 | Phase 1 | Complete |
+| INTK-02 | Phase 1 | Complete |
 | INTK-03 | Phase 1 | Pending |
 | INTK-04 | Phase 1 | Pending |
 | INTK-05 | Phase 1 | Pending |
-| INTK-06 | Phase 1 | Pending |
-| INTK-07 | Phase 1 | Pending |
+| INTK-06 | Phase 1 | Complete |
+| INTK-07 | Phase 1 | Complete |
 | INTK-08 | Phase 1 | Pending |
 | INTK-09 | Phase 1 | Pending |
-| INTK-10 | Phase 1 | Pending |
-| INTK-11 | Phase 1 | Pending |
+| INTK-10 | Phase 1 | Complete |
+| INTK-11 | Phase 1 | Complete |
 | SCRN-01 | Phase 2 | Pending |
 | SCRN-02 | Phase 2 | Pending |
 | SCRN-03 | Phase 2 | Pending |
@@ -168,8 +168,8 @@
 | EXPRT-04 | Phase 5 | Pending |
 | EXPRT-05 | Phase 5 | Pending |
 | LANG-01 | Phase 3 | Pending |
-| LANG-02 | Phase 1 | Pending |
-| LANG-03 | Phase 1 | Pending |
+| LANG-02 | Phase 1 | Complete |
+| LANG-03 | Phase 1 | Complete |
 | LANG-04 | Phase 3 | Pending |
 | LANG-05 | Phase 5 | Pending |
 
