@@ -1,5 +1,7 @@
 # Intermediates — always regenerated
 .tmp/
+dist/
+node_modules/
 
 # Secrets
 .env
