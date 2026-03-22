@@ -4,18 +4,12 @@ import { AutoSaveIndicator } from '@/components/common/AutoSaveIndicator'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import type { WizardScreen } from '@/stores/wizardStore'
 
-// Lazy-loaded screen components (Screen 1 and 3 are real, rest are placeholders)
+// Screen components
 import { ProjectSetup } from '@/components/wizard/ProjectSetup'
 import { CreativeTeam } from '@/components/wizard/CreativeTeam'
-
-function PlaceholderScreen({ title }: { title: string }) {
-  return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">{title}</h1>
-      <p className="text-muted-foreground">Pantalla en desarrollo.</p>
-    </div>
-  )
-}
+import { ScreenplayUpload } from '@/components/wizard/ScreenplayUpload'
+import { FinancialStructure } from '@/components/wizard/FinancialStructure'
+import { DocumentUpload } from '@/components/wizard/DocumentUpload'
 
 /**
  * Wizard layout: 240px sidebar + content area.
@@ -37,23 +31,28 @@ export function WizardShell() {
       case 'datos':
         return <ProjectSetup projectId={projectId} />
       case 'guion':
-        return <PlaceholderScreen title="Guion" />
+        return <ScreenplayUpload projectId={projectId} />
       case 'equipo':
         return <CreativeTeam projectId={projectId} />
       case 'financiera':
-        return <PlaceholderScreen title="Estructura Financiera" />
+        return <FinancialStructure projectId={projectId} />
       case 'documentos':
-        return <PlaceholderScreen title="Documentos" />
+        return <DocumentUpload projectId={projectId} />
       default:
         return <ProjectSetup projectId={projectId} />
     }
   }
 
+  // Screen 2 (guion) and Screen 4 (financiera) use full-width layouts
+  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera'
+
   return (
     <div className="flex h-screen">
       <WizardSidebar />
       <main className="flex-1 overflow-y-auto">
-        <div className="relative mx-auto max-w-[800px] p-8">
+        <div
+          className={`relative p-8 ${isFullWidth ? '' : 'mx-auto max-w-[800px]'}`}
+        >
           {/* Auto-save indicator top-right */}
           <div className="absolute right-8 top-8">
             <AutoSaveIndicator status={saveStatus} />
