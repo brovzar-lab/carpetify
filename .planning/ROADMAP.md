@@ -30,12 +30,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can upload a screenplay PDF and see a parsed breakdown (scenes, locations, characters, INT/EXT/DAY/NIGHT) with the ability to correct inaccuracies
   4. User can navigate all 5 wizard screens (project setup, screenplay, creative team, financials, document uploads) entirely in Mexican Spanish with no English visible
   5. All monetary amounts display as $X,XXX,XXX MXN and all dates display in Spanish format throughout the intake UI
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Scaffold Vite + React project with all dependencies, Zod schemas, format utilities, locale constants, services, hooks, and tests
+- [ ] 01-02-PLAN.md — Dashboard with period-grouped project cards, CRUD operations, and ERPI shared settings page
+- [ ] 01-03-PLAN.md — Wizard shell with sidebar, Screen 1 (Datos del Proyecto), and Screen 3 (Equipo Creativo)
+- [ ] 01-04-PLAN.md — Wizard Screen 2 (Guion), Screen 4 (Estructura Financiera + compliance panel), Screen 5 (Documentos), and end-to-end verification
 
 ### Phase 2: Screenplay Processing
 **Goal**: App can extract structured data from a screenplay PDF and produce a Claude-powered analysis that downstream generation passes consume
@@ -109,7 +110,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Intake Wizard | 0/3 | Not started | - |
+| 1. Scaffold + Intake Wizard | 0/4 | Planning complete | - |
 | 2. Screenplay Processing | 0/2 | Not started | - |
 | 3. AI Document Generation Pipeline | 0/3 | Not started | - |
 | 4. Validation Engine + Dashboard | 0/3 | Not started | - |
