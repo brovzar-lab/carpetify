@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { formatDateES } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -187,7 +188,7 @@ export function DocumentChecklist({
                   <p className="text-xs text-muted-foreground">
                     {record.filename}
                     {record.uploadedAt &&
-                      ` - ${new Date(record.uploadedAt).toLocaleDateString('es-MX')}`}
+                      ` - ${formatDateES(new Date(record.uploadedAt))}`}
                   </p>
                 )}
 
