@@ -9,6 +9,7 @@ import { useGeneratedDocs } from '@/hooks/useGeneratedDocs'
 import { PipelineControl } from '@/components/generation/PipelineControl'
 import { PipelineProgress } from '@/components/generation/PipelineProgress'
 import { DocumentList } from '@/components/generation/DocumentList'
+import { DocumentViewer } from '@/components/generation/DocumentViewer'
 
 interface GenerationScreenProps {
   projectId: string
@@ -73,20 +74,12 @@ export function GenerationScreen({ projectId }: GenerationScreenProps) {
             passProgress={passProgress}
           />
 
-          {/* Viewer panel placeholder -- implemented in Plan 05 */}
-          <div className="flex-1 flex items-center justify-center text-muted-foreground border-l">
-            {selectedDocId ? (
-              <span className="text-sm">Cargando documento...</span>
-            ) : (
-              <div className="text-center">
-                <p className="font-semibold text-foreground">
-                  {es.generation.viewerEmptyHeading}
-                </p>
-                <p className="text-sm mt-1">
-                  {es.generation.viewerEmptyBody}
-                </p>
-              </div>
-            )}
+          {/* Document viewer (right panel) */}
+          <div className="flex-1 border-l flex">
+            <DocumentViewer
+              projectId={projectId}
+              docId={selectedDocId}
+            />
           </div>
         </div>
       )}

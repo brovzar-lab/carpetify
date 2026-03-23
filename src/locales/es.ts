@@ -277,10 +277,36 @@ export const es = {
       PITCH: 'Pitch para Contribuyentes',
     },
 
-    // Viewer placeholder
+    // Viewer
     viewerEmptyHeading: 'Selecciona un documento',
     viewerEmptyBody:
       'Elige un documento de la lista para ver su contenido.',
+    editButton: 'Editar documento',
+    saveEdits: 'Guardar cambios',
+    cancelEdits: 'Descartar cambios',
+    editWarning:
+      'Las ediciones manuales se perderan si regeneras este documento.',
+    editSaved: 'Cambios guardados',
+    editedBadge: 'Editado',
+    wordExportButton: 'Exportar plantilla Word',
+    wordExportTooltip:
+      'Esta plantilla la completara el director externamente.',
+
+    // Budget editor (Plan 06 strings referenced by parallel agent)
+    budgetSaved: 'Presupuesto actualizado',
+    budgetHeading: 'Presupuesto Desglose',
+    budgetBackLink: 'Volver a documentos',
+    budgetColAccount: 'Cuenta',
+    budgetColConcept: 'Concepto',
+    budgetColUnit: 'Unidad',
+    budgetColQty: 'Cantidad',
+    budgetColUnitCost: 'Costo Unitario',
+    budgetColSubtotal: 'Subtotal',
+    budgetGrandTotal: 'Total General',
+    budgetMismatch: (budgetTotal: string, projectTotal: string) =>
+      `El total del presupuesto (${budgetTotal}) no coincide con el costo total del proyecto (${projectTotal}). Ajusta las partidas o actualiza el costo total en Datos del Proyecto.`,
+    downstreamWarning: (field: string, docList: string) =>
+      `${field} actualizado. Los siguientes documentos ahora son inconsistentes: ${docList}.`,
 
     // Error states
     timeoutError: (n: number) =>
