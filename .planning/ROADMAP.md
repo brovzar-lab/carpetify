@@ -13,7 +13,7 @@ Carpetify transforms a screenplay and project metadata into a complete EFICINE A
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scaffold + Intake Wizard** - React/Firebase project with 5-screen Spanish intake wizard and multi-project support (completed 2026-03-22)
-- [ ] **Phase 2: Screenplay Processing** - PDF upload, text extraction, Claude analysis, and manual correction UI
+- [x] **Phase 2: Screenplay Processing** - PDF upload, text extraction, Claude analysis, and manual correction UI (completed 2026-03-23)
 - [ ] **Phase 3: AI Document Generation Pipeline** - 4-pass document generation with prompt injection, staleness tracking, and one-click regeneration
 - [ ] **Phase 4: Validation Engine + Dashboard** - 17 compliance rules, traffic light dashboard, score estimation, and real-time validation
 - [ ] **Phase 5: Export Manager** - PDF generation, IMCINE naming, pre-export language check, ZIP packaging
@@ -47,7 +47,7 @@ Plans:
   2. App displays parsed scene count, page count, locations, characters, and INT/EXT/DAY/NIGHT breakdown from the extracted text
   3. App sends parsed data to Claude API via Cloud Function using the Spanish prompt from prompts/analisis_guion.md and stores structured analysis results in Firestore
   4. Screenplay analysis data is accessible as structured Firestore data (not PDF) for downstream generation passes to consume
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 02-01-PLAN.md — Cloud Functions scaffold, PDF text extraction with pdf-parse, screenplay structure parser with regex, and extractScreenplay callable Cloud Function
@@ -63,12 +63,15 @@ Plans:
   3. User can view any generated document in the UI and see structured content stored in Firestore
   4. When user changes upstream data (intake fields, screenplay reparse), affected downstream documents are marked as stale and user can trigger one-click regeneration
   5. Budget uses IMCINE standard account structure (100-1200) with Mexican market crew rates
-**Plans**: TBD
+**Plans:** 6 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md — Foundation: shared types, Handlebars prompt loader, financial computation (budget, cash flow, esquema financiero), Claude client, staleness tracker
+- [ ] 03-02-PLAN.md — Cloud Functions for Line Producer pass (A7, A8a, A8b, A9a, A9b) and Finance Advisor pass (A9d, E1, E2)
+- [ ] 03-03-PLAN.md — Cloud Functions for Legal pass (B3-prod, B3-dir, C2b, C3a, C3b) and Combined pass (A1, A2, A4, A6, A10, A11, C4, PITCH)
+- [ ] 03-04-PLAN.md — Frontend generation screen route, document list by EFICINE section, pipeline control with streaming progress
+- [ ] 03-05-PLAN.md — Document viewer with edit mode, staleness detection UI with cascade, pass-level regeneration controls
+- [ ] 03-06-PLAN.md — Budget editor (IMCINE 100-1200 account structure), downstream warnings, A4 Word export, end-to-end verification
 
 ### Phase 4: Validation Engine + Dashboard
 **Goal**: App validates all project data and generated documents against EFICINE rules, displays compliance status on a traffic light dashboard, and estimates the project's competition score
@@ -111,7 +114,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Intake Wizard | 4/4 | Complete   | 2026-03-22 |
-| 2. Screenplay Processing | 0/2 | Not started | - |
-| 3. AI Document Generation Pipeline | 0/3 | Not started | - |
+| 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
+| 3. AI Document Generation Pipeline | 0/6 | Not started | - |
 | 4. Validation Engine + Dashboard | 0/3 | Not started | - |
 | 5. Export Manager | 0/2 | Not started | - |
