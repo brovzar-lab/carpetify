@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-03-23T19:27:11.104Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-03-23T19:45:04.431Z"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 03 (ai-doc-generation) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: 4 of 6
 | Phase 03 P01 | 14min | 3 tasks | 19 files |
 | Phase 03 P02 | 10min | 2 tasks | 6 files |
 | Phase 03 P03 | 10min | 2 tasks | 6 files |
+| Phase 03 P04 | 14min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 03]: StreamCallback imported from lineProducer.ts as canonical source rather than duplicating type
 - [Phase 03]: A4 Propuesta de Direccion is a structured template (isTemplate:true) for director to fill externally, not AI prose (D-07)
 - [Phase 03]: Legal fees from intake team data via formatMXNLegal (D-15), combined pass gets 600s timeout for 8-document workload
+- [Phase 03]: WizardShell has dedicated layout for generation screen (no padding wrapper) to support two-panel layout
+- [Phase 03]: Frontend document registry is a static array mirroring backend DOCUMENT_REGISTRY (no cross-boundary import)
+- [Phase 03]: Firebase httpsCallable().stream() for real-time progress from Cloud Functions to frontend
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T19:27:11.100Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-03-23T19:45:04.427Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None

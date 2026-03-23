@@ -37,7 +37,7 @@
 - [x] **AIGEN-07**: Budget generation uses Mexican film industry market rates (crew rates, equipment, catering, insurance benchmarks) per IMCINE standard account structure (100–1200)
 - [x] **AIGEN-08**: Generated documents are stored in Firestore as structured data, viewable in the UI, and available for downstream passes and validation
 - [x] **AIGEN-09**: Changing upstream data (intake fields, screenplay reparse, or prior-pass outputs) marks affected downstream documents as stale
-- [ ] **AIGEN-10**: User can trigger one-click regeneration of stale documents — the app re-runs affected pipeline passes with updated data
+- [x] **AIGEN-10**: User can trigger one-click regeneration of stale documents — the app re-runs affected pipeline passes with updated data
 - [x] **AIGEN-11**: Pitch para contribuyentes document generation — uses `prompts/documentos_combinados.md` to generate a 1-2 page sales document targeting corporate CFOs who would donate ISR via the EFICINE mechanism. Not evaluated by IMCINE but operationally critical for securing funding
 
 ### Validation & Compliance
@@ -143,7 +143,7 @@
 | AIGEN-07 | Phase 3 | Complete |
 | AIGEN-08 | Phase 3 | Complete |
 | AIGEN-09 | Phase 3 | Complete |
-| AIGEN-10 | Phase 3 | Pending |
+| AIGEN-10 | Phase 3 | Complete |
 | AIGEN-11 | Phase 3 | Complete |
 | VALD-01 | Phase 4 | Pending |
 | VALD-02 | Phase 4 | Pending |
