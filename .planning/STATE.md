@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: "Completed 03-06-PLAN.md (Task 1), checkpoint:human-verify pending"
-last_updated: "2026-03-23T19:53:22.560Z"
+stopped_at: Completed 03-05-PLAN.md
+last_updated: "2026-03-23T19:54:10.774Z"
 progress:
   total_phases: 6
   completed_phases: 3
@@ -57,6 +57,7 @@ Plan: 6 of 6
 | Phase 03 P03 | 10min | 2 tasks | 6 files |
 | Phase 03 P04 | 14min | 3 tasks | 13 files |
 | Phase 03 P06 | 5min | 1 tasks | 9 files |
+| Phase 03 P05 | 5min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Recent decisions affecting current work:
 - [Phase 03]: Inline editable cell pattern for budget: raw number on focus, formatted MXN on blur (same as MXNInput)
 - [Phase 03]: Budget auto-save writes FULL BudgetOutput (with partidas) to meta/budget_output for downstream pass compatibility
 - [Phase 03]: A4 Word export uses lightweight .txt template (Claude discretion per CONTEXT.md)
+- [Phase 03]: useStaleness uses pure function computeStalePasses for testable staleness logic, separate from Firestore listener
+- [Phase 03]: DOC_TO_PASS static map in useStaleness for O(1) document-to-pass staleness lookup
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T19:53:22.557Z
-Stopped at: Completed 03-06-PLAN.md (Task 1), checkpoint:human-verify pending
+Last session: 2026-03-23T19:54:10.771Z
+Stopped at: Completed 03-05-PLAN.md
 Resume file: None
