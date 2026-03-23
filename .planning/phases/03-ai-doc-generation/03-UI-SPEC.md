@@ -160,9 +160,9 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`. New
 | Element | Copy |
 |---------|------|
 | Viewer heading | {docName} (shows the current document name from the list above) |
-| Edit button | Editar |
+| Edit button | Editar documento |
 | Save edits button | Guardar cambios |
-| Cancel edits button | Cancelar |
+| Cancel edits button | Descartar cambios |
 | Edit mode warning banner | Las ediciones manuales se perderan si regeneras este documento. |
 | Manual edit badge (on document list item) | Editado |
 | Regenerate confirmation (edited doc) title | Regenerar {docName} |
@@ -229,7 +229,7 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`. New
 
 | Component | Phase 3 Usage |
 |-----------|---------------|
-| Button | "Generar carpeta" CTA, "Editar", "Guardar cambios", "Regenerar", all action buttons |
+| Button | "Generar carpeta" CTA, "Editar documento", "Guardar cambios", "Descartar cambios", "Regenerar", all action buttons |
 | Card | Pipeline progress card, document viewer container |
 | Badge | Document status badges ("Listo", "Desactualizado", "Editado"), EFICINE section labels |
 | Separator | Between EFICINE section groups in document list, between viewer header and content |
@@ -250,7 +250,7 @@ All copy in Mexican Spanish per INTK-10 and `directives/politica_idioma.md`. New
 | `PipelineProgress` | Real-time progress visualization within PipelineControl. Shows 4 passes as sequential steps, each with a progress bar and document-level status list. |
 | `DocumentList` | Left panel (320px) listing all generated documents organized by EFICINE section (A, B, C, D, E). Each item shows: document name, status dot (green/yellow/red/gray), status label, generation timestamp. Clicking an item selects it in the viewer. |
 | `DocumentListItem` | Single item in DocumentList. Shows EFICINE ID badge, document name, status indicator, optional "Editado" badge. Active state highlighted with primary/10 background (matching existing sidebar pattern). |
-| `DocumentViewer` | Right panel showing selected document content. Read-only by default. "Editar" button switches to edit mode (Textarea for prose, structured editor for tables). Shows generation metadata footer. |
+| `DocumentViewer` | Right panel showing selected document content. Read-only by default. "Editar documento" button switches to edit mode (Textarea for prose, structured editor for tables). Shows generation metadata footer. |
 | `StalenessIndicator` | Inline component showing yellow badge + warning text for stale documents/passes. Used within DocumentListItem and as a banner in DocumentViewer. |
 | `RegenerateButton` | Button that triggers pass-level regeneration. Shows confirmation Dialog when the pass contains manually-edited documents. |
 | `BudgetEditor` | Spreadsheet-like structured editor for A9b (presupuesto desglose). Table component with IMCINE account structure (100-1200), editable quantity and unit cost cells, auto-calculated subtotals and grand total. Monospaced numbers. |
@@ -311,7 +311,7 @@ Phase 3 adds a new screen to the wizard sidebar: "Documentos Generados" (or acce
 |        | +-- Two-Panel Layout -------------------------+ |
 |        | | Doc List (320px) | Document Viewer          | |
 |        | |                  |                          | |
-|        | | Seccion A        | [Doc Title]  [Editar]    | |
+|        | | Seccion A        | [Doc Title] [Editar doc] | |
 |        | |  A1 Resumen [ok] | ----------------------- | |
 |        | |  A2 Sinopsis[ok] | Document content here... | |
 |        | |  ...             |                          | |
@@ -406,7 +406,7 @@ Phase 3 adds a new screen to the wizard sidebar: "Documentos Generados" (or acce
 +-- Document Viewer (flex-1) ---------------------------------+
 | +-- Header bar (flex, justify-between, border-b, p-4) ----+|
 | | "Propuesta de Produccion"  (20px semibold)               ||
-| | [Editar]  (outline button, right-aligned)                ||
+| | [Editar documento]  (outline button, right-aligned)      ||
 | +----------------------------------------------------------+|
 |                                                              |
 | +-- Stale banner (if applicable) -------------------------+ |
@@ -430,12 +430,12 @@ Phase 3 adds a new screen to the wizard sidebar: "Documentos Generados" (or acce
 +--------------------------------------------------------------+
 ```
 
-**Edit mode** (replaces content area when "Editar" is clicked):
+**Edit mode** (replaces content area when "Editar documento" is clicked):
 
 ```
 +-- Edit mode header -------------------------------------------+
 | [!] Las ediciones manuales se perderan si regeneras.          |
-|                                       [Cancelar] [Guardar]   |
+|                          [Descartar cambios] [Guardar cambios]|
 +---------------------------------------------------------------+
 | +-- Textarea (full content area) ---------------------------+|
 | | Document text content, editable...                         ||
@@ -513,18 +513,18 @@ Clicking A9b in the document list navigates to the budget editor instead of the 
 2. Active document highlighted with `bg-primary/10` (matching existing sidebar pattern).
 3. Content renders as formatted prose (for text documents) or structured table (for financial documents).
 4. Viewer is read-only by default. No text selection cursor changes, no editable areas.
-5. "Editar" button (outline variant) in the viewer header switches to edit mode.
+5. "Editar documento" button (outline variant) in the viewer header switches to edit mode.
 6. On first entering a document that has never been viewed, no special behavior -- the content is available immediately from Firestore.
 
 ### Edit Mode (D-05, D-06)
 
-1. Clicking "Editar" in viewer header:
+1. Clicking "Editar documento" in viewer header:
    - Header gains a yellow Alert banner: "Las ediciones manuales se perderan si regeneras este documento."
    - Content area replaces with a full-height Textarea pre-filled with document text.
-   - "Editar" button replaced by "Cancelar" (outline) and "Guardar cambios" (primary) buttons.
+   - "Editar documento" button replaced by "Descartar cambios" (outline) and "Guardar cambios" (primary) buttons.
 2. Clicking "Guardar cambios": writes edited content to Firestore, switches back to read-only view. Document gains "Editado" badge in the list (yellow badge, visible permanently until regeneration).
-3. Clicking "Cancelar": discards changes, switches back to read-only view.
-4. For structured documents (budget, cash flow, esquema financiero): edit mode is NOT a textarea. These use their respective structured editors (BudgetEditor for A9b). The "Editar" button is not shown for A9b -- clicking A9b always opens the BudgetEditor.
+3. Clicking "Descartar cambios": discards unsaved edits, switches back to read-only view.
+4. For structured documents (budget, cash flow, esquema financiero): edit mode is NOT a textarea. These use their respective structured editors (BudgetEditor for A9b). The "Editar documento" button is not shown for A9b -- clicking A9b always opens the BudgetEditor.
 
 ### Staleness Detection and Display (D-09, D-10, D-11, D-12)
 
