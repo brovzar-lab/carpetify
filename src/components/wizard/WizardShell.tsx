@@ -10,6 +10,7 @@ import { CreativeTeam } from '@/components/wizard/CreativeTeam'
 import { ScreenplayUpload } from '@/components/wizard/ScreenplayUpload'
 import { FinancialStructure } from '@/components/wizard/FinancialStructure'
 import { DocumentUpload } from '@/components/wizard/DocumentUpload'
+import { GenerationScreen } from '@/components/generation/GenerationScreen'
 
 /**
  * Wizard layout: 240px sidebar + content area.
@@ -38,13 +39,15 @@ export function WizardShell() {
         return <FinancialStructure projectId={projectId} />
       case 'documentos':
         return <DocumentUpload projectId={projectId} />
+      case 'generacion':
+        return <GenerationScreen projectId={projectId} />
       default:
         return <ProjectSetup projectId={projectId} />
     }
   }
 
-  // Screen 2 (guion) and Screen 4 (financiera) use full-width layouts
-  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera'
+  // Screens that use full-width layouts (no max-width constraint)
+  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera' || activeScreen === 'generacion'
 
   return (
     <div className="flex h-screen">

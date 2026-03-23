@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { es } from '@/locales/es'
 import { TrafficLight, type TrafficLightStatus } from '@/components/common/TrafficLight'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import type { WizardScreen } from '@/stores/wizardStore'
 
@@ -68,6 +69,21 @@ export function WizardSidebar({ screenStatuses = {} }: WizardSidebarProps) {
             </Link>
           )
         })}
+
+        {/* Generation screen — separated from intake wizard screens */}
+        <Separator className="my-2" />
+        <Link
+          to={`/project/${projectId}/generacion`}
+          className={cn(
+            'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
+            activeScreen === 'generacion'
+              ? 'bg-primary/10 text-primary font-semibold'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+          )}
+        >
+          <TrafficLight status={screenStatuses.generacion || 'partial'} />
+          <span>{es.wizard.screen6}</span>
+        </Link>
       </nav>
     </aside>
   )

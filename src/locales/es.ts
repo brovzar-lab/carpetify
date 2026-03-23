@@ -36,6 +36,7 @@ export const es = {
     screen3: 'Equipo Creativo',
     screen4: 'Estructura Financiera',
     screen5: 'Documentos',
+    screen6: 'Generacion',
     backToDashboard: 'Mis Proyectos',
   },
 
@@ -201,6 +202,97 @@ export const es = {
     companySection: 'Datos de la Empresa',
     priorProjectsSection: 'Proyectos Previos EFICINE',
     addPriorProject: '+ Agregar proyecto previo',
+  },
+
+  // -- Generation Screen --
+  generation: {
+    // Screen label
+    screenLabel: 'Generacion',
+
+    // Pipeline control
+    generateCTA: 'Generar carpeta',
+    generateCTATooltip: 'Primero completa el analisis del guion en la pantalla "Guion"',
+    pipelineRunning: 'Generando documentos...',
+    passLabels: {
+      lineProducer: 'Paso 2: Line Producer',
+      financeAdvisor: 'Paso 3: Finanzas',
+      legal: 'Paso 4: Legal',
+      combined: 'Paso 5: Documentos Combinados',
+    },
+    docGenerating: (name: string) => `Generando ${name}...`,
+    docComplete: 'Listo',
+    passComplete: (n: number, count: number) =>
+      `Paso ${n} completado (${count} documentos)`,
+    pipelineComplete: (count: number) =>
+      `Carpeta generada exitosamente. ${count} documentos listos.`,
+    pipelineIncomplete: 'Generacion incompleta',
+    pipelineIncompleteBody: (n: number, total: number) =>
+      `Se completaron ${n} de ${total} documentos. Los documentos generados se conservaron.`,
+    resumeCTA: (n: number) => `Continuar desde Paso ${n}`,
+    pipelineError:
+      'Error al generar documentos. Los documentos anteriores se conservaron.',
+
+    // Document list
+    pageTitle: 'Documentos Generados',
+    sectionHeaders: {
+      A: 'Seccion A \u2014 Propuesta Artistica',
+      B: 'Seccion B \u2014 Equipo de Trabajo',
+      C: 'Seccion C \u2014 Aspectos Legales',
+      D: 'Seccion D \u2014 Cotizaciones',
+      E: 'Seccion E \u2014 Esquema Financiero',
+      EXTRA: 'Documentos Adicionales',
+    },
+    statusPending: 'Pendiente',
+    statusGenerating: 'Generando...',
+    statusComplete: 'Listo',
+    statusStale: 'Desactualizado',
+    statusError: 'Error',
+    statusEdited: 'Editado manualmente',
+    emptyHeading: 'Sin documentos generados',
+    emptyBody:
+      'Completa los datos del proyecto y el analisis del guion, luego presiona "Generar carpeta" para producir todos los documentos.',
+
+    // Document names (mapped to EFICINE IDs)
+    docNames: {
+      A1: 'Resumen Ejecutivo (FORMATO 1)',
+      A2: 'Sinopsis',
+      A4: 'Propuesta de Direccion',
+      A6: 'Solidez del Equipo Creativo (FORMATO 2)',
+      A7: 'Propuesta de Produccion',
+      A8a: 'Plan de Rodaje',
+      A8b: 'Ruta Critica',
+      A9a: 'Presupuesto Resumen',
+      A9b: 'Presupuesto Desglose',
+      A9d: 'Flujo de Efectivo (FORMATO 3)',
+      A10: 'Propuesta de Exhibicion',
+      A11: 'Evaluacion Puntos Bonus',
+      'B3-prod': 'Contrato Productor',
+      'B3-dir': 'Contrato Director',
+      C2b: 'Cesion de Derechos de Guion',
+      C3a: 'Carta Buenas Practicas (FORMATO 6)',
+      C3b: 'Carta PICS (FORMATO 7)',
+      C4: 'Ficha Tecnica (FORMATO 8)',
+      E1: 'Esquema Financiero (FORMATO 9)',
+      E2: 'Carta Aportacion Exclusiva (FORMATO 10)',
+      PITCH: 'Pitch para Contribuyentes',
+    },
+
+    // Viewer placeholder
+    viewerEmptyHeading: 'Selecciona un documento',
+    viewerEmptyBody:
+      'Elige un documento de la lista para ver su contenido.',
+
+    // Error states
+    timeoutError: (n: number) =>
+      `La generacion del Paso ${n} tardo demasiado. Los documentos anteriores se conservaron. Intenta de nuevo.`,
+    rateLimitError:
+      'Limite de solicitudes alcanzado. Espera unos minutos e intenta de nuevo.',
+    networkError:
+      'Error de conexion durante la generacion. Verifica tu internet e intenta de nuevo.',
+    firestoreError:
+      'Error al guardar el documento generado. Intenta de nuevo.',
+    templateVarError: (name: string) =>
+      `Error en la plantilla del documento ${name}. Verifica que todos los campos del proyecto esten completos.`,
   },
 
   // -- Error States --
