@@ -47,11 +47,11 @@ Plans:
   2. App displays parsed scene count, page count, locations, characters, and INT/EXT/DAY/NIGHT breakdown from the extracted text
   3. App sends parsed data to Claude API via Cloud Function using the Spanish prompt from prompts/analisis_guion.md and stores structured analysis results in Firestore
   4. Screenplay analysis data is accessible as structured Firestore data (not PDF) for downstream generation passes to consume
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Cloud Functions scaffold, PDF text extraction with pdf-parse, screenplay structure parser with regex, and extractScreenplay callable Cloud Function
+- [ ] 02-02-PLAN.md — Claude analysis Cloud Function with prompt injection from prompts/analisis_guion.md, response validation, Firestore storage, and frontend integration with analysis CTA, results display, and error/stale states
 
 ### Phase 3: AI Document Generation Pipeline
 **Goal**: App generates all ~20 AI-produced documents across 4 sequential passes, with deterministic financial injection, staleness tracking, and one-click regeneration
