@@ -10,6 +10,7 @@ import { PipelineControl } from '@/components/generation/PipelineControl'
 import { PipelineProgress } from '@/components/generation/PipelineProgress'
 import { DocumentList } from '@/components/generation/DocumentList'
 import { DocumentViewer } from '@/components/generation/DocumentViewer'
+import { BudgetEditor } from '@/components/generation/BudgetEditor'
 
 interface GenerationScreenProps {
   projectId: string
@@ -74,12 +75,19 @@ export function GenerationScreen({ projectId }: GenerationScreenProps) {
             passProgress={passProgress}
           />
 
-          {/* Document viewer (right panel) */}
+          {/* Document viewer or budget editor (right panel) */}
           <div className="flex-1 border-l flex">
-            <DocumentViewer
-              projectId={projectId}
-              docId={selectedDocId}
-            />
+            {selectedDocId === 'A9b' ? (
+              <BudgetEditor
+                projectId={projectId}
+                onBack={() => setSelectedDocId(null)}
+              />
+            ) : (
+              <DocumentViewer
+                projectId={projectId}
+                docId={selectedDocId}
+              />
+            )}
           </div>
         </div>
       )}

@@ -292,6 +292,22 @@ export const es = {
     wordExportTooltip:
       'Esta plantilla la completara el director externamente.',
 
+    // Staleness & regeneration
+    stalePassTitle: (n: number) => `Paso ${n} desactualizado`,
+    staleReasonDataChanged:
+      'Los datos de entrada fueron modificados. Regenera este paso para actualizar los documentos.',
+    staleReasonUpstreamRegenerated: (n: number) =>
+      `El Paso ${n} fue regenerado. Los documentos de este paso usan datos anteriores.`,
+    regeneratePassCTA: (n: number) => `Regenerar Paso ${n}`,
+    regenerateAllStaleCTA: 'Regenerar documentos desactualizados',
+    regenerateConfirmTitle: (n: number) => `Regenerar Paso ${n}`,
+    regenerateConfirmBody: (docList: string) =>
+      `Este paso contiene documentos con ediciones manuales que se perderan: ${docList}. ¿Continuar?`,
+    regenerateConfirm: 'Regenerar de todos modos',
+    regenerateCancel: 'Conservar ediciones',
+    cascadeTooltip: (deps: string) =>
+      `Este paso depende de: ${deps}.`,
+
     // Budget editor (Plan 06 strings referenced by parallel agent)
     budgetSaved: 'Presupuesto actualizado',
     budgetHeading: 'Presupuesto Desglose',

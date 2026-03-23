@@ -16,7 +16,9 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { AlertTriangle } from 'lucide-react'
+import { StalenessIndicator } from '@/components/generation/StalenessIndicator'
+import { AlertTriangle, Download } from 'lucide-react'
+import type { PassId } from '@/services/generation'
 import { toast } from 'sonner'
 
 // ---- Types ----
@@ -25,6 +27,18 @@ interface DocumentViewerProps {
   projectId: string
   docId: string | null
   onDocUpdated?: () => void
+  /** Whether the currently viewed document is stale */
+  isStale?: boolean
+  /** PassId the current document belongs to (for staleness banner) */
+  docPassId?: PassId
+  /** Reason text for staleness */
+  staleReasonText?: string
+  /** Whether any doc in the current pass has manual edits */
+  passHasEditedDocs?: boolean
+  /** Callback to regenerate the pass */
+  onRegenerate?: () => void
+  /** Whether regeneration is in progress */
+  isRegenerating?: boolean
 }
 
 interface DocMeta {
@@ -39,6 +53,12 @@ export function DocumentViewer({
   projectId,
   docId,
   onDocUpdated,
+  isStale = false,
+  docPassId,
+  staleReasonText,
+  passHasEditedDocs = false,
+  onRegenerate,
+  isRegenerating = false,
 }: DocumentViewerProps) {
   const [docContent, setDocContent] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -100,6 +120,48 @@ export function DocumentViewer({
     setIsEditing(false)
   }
 
+  // A4 Word export handler -- generates a simple .txt template for the director
+  const handleA4WordExport = () => {
+    const templateText = [
+      'PROPUESTA DE DIRECCION',
+      '',
+      'Proyecto: ___________________________',
+      'Director: ___________________________',
+      'Fecha: ___________________________',
+      '',
+      '1. Vision del director',
+      '',
+      '   [El director describira aqui su vision artistica para el proyecto.]',
+      '',
+      '2. Propuesta visual',
+      '',
+      '   [Descripcion de la estetica visual, paleta de color, iluminacion, movimientos de camara.]',
+      '',
+      '3. Direccion de actores',
+      '',
+      '   [Enfoque para el trabajo con los actores, metodo, ensayos.]',
+      '',
+      '4. Propuesta sonora',
+      '',
+      '   [Descripcion del diseno sonoro y banda sonora.]',
+      '',
+      '5. Referencias visuales',
+      '',
+      '   [Peliculas, fotografias u obras que inspiran el proyecto.]',
+      '',
+    ].join('\n')
+
+    const blob = new Blob([templateText], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'A4_PropDir.txt'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   // Empty state: no document selected
   if (!docId) {
     return (
@@ -109,6 +171,28 @@ export function DocumentViewer({
             {es.generation.viewerEmptyHeading}
           </p>
           <p className="text-sm mt-1">{es.generation.viewerEmptyBody}</p>
+        </div>
+      </div>
+    )
+  }
+
+  // A4 special handling: Word export template for the director (D-07)
+  if (docId === 'A4') {
+    return (
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex items-center justify-between border-b p-4">
+          <h2 className="text-xl font-semibold">
+            {es.generation.docNames.A4}
+          </h2>
+        </div>
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          <div className="text-center max-w-md space-y-4">
+            <p>{es.generation.wordExportTooltip}</p>
+            <Button variant="outline" onClick={handleA4WordExport}>
+              <Download className="h-4 w-4 mr-2" />
+              {es.generation.wordExportButton}
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -136,7 +220,16 @@ export function DocumentViewer({
         </Alert>
       )}
 
-      {/* Staleness banner slot -- filled by StalenessIndicator in Task 2 */}
+      {/* Staleness banner */}
+      {isStale && !isEditing && docPassId && staleReasonText && onRegenerate && (
+        <StalenessIndicator
+          passId={docPassId}
+          reason={staleReasonText}
+          onRegenerate={onRegenerate}
+          hasEditedDocs={passHasEditedDocs}
+          isRegenerating={isRegenerating}
+        />
+      )}
 
       {/* Content area */}
       <ScrollArea className="flex-1 p-6">
