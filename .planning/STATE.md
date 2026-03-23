@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-03-23T04:43:35.008Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-23T05:00:01.272Z"
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Plan: 2 of 2
 | Phase 01 P03 | 4min | 2 tasks | 9 files |
 | Phase 01 P04 | 10min | 3 tasks | 9 files |
 | Phase 02 P01 | 7min | 2 tasks | 15 files |
+| Phase 02 P02 | 13min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase 02]: pdf-parse v2 uses class-based API (PDFParse class + getText/getInfo), not v1 function-based API
 - [Phase 02]: extractText tests use behavior verification pattern (testing normalization directly) to avoid pdfjs-dist jsdom incompatibility
 - [Phase 02]: Cloud Functions deploy with predeploy cp -r prompts to bundle prompt files inside functions/ directory
+- [Phase 02]: Dependency injection pattern for Cloud Function handler testability (optional db/client params) instead of module mocking across separate node_modules
+- [Phase 02]: Handler extraction: onCall wrapper in index.ts delegates to pure handler in analyzeHandler.ts for DI-based unit testing
+- [Phase 02]: vi.hoisted() required for mock factories referencing variables in @functions alias tests
 
 ### Pending Todos
 
@@ -87,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T04:43:35.003Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-03-23T05:00:01.268Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
