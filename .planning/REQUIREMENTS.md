@@ -30,15 +30,15 @@
 
 - [x] **AIGEN-01**: Line Producer pass generates: propuesta de producción (A7), plan de rodaje (A8a), ruta crítica (A8b), presupuesto resumen (A9a), presupuesto desglose (A9b) — using prompt from `prompts/`
 - [x] **AIGEN-02**: Finance Advisor pass generates: flujo de efectivo (A9d/FORMATO 3), esquema financiero (E1/FORMATO 9), carta aportación exclusiva (E2/FORMATO 10) — using budget from Line Producer pass
-- [ ] **AIGEN-03**: Legal pass generates: cesión de derechos contract (C2b), producer contract (B3), director contract (B3), carta buenas prácticas (C3a/FORMATO 6), carta PICS (C3b/FORMATO 7) — using fees from budget
-- [ ] **AIGEN-04**: Combined pass generates: resumen ejecutivo (A1/FORMATO 1), sinopsis (A2), solidez equipo creativo (A6/FORMATO 2), propuesta exhibición (A10), ficha técnica (C4/FORMATO 8), bonus points assessment (A11)
+- [x] **AIGEN-03**: Legal pass generates: cesión de derechos contract (C2b), producer contract (B3), director contract (B3), carta buenas prácticas (C3a/FORMATO 6), carta PICS (C3b/FORMATO 7) — using fees from budget
+- [x] **AIGEN-04**: Combined pass generates: resumen ejecutivo (A1/FORMATO 1), sinopsis (A2), solidez equipo creativo (A6/FORMATO 2), propuesta exhibición (A10), ficha técnica (C4/FORMATO 8), bonus points assessment (A11)
 - [x] **AIGEN-05**: All AI prompts are loaded from `prompts/` folder in Spanish with `{{variable}}` substitution — prompts are never rewritten or inlined in English
 - [x] **AIGEN-06**: All monetary values in generated documents are injected deterministically from computed data — AI never calculates or invents financial numbers
 - [x] **AIGEN-07**: Budget generation uses Mexican film industry market rates (crew rates, equipment, catering, insurance benchmarks) per IMCINE standard account structure (100–1200)
 - [x] **AIGEN-08**: Generated documents are stored in Firestore as structured data, viewable in the UI, and available for downstream passes and validation
 - [x] **AIGEN-09**: Changing upstream data (intake fields, screenplay reparse, or prior-pass outputs) marks affected downstream documents as stale
 - [ ] **AIGEN-10**: User can trigger one-click regeneration of stale documents — the app re-runs affected pipeline passes with updated data
-- [ ] **AIGEN-11**: Pitch para contribuyentes document generation — uses `prompts/documentos_combinados.md` to generate a 1-2 page sales document targeting corporate CFOs who would donate ISR via the EFICINE mechanism. Not evaluated by IMCINE but operationally critical for securing funding
+- [x] **AIGEN-11**: Pitch para contribuyentes document generation — uses `prompts/documentos_combinados.md` to generate a 1-2 page sales document targeting corporate CFOs who would donate ISR via the EFICINE mechanism. Not evaluated by IMCINE but operationally critical for securing funding
 
 ### Validation & Compliance
 
@@ -136,15 +136,15 @@
 | SCRN-04 | Phase 2 | Complete |
 | AIGEN-01 | Phase 3 | Complete |
 | AIGEN-02 | Phase 3 | Complete |
-| AIGEN-03 | Phase 3 | Pending |
-| AIGEN-04 | Phase 3 | Pending |
+| AIGEN-03 | Phase 3 | Complete |
+| AIGEN-04 | Phase 3 | Complete |
 | AIGEN-05 | Phase 3 | Complete |
 | AIGEN-06 | Phase 3 | Complete |
 | AIGEN-07 | Phase 3 | Complete |
 | AIGEN-08 | Phase 3 | Complete |
 | AIGEN-09 | Phase 3 | Complete |
 | AIGEN-10 | Phase 3 | Pending |
-| AIGEN-11 | Phase 3 | Pending |
+| AIGEN-11 | Phase 3 | Complete |
 | VALD-01 | Phase 4 | Pending |
 | VALD-02 | Phase 4 | Pending |
 | VALD-03 | Phase 4 | Pending |

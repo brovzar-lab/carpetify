@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-03-23T19:26:54.449Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-23T19:27:11.104Z"
 progress:
   total_phases: 6
   completed_phases: 2
@@ -88,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase 03]: Handlebars strict:false for prompt compilation allows partial variable resolution without throwing
 - [Phase 03]: Used estimacion_jornadas.media for shooting days (plan said .estandar but data model uses baja/media/alta)
 - [Phase 03]: Firebase onCall streaming uses (request, response) pattern where response.sendChunk handles SSE
+- [Phase 03]: StreamCallback imported from lineProducer.ts as canonical source rather than duplicating type
+- [Phase 03]: A4 Propuesta de Direccion is a structured template (isTemplate:true) for director to fill externally, not AI prose (D-07)
+- [Phase 03]: Legal fees from intake team data via formatMXNLegal (D-15), combined pass gets 600s timeout for 8-document workload
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T19:26:42.244Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-03-23T19:27:11.100Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None
