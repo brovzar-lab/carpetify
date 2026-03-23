@@ -49,6 +49,18 @@ export function WizardShell() {
   // Screens that use full-width layouts (no max-width constraint)
   const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera' || activeScreen === 'generacion'
 
+  // Generation screen manages its own layout (two-panel with pipeline progress)
+  if (activeScreen === 'generacion') {
+    return (
+      <div className="flex h-screen">
+        <WizardSidebar />
+        <main className="flex-1 flex flex-col min-h-0">
+          {renderScreen()}
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-screen">
       <WizardSidebar />

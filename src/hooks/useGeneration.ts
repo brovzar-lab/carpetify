@@ -5,6 +5,7 @@
 import { useState, useCallback, useRef } from 'react'
 import {
   runFullPipeline,
+  runPass,
   PIPELINE_ORDER,
   type PassId,
   type ProgressChunk,
@@ -187,7 +188,6 @@ export function useGeneration(projectId: string) {
 
       try {
         // Run only the single pass (not the full pipeline)
-        const { runPass } = await import('@/services/generation')
         const result = await runPass(passId, projectId, (chunk) => {
           setPassProgress((prev) => {
             const pass = { ...prev[passId] }
