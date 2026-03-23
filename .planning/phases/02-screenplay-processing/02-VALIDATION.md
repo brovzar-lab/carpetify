@@ -2,9 +2,10 @@
 phase: 2
 slug: screenplay-processing
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-22
+revised: 2026-03-22
 ---
 
 # Phase 2 — Validation Strategy
@@ -38,22 +39,22 @@ created: 2026-03-22
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 02-01-01 | 01 | 1 | SCRN-01 | unit | `npx vitest run src/__tests__/screenplay/extractText.test.ts` | ❌ W0 | ⬜ pending |
-| 02-01-02 | 01 | 1 | SCRN-02 | unit | `npx vitest run src/__tests__/screenplay/parseStructure.test.ts` | ❌ W0 | ⬜ pending |
-| 02-02-01 | 02 | 2 | SCRN-03 | integration | `npx vitest run src/__tests__/screenplay/analyzeWithClaude.test.ts` | ❌ W0 | ⬜ pending |
-| 02-02-02 | 02 | 2 | SCRN-04 | integration | `npx vitest run src/__tests__/screenplay/storage.test.ts` | ❌ W0 | ⬜ pending |
+| 02-01-01 | 01 | 1 | SCRN-01 | unit | `npx vitest run src/__tests__/screenplay/extractText.test.ts` | W0 | pending |
+| 02-01-02 | 01 | 1 | SCRN-02 | unit | `npx vitest run src/__tests__/screenplay/parseStructure.test.ts` | W0 | pending |
+| 02-02-01 | 02 | 2 | SCRN-03 | integration | `npx vitest run src/__tests__/screenplay/analyzeWithClaude.test.ts` | W0 | pending |
+| 02-02-02 | 02 | 2 | SCRN-04 | integration | `npx vitest run src/__tests__/screenplay/storage.test.ts` | W0 (Plan 02 Task 1) | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `src/__tests__/screenplay/extractText.test.ts` — PDF text extraction tests
-- [ ] `src/__tests__/screenplay/parseStructure.test.ts` — Regex parser tests with known screenplay text
-- [ ] `src/__tests__/screenplay/analyzeWithClaude.test.ts` — Claude API integration test (mocked)
-- [ ] `src/__tests__/screenplay/storage.test.ts` — Firestore write verification
-- [ ] `src/__tests__/fixtures/sample-screenplay.txt` — Test fixture with known-structure screenplay text
+- [ ] `src/__tests__/screenplay/extractText.test.ts` — PDF text extraction tests (Plan 01 Task 2)
+- [ ] `src/__tests__/screenplay/parseStructure.test.ts` — Regex parser tests with known screenplay text (Plan 01 Task 2)
+- [ ] `src/__tests__/screenplay/analyzeWithClaude.test.ts` — Claude API integration test, mocked (Plan 02 Task 1)
+- [ ] `src/__tests__/screenplay/storage.test.ts` — Firestore write verification for analyzeScreenplay (Plan 02 Task 1)
+- [ ] `src/__tests__/fixtures/sample-screenplay.txt` — Test fixture with known-structure screenplay text (Plan 01 Task 2)
 
 *Existing infrastructure from Phase 1 covers vitest config and test setup.*
 
@@ -71,11 +72,11 @@ created: 2026-03-22
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 20s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 20s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** revised 2026-03-22 — addressed checker feedback (BLOCKER 1: promptLoader path + predeploy, WARNING 2: storage.test.ts coverage)
