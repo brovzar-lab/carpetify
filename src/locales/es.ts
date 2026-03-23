@@ -84,6 +84,60 @@ export const es = {
     addLocation: '+ Agregar locacion',
     addCharacter: '+ Agregar personaje',
     removeItem: 'Eliminar',
+
+    // Extraction states
+    extracting: 'Extrayendo texto del guion...',
+    extractionSuccess: 'Texto extraido exitosamente',
+    extractionFailedLarge:
+      'El guion excede el limite de 200 paginas o 15 MB. Sube un archivo mas pequeno.',
+    extractionFailedInvalidPdf:
+      'No se pudo leer el PDF. Verifica que sea un PDF digital (no escaneado) generado desde Final Draft, WriterSolo u otro software de guion.',
+    extractionFailedScanned:
+      'Este PDF parece ser una imagen escaneada. Solo se admiten PDFs digitales. Puedes ingresar los datos manualmente.',
+    extractionTimeout:
+      'La extraccion tardo demasiado. Intenta con un archivo mas pequeno.',
+
+    // Analysis states
+    analyzeCTA: 'Analizar guion',
+    analyzeCTADisabledTooltip:
+      'Primero sube un guion o ingresa los datos manualmente',
+    analyzing:
+      'Analizando guion... esto puede tomar hasta 30 segundos.',
+    analysisSuccess: 'Analisis completado',
+    analysisBadge: 'Analisis completo',
+    analysisFailed:
+      'No se pudo completar el analisis. Verifica tu conexion e intenta de nuevo.',
+    analysisRetryCTA: 'Reintentar analisis',
+    analysisStale:
+      'El guion fue modificado despues del ultimo analisis. Los resultados pueden estar desactualizados.',
+    reanalyzeCTA: 'Reanalizar guion',
+    analysisTimeout:
+      'El analisis tardo demasiado. Esto puede ocurrir con guiones muy largos. Intenta de nuevo.',
+    analysisNetworkError:
+      'Error de conexion durante el analisis. Verifica tu internet e intenta de nuevo.',
+    analysisParseError:
+      'No se pudo procesar la respuesta del analisis. Intenta de nuevo.',
+    networkError:
+      'Error de conexion. Verifica tu internet e intenta de nuevo.',
+    genericError:
+      'Ocurrio un error inesperado. Intenta de nuevo o recarga la pagina.',
+
+    // Analysis results labels
+    analysisResultsHeading: 'Resultados del Analisis',
+    shootingDaysLabel: 'Dias de rodaje estimados',
+    complexityLabel: 'Analisis de complejidad',
+    complexityStunts: 'Escenas de riesgo / stunts',
+    complexityVFX: 'Efectos visuales (VFX)',
+    complexityWater: 'Escenas con agua',
+    complexityAnimals: 'Escenas con animales',
+    complexityChildren: 'Escenas con menores',
+    nightPercentage: 'Porcentaje nocturno',
+    lastAnalyzedLabel: 'Ultimo analisis',
+
+    // Shooting day estimates
+    estimateLow: 'Conservadora',
+    estimateMid: 'Estandar',
+    estimateHigh: 'Agresiva',
   },
 
   // -- Screen 3: Equipo Creativo --

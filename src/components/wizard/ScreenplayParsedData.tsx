@@ -32,8 +32,11 @@ export function ScreenplayParsedData({
 }: ScreenplayParsedDataProps) {
   const [scenesExpanded, setScenesExpanded] = useState(false)
 
+  // Show manual entry warning only when extraction failed (uploaded/error/extraction_error)
   const showManualWarning =
-    data.screenplay_status !== 'parsed' && data.screenplay_status !== 'pending'
+    data.screenplay_status === 'uploaded' ||
+    data.screenplay_status === 'error' ||
+    data.screenplay_status === 'extraction_error'
 
   // Summary stats
   const sceneCount = data.escenas.length

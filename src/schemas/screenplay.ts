@@ -46,8 +46,35 @@ export const screenplaySchema = z.object({
   dias_rodaje_estimados: z.number().int().optional(),
   uploaded_file_path: z.string().optional(),
   screenplay_status: z
-    .enum(['pending', 'uploaded', 'parsed', 'error'])
+    .enum([
+      'pending',
+      'uploaded',
+      'parsed',
+      'extracting',
+      'analyzing',
+      'analyzed',
+      'error',
+      'analysis_error',
+      'extraction_error',
+    ])
     .default('pending'),
+  analysis_stale: z.boolean().optional(),
+  last_analyzed: z.any().optional(), // Firestore Timestamp
+  raw_text: z.string().optional(),
+  desglose_int_ext: z
+    .object({
+      int: z.number(),
+      ext: z.number(),
+      int_ext: z.number(),
+    })
+    .optional(),
+  desglose_dia_noche: z
+    .object({
+      dia: z.number(),
+      noche: z.number(),
+      otro: z.number(),
+    })
+    .optional(),
 })
 
 export type Screenplay = z.infer<typeof screenplaySchema>
