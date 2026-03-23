@@ -14,15 +14,16 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Screenplay PDF parsing — extract scene count, locations, characters, INT/EXT/DAY/NIGHT breakdown *(Validated in Phase 02: screenplay-processing)*
+- [x] AI screenplay analysis via Anthropic Claude API using Spanish prompts from `prompts/` folder *(Validated in Phase 02: screenplay-processing)*
 
 ### Active
 
 - [ ] Multi-project support — manage up to 3 projects simultaneously per EFICINE period
 - [ ] Registration period selection per project (Period 1: Jan 30 – Feb 13, Period 2: Jul 1 – Jul 15) driving date validation
 - [ ] 5-screen intake wizard: project setup, screenplay upload, creative team, financial structure, document upload
-- [ ] Screenplay PDF parsing — extract scene count, locations, characters, INT/EXT/DAY/NIGHT breakdown
-- [ ] AI screenplay analysis via Anthropic Claude API using Spanish prompts from `prompts/` folder
+- [x] ~~Screenplay PDF parsing~~ → moved to Validated
+- [x] ~~AI screenplay analysis~~ → moved to Validated
 - [ ] AI document generation pipeline: 4 sequential passes (Line Producer → Finance Advisor → Legal → Combined)
 - [ ] ~20 AI-generated documents across Sections A, C, and E of the carpeta
 - [ ] User-uploaded document management for items the app cannot generate (acta constitutiva, INDAUTOR certs, bank statements, IDs, signed contracts, etc.)
@@ -100,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-21 after initialization*
+*Last updated: 2026-03-22 after Phase 02 completion — screenplay processing pipeline verified*
