@@ -72,6 +72,7 @@ export interface TeamMember {
   honorarios_centavos: number;
   aportacion_especie_centavos: number;
   nacionalidad: string;
+  filmografia?: unknown[];
 }
 
 export interface Financials {
