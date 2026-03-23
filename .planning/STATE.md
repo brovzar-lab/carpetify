@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-03-23T19:45:04.431Z"
+stopped_at: "Completed 03-06-PLAN.md (Task 1), checkpoint:human-verify pending"
+last_updated: "2026-03-23T19:53:22.560Z"
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 12
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 03 (ai-doc-generation) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Plan: 5 of 6
 | Phase 03 P02 | 10min | 2 tasks | 6 files |
 | Phase 03 P03 | 10min | 2 tasks | 6 files |
 | Phase 03 P04 | 14min | 3 tasks | 13 files |
+| Phase 03 P06 | 5min | 1 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Recent decisions affecting current work:
 - [Phase 03]: WizardShell has dedicated layout for generation screen (no padding wrapper) to support two-panel layout
 - [Phase 03]: Frontend document registry is a static array mirroring backend DOCUMENT_REGISTRY (no cross-boundary import)
 - [Phase 03]: Firebase httpsCallable().stream() for real-time progress from Cloud Functions to frontend
+- [Phase 03]: Inline editable cell pattern for budget: raw number on focus, formatted MXN on blur (same as MXNInput)
+- [Phase 03]: Budget auto-save writes FULL BudgetOutput (with partidas) to meta/budget_output for downstream pass compatibility
+- [Phase 03]: A4 Word export uses lightweight .txt template (Claude discretion per CONTEXT.md)
 
 ### Pending Todos
 
@@ -107,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T19:45:04.427Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-03-23T19:53:22.557Z
+Stopped at: Completed 03-06-PLAN.md (Task 1), checkpoint:human-verify pending
 Resume file: None
