@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-03-23T05:06:09.671Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-23T19:13:07.311Z"
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 12
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 02 — screenplay-processing
+**Current focus:** Phase 03 — ai-doc-generation
 
 ## Current Position
 
-Phase: 03
-Plan: Not started
+Phase: 03 (ai-doc-generation) — EXECUTING
+Plan: 2 of 6
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: Not started
 | Phase 01 P04 | 10min | 3 tasks | 9 files |
 | Phase 02 P01 | 7min | 2 tasks | 15 files |
 | Phase 02 P02 | 13min | 2 tasks | 15 files |
+| Phase 03 P01 | 14min | 3 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 02]: Dependency injection pattern for Cloud Function handler testability (optional db/client params) instead of module mocking across separate node_modules
 - [Phase 02]: Handler extraction: onCall wrapper in index.ts delegates to pure handler in analyzeHandler.ts for DI-based unit testing
 - [Phase 02]: vi.hoisted() required for mock factories referencing variables in @functions alias tests
+- [Phase 03]: Zod v4 toJSONSchema for Claude structured outputs (library type incompatibility with v3-based zod-to-json-schema)
+- [Phase 03]: Pure function getStalePasses for staleness detection (no Firestore, unit-testable) with separate Firestore operations
+- [Phase 03]: Budget Imprevistos (account 1200) absorbs delta between computed line items and target total cost with 10% BTL floor
+- [Phase 03]: Handlebars strict:false for prompt compilation allows partial variable resolution without throwing
 
 ### Pending Todos
 
@@ -91,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T05:00:01.268Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-03-23T19:13:07.306Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
