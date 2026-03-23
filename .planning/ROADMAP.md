@@ -50,7 +50,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Cloud Functions scaffold, PDF text extraction with pdf-parse, screenplay structure parser with regex, and extractScreenplay callable Cloud Function
+- [x] 02-01-PLAN.md — Cloud Functions scaffold, PDF text extraction with pdf-parse, screenplay structure parser with regex, and extractScreenplay callable Cloud Function
 - [ ] 02-02-PLAN.md — Claude analysis Cloud Function with prompt injection from prompts/analisis_guion.md, response validation, Firestore storage, and frontend integration with analysis CTA, results display, and error/stale states
 
 ### Phase 3: AI Document Generation Pipeline

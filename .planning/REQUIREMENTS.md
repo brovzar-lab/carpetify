@@ -21,8 +21,8 @@
 
 ### Screenplay Processing
 
-- [ ] **SCRN-01**: App extracts text from uploaded screenplay PDF preserving structure (scene headers, character names, dialogue)
-- [ ] **SCRN-02**: App parses extracted text to identify scene count, page count, locations list, character list, and INT/EXT/DAY/NIGHT breakdown
+- [x] **SCRN-01**: App extracts text from uploaded screenplay PDF preserving structure (scene headers, character names, dialogue)
+- [x] **SCRN-02**: App parses extracted text to identify scene count, page count, locations list, character list, and INT/EXT/DAY/NIGHT breakdown
 - [ ] **SCRN-03**: App sends parsed screenplay data to Claude API (via Cloud Function) using the Spanish prompt from `prompts/analisis_guion.md` for deep analysis
 - [ ] **SCRN-04**: App stores screenplay analysis results in Firestore as structured data (not PDF), accessible to downstream generation passes
 
@@ -130,8 +130,8 @@
 | INTK-09 | Phase 1 | Complete |
 | INTK-10 | Phase 1 | Complete |
 | INTK-11 | Phase 1 | Complete |
-| SCRN-01 | Phase 2 | Pending |
-| SCRN-02 | Phase 2 | Pending |
+| SCRN-01 | Phase 2 | Complete |
+| SCRN-02 | Phase 2 | Complete |
 | SCRN-03 | Phase 2 | Pending |
 | SCRN-04 | Phase 2 | Pending |
 | AIGEN-01 | Phase 3 | Pending |

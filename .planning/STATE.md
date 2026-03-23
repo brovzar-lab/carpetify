@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-03-23T04:03:37.425Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-23T04:43:35.008Z"
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 01 — scaffold-intake-wizard
+**Current focus:** Phase 02 — screenplay-processing
 
 ## Current Position
 
-Phase: 02
-Plan: Not started
+Phase: 02 (screenplay-processing) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: Not started
 | Phase 01 P02 | 4min | 2 tasks | 10 files |
 | Phase 01 P03 | 4min | 2 tasks | 9 files |
 | Phase 01 P04 | 10min | 3 tasks | 9 files |
+| Phase 02 P01 | 7min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 01]: react-pdf v10 with local pdfjs-dist worker for screenplay PDF display
 - [Phase 01]: Compliance panel reads team subcollection for in-kind totals and screenwriter fee, uses watch() for real-time updates
 - [Phase 01]: Document checklist hardcodes 13 required upload types matching EFICINE requirements
+- [Phase 02]: pdf-parse v2 uses class-based API (PDFParse class + getText/getInfo), not v1 function-based API
+- [Phase 02]: extractText tests use behavior verification pattern (testing normalization directly) to avoid pdfjs-dist jsdom incompatibility
+- [Phase 02]: Cloud Functions deploy with predeploy cp -r prompts to bundle prompt files inside functions/ directory
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T04:03:37.422Z
-Stopped at: Phase 2 UI-SPEC approved
-Resume file: .planning/phases/02-screenplay-processing/02-UI-SPEC.md
+Last session: 2026-03-23T04:43:35.003Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: None
