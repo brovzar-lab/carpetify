@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-23T19:13:07.311Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-23T19:26:54.449Z"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 9
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 03 (ai-doc-generation) — EXECUTING
-Plan: 2 of 6
+Plan: 4 of 6
 
 ## Performance Metrics
 
@@ -53,6 +53,8 @@ Plan: 2 of 6
 | Phase 02 P01 | 7min | 2 tasks | 15 files |
 | Phase 02 P02 | 13min | 2 tasks | 15 files |
 | Phase 03 P01 | 14min | 3 tasks | 19 files |
+| Phase 03 P02 | 10min | 2 tasks | 6 files |
+| Phase 03 P03 | 10min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -84,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 03]: Pure function getStalePasses for staleness detection (no Firestore, unit-testable) with separate Firestore operations
 - [Phase 03]: Budget Imprevistos (account 1200) absorbs delta between computed line items and target total cost with 10% BTL floor
 - [Phase 03]: Handlebars strict:false for prompt compilation allows partial variable resolution without throwing
+- [Phase 03]: Used estimacion_jornadas.media for shooting days (plan said .estandar but data model uses baja/media/alta)
+- [Phase 03]: Firebase onCall streaming uses (request, response) pattern where response.sendChunk handles SSE
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T19:13:07.306Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-23T19:26:42.244Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

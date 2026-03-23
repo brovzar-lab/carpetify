@@ -67,8 +67,8 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Foundation: shared types, Handlebars prompt loader, financial computation (budget, cash flow, esquema financiero), Claude client, staleness tracker
-- [ ] 03-02-PLAN.md — Cloud Functions for Line Producer pass (A7, A8a, A8b, A9a, A9b) and Finance Advisor pass (A9d, E1, E2)
-- [ ] 03-03-PLAN.md — Cloud Functions for Legal pass (B3-prod, B3-dir, C2b, C3a, C3b) and Combined pass (A1, A2, A4, A6, A10, A11, C4, PITCH)
+- [x] 03-02-PLAN.md — Cloud Functions for Line Producer pass (A7, A8a, A8b, A9a, A9b) and Finance Advisor pass (A9d, E1, E2)
+- [x] 03-03-PLAN.md — Cloud Functions for Legal pass (B3-prod, B3-dir, C2b, C3a, C3b) and Combined pass (A1, A2, A4, A6, A10, A11, C4, PITCH)
 - [ ] 03-04-PLAN.md — Frontend generation screen route, document list by EFICINE section, pipeline control with streaming progress
 - [ ] 03-05-PLAN.md — Document viewer with edit mode, staleness detection UI with cascade, pass-level regeneration controls
 - [ ] 03-06-PLAN.md — Budget editor (IMCINE 100-1200 account structure), downstream warnings, A4 Word export, end-to-end verification

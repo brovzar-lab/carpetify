@@ -28,8 +28,8 @@
 
 ### AI Document Generation
 
-- [ ] **AIGEN-01**: Line Producer pass generates: propuesta de producción (A7), plan de rodaje (A8a), ruta crítica (A8b), presupuesto resumen (A9a), presupuesto desglose (A9b) — using prompt from `prompts/`
-- [ ] **AIGEN-02**: Finance Advisor pass generates: flujo de efectivo (A9d/FORMATO 3), esquema financiero (E1/FORMATO 9), carta aportación exclusiva (E2/FORMATO 10) — using budget from Line Producer pass
+- [x] **AIGEN-01**: Line Producer pass generates: propuesta de producción (A7), plan de rodaje (A8a), ruta crítica (A8b), presupuesto resumen (A9a), presupuesto desglose (A9b) — using prompt from `prompts/`
+- [x] **AIGEN-02**: Finance Advisor pass generates: flujo de efectivo (A9d/FORMATO 3), esquema financiero (E1/FORMATO 9), carta aportación exclusiva (E2/FORMATO 10) — using budget from Line Producer pass
 - [ ] **AIGEN-03**: Legal pass generates: cesión de derechos contract (C2b), producer contract (B3), director contract (B3), carta buenas prácticas (C3a/FORMATO 6), carta PICS (C3b/FORMATO 7) — using fees from budget
 - [ ] **AIGEN-04**: Combined pass generates: resumen ejecutivo (A1/FORMATO 1), sinopsis (A2), solidez equipo creativo (A6/FORMATO 2), propuesta exhibición (A10), ficha técnica (C4/FORMATO 8), bonus points assessment (A11)
 - [x] **AIGEN-05**: All AI prompts are loaded from `prompts/` folder in Spanish with `{{variable}}` substitution — prompts are never rewritten or inlined in English
@@ -70,10 +70,10 @@
 
 ### Language & Formatting
 
-- [ ] **LANG-01**: All generated documents use Mexican Spanish with IMCINE/EFICINE terminology never translated (protected terms per `politica_idioma.md`)
+- [x] **LANG-01**: All generated documents use Mexican Spanish with IMCINE/EFICINE terminology never translated (protected terms per `politica_idioma.md`)
 - [x] **LANG-02**: Monetary amounts formatted as $X,XXX,XXX MXN throughout — comma thousands separator, no decimals, peso sign, MXN suffix
 - [x] **LANG-03**: Dates formatted in Spanish: "15 de julio de 2026" or "Agosto 2026"
-- [ ] **LANG-04**: Generated prose uses formal but non-bureaucratic Mexican Spanish — precise, concrete, cinematographic vocabulary per politica_idioma.md guidelines
+- [x] **LANG-04**: Generated prose uses formal but non-bureaucratic Mexican Spanish — precise, concrete, cinematographic vocabulary per politica_idioma.md guidelines
 - [ ] **LANG-05**: Pre-export language check — scan for anglicisms, verify format consistency, confirm title identity across all documents
 
 ## v2 Requirements
@@ -134,8 +134,8 @@
 | SCRN-02 | Phase 2 | Complete |
 | SCRN-03 | Phase 2 | Complete |
 | SCRN-04 | Phase 2 | Complete |
-| AIGEN-01 | Phase 3 | Pending |
-| AIGEN-02 | Phase 3 | Pending |
+| AIGEN-01 | Phase 3 | Complete |
+| AIGEN-02 | Phase 3 | Complete |
 | AIGEN-03 | Phase 3 | Pending |
 | AIGEN-04 | Phase 3 | Pending |
 | AIGEN-05 | Phase 3 | Complete |
@@ -167,10 +167,10 @@
 | EXPRT-03 | Phase 5 | Pending |
 | EXPRT-04 | Phase 5 | Pending |
 | EXPRT-05 | Phase 5 | Pending |
-| LANG-01 | Phase 3 | Pending |
+| LANG-01 | Phase 3 | Complete |
 | LANG-02 | Phase 1 | Complete |
 | LANG-03 | Phase 1 | Complete |
-| LANG-04 | Phase 3 | Pending |
+| LANG-04 | Phase 3 | Complete |
 | LANG-05 | Phase 5 | Pending |
 
 **Coverage:**
