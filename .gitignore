@@ -20,6 +20,11 @@ venv/
 !.cursor/rules/
 !.cursor/mcp.json
 
+# Firebase Cloud Functions compiled output and predeploy copies
+functions/lib/
+functions/prompts/
+functions/node_modules/
+
 # OS
 .DS_Store
 Thumbs.db

@@ -15,5 +15,13 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22",
+    "predeploy": [
+      "npm --prefix \"$RESOURCE_DIR\" run build",
+      "cp -r prompts \"$RESOURCE_DIR/prompts\""
+    ]
   }
 }
