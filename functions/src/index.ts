@@ -1,12 +1,17 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { extractTextFromPdf } from './screenplay/extractText.js';
 import { parseScreenplayStructure } from './screenplay/parseStructure.js';
-import type { ExtractRequest, ExtractResponse } from './screenplay/types.js';
+import { handleAnalyzeScreenplay } from './screenplay/analyzeHandler.js';
+import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 
 initializeApp();
+
+// D-07: API key via Secret Manager
+const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
 
 /**
  * extractScreenplay: Callable Cloud Function.
@@ -91,6 +96,44 @@ export const extractScreenplay = onCall(
       if (err instanceof HttpsError) throw err;
       console.error('extractScreenplay error:', err);
       throw new HttpsError('internal', 'Error al extraer texto del guion.');
+    }
+  },
+);
+
+/**
+ * analyzeScreenplay: Callable Cloud Function.
+ * Reads parsed screenplay data from Firestore, calls Claude API via
+ * prompts/analisis_guion.md, validates response, stores analysis in Firestore.
+ * Per D-06: separate from extraction -- can retry without re-extracting.
+ * Per D-08: Uses claude-sonnet-4-20250514.
+ * Per D-09: Stores at projects/{projectId}/screenplay/analysis as single document.
+ * Per D-12: User-triggered, not automatic.
+ * Timeout: 540s (9 min, max for callable). Memory: 1GiB.
+ */
+export const analyzeScreenplay = onCall(
+  {
+    timeoutSeconds: 540,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request): Promise<AnalyzeResponse> => {
+    const { projectId } = request.data as AnalyzeRequest;
+
+    if (!projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    const apiKey = anthropicApiKey.value();
+    if (!apiKey) {
+      throw new HttpsError('internal', 'ANTHROPIC_API_KEY no esta configurada.');
+    }
+
+    try {
+      return await handleAnalyzeScreenplay(projectId, apiKey);
+    } catch (err) {
+      if (err instanceof HttpsError) throw err;
+      throw new HttpsError('internal', 'No se pudo completar el analisis del guion.');
     }
   },
 );

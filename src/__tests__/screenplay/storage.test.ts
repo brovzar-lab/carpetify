@@ -1,72 +1,44 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Track Firestore writes
-const mockSet = vi.fn().mockResolvedValue(undefined);
-const mockUpdate = vi.fn().mockResolvedValue(undefined);
-const mockGet = vi.fn();
-const mockDocFn = vi.fn().mockImplementation((path: string) => ({
-  get: mockGet,
-  set: mockSet,
-  update: mockUpdate,
-  path,
-}));
+/**
+ * Tests for the analyzeScreenplay Firestore write contract.
+ * Uses dependency injection to provide a fake Firestore db and FieldValue,
+ * avoiding the need to mock firebase-admin internals.
+ */
 
-// Mock firebase-admin/firestore
-vi.mock('firebase-admin/firestore', () => ({
-  getFirestore: vi.fn(() => ({
-    doc: mockDocFn,
-  })),
-  FieldValue: {
-    serverTimestamp: vi.fn(() => '__SERVER_TIMESTAMP__'),
-  },
+// Mock analyzeScreenplayWithClaude using the @functions alias path
+// This matches how analyzeHandler resolves the import via vitest alias
+// vi.hoisted ensures the mock fn is available when vi.mock factory is hoisted
+const { mockAnalyze } = vi.hoisted(() => ({
+  mockAnalyze: vi.fn(),
 }));
-
-// Mock firebase-admin/storage
-vi.mock('firebase-admin/storage', () => ({
-  getStorage: vi.fn(() => ({
-    bucket: vi.fn(() => ({
-      file: vi.fn(() => ({
-        download: vi.fn().mockResolvedValue([Buffer.from('fake-pdf')]),
-      })),
-    })),
-  })),
-}));
-
-// Mock firebase-admin/app
-vi.mock('firebase-admin/app', () => ({
-  initializeApp: vi.fn(),
-}));
-
-// Mock firebase-functions/params for defineSecret
-const mockSecretValue = vi.fn(() => 'test-api-key');
-vi.mock('firebase-functions/params', () => ({
-  defineSecret: vi.fn(() => ({
-    value: mockSecretValue,
-  })),
-}));
-
-// Mock the analyzeScreenplayWithClaude function
-const mockAnalyze = vi.fn();
 vi.mock('@functions/screenplay/analyzeWithClaude', () => ({
   analyzeScreenplayWithClaude: mockAnalyze,
 }));
 
-// Mock firebase-functions/v2/https to capture the onCall handler
-let capturedHandler: ((request: unknown) => Promise<unknown>) | null = null;
-vi.mock('firebase-functions/v2/https', () => ({
-  onCall: vi.fn((_config: unknown, handler: (request: unknown) => Promise<unknown>) => {
-    capturedHandler = handler;
-    return handler;
-  }),
-  HttpsError: class HttpsError extends Error {
-    code: string;
-    constructor(code: string, message: string) {
-      super(message);
-      this.code = code;
-    }
-  },
+// Mock fs, path, url for promptLoader (transitive dependency of analyzeWithClaude)
+vi.mock('fs', () => ({
+  readFileSync: vi.fn().mockReturnValue('mock prompt'),
 }));
+vi.mock('url', () => ({
+  fileURLToPath: vi.fn().mockReturnValue('/mock/dir/promptLoader.ts'),
+}));
+vi.mock('path', async () => {
+  const actual = await vi.importActual<typeof import('path')>('path');
+  return {
+    ...actual,
+    default: {
+      ...actual,
+      dirname: vi.fn().mockReturnValue('/mock/dir'),
+      join: vi.fn().mockReturnValue('/mock/dir/prompts/analisis_guion.md'),
+    },
+  };
+});
+
+// We do NOT mock firebase-admin/firestore -- we use dependency injection instead
+import { handleAnalyzeScreenplay } from '@functions/screenplay/analyzeHandler';
+import type { FirestoreDb, FieldValueFactory } from '@functions/screenplay/analyzeHandler';
 
 const VALID_ANALYSIS = {
   datos_generales: { num_escenas: 45 },
@@ -94,50 +66,73 @@ const VALID_ANALYSIS = {
   },
 };
 
+function createFakeDb() {
+  const mockSet = vi.fn().mockResolvedValue(undefined);
+  const mockUpdate = vi.fn().mockResolvedValue(undefined);
+  const docSpies: Map<string, { set: typeof mockSet; update: typeof mockUpdate; get: ReturnType<typeof vi.fn> }> = new Map();
+
+  const db: FirestoreDb = {
+    doc(path: string) {
+      if (!docSpies.has(path)) {
+        const docSet = vi.fn().mockResolvedValue(undefined);
+        const docUpdate = vi.fn().mockResolvedValue(undefined);
+        const docGet = vi.fn().mockImplementation(() => {
+          if (path.includes('screenplay/data')) {
+            return Promise.resolve({
+              exists: true,
+              data: () => ({
+                raw_text: 'Full screenplay text here',
+                screenplay_status: 'parsed',
+              }),
+            });
+          }
+          // project document
+          return Promise.resolve({
+            exists: true,
+            data: () => ({
+              titulo_proyecto: 'Mi Pelicula',
+              categoria_cinematografica: 'Ficcion',
+            }),
+          });
+        });
+        docSpies.set(path, { set: docSet, update: docUpdate, get: docGet });
+      }
+      const spies = docSpies.get(path)!;
+      return {
+        get: spies.get,
+        set: spies.set,
+        update: spies.update,
+      };
+    },
+  };
+
+  return { db, docSpies };
+}
+
+const fakeFV: FieldValueFactory = {
+  serverTimestamp: () => '__SERVER_TIMESTAMP__',
+};
+
 describe('analyzeScreenplay Cloud Function - Firestore writes', () => {
-  beforeEach(async () => {
+  let fakeDb: ReturnType<typeof createFakeDb>;
+
+  beforeEach(() => {
     vi.clearAllMocks();
-    capturedHandler = null;
+    fakeDb = createFakeDb();
 
-    // Setup default mock responses for Firestore reads
-    mockGet.mockImplementation(function (this: { path: string }) {
-      // Need to handle based on the doc path
-      return Promise.resolve({
-        exists: true,
-        data: () => ({
-          raw_text: 'Full screenplay text here',
-          titulo_proyecto: 'Mi Pelicula',
-          categoria_cinematografica: 'Ficcion',
-        }),
-      });
-    });
-
-    // Setup analyzeWithClaude mock
+    // Setup analyzeWithClaude mock (success case)
     mockAnalyze.mockResolvedValue({
       analysis: VALID_ANALYSIS,
       raw_response: 'raw json string',
     });
-
-    // Re-import to trigger onCall registration
-    // We need to dynamically import to capture the handler
-    await import('@functions/index');
   });
 
   it('writes analysis to projects/{projectId}/screenplay/analysis with required fields', async () => {
-    expect(capturedHandler).not.toBeNull();
+    await handleAnalyzeScreenplay('proj123', 'test-api-key', fakeDb.db, fakeFV);
 
-    await capturedHandler!({ data: { projectId: 'proj123' } });
-
-    // Find the set() call for the analysis document
-    const analysisCalls = mockSet.mock.calls.filter((_call: unknown[], _i: number) => {
-      const docPath = mockDocFn.mock.calls.find(
-        (c: string[]) => c[0]?.includes('screenplay/analysis'),
-      );
-      return docPath;
-    });
-
-    expect(mockDocFn).toHaveBeenCalledWith('projects/proj123/screenplay/analysis');
-    expect(mockSet).toHaveBeenCalledWith(
+    const analysisDoc = fakeDb.docSpies.get('projects/proj123/screenplay/analysis');
+    expect(analysisDoc).toBeDefined();
+    expect(analysisDoc!.set).toHaveBeenCalledWith(
       expect.objectContaining({
         ...VALID_ANALYSIS,
         raw_response: 'raw json string',
@@ -148,12 +143,11 @@ describe('analyzeScreenplay Cloud Function - Firestore writes', () => {
   });
 
   it('updates screenplay/data with status=analyzed, analysis_stale=false, and shooting day estimate', async () => {
-    expect(capturedHandler).not.toBeNull();
+    await handleAnalyzeScreenplay('proj123', 'test-api-key', fakeDb.db, fakeFV);
 
-    await capturedHandler!({ data: { projectId: 'proj123' } });
-
-    expect(mockDocFn).toHaveBeenCalledWith('projects/proj123/screenplay/data');
-    expect(mockUpdate).toHaveBeenCalledWith(
+    const screenplayDoc = fakeDb.docSpies.get('projects/proj123/screenplay/data');
+    expect(screenplayDoc).toBeDefined();
+    expect(screenplayDoc!.update).toHaveBeenCalledWith(
       expect.objectContaining({
         screenplay_status: 'analyzed',
         analysis_stale: false,
@@ -166,12 +160,13 @@ describe('analyzeScreenplay Cloud Function - Firestore writes', () => {
   it('on analysis failure, sets screenplay_status to analysis_error', async () => {
     mockAnalyze.mockRejectedValue(new Error('Claude API failed'));
 
-    expect(capturedHandler).not.toBeNull();
+    await expect(
+      handleAnalyzeScreenplay('proj123', 'test-api-key', fakeDb.db, fakeFV),
+    ).rejects.toThrow();
 
-    await expect(capturedHandler!({ data: { projectId: 'proj123' } })).rejects.toThrow();
-
-    // Should have attempted to update status to analysis_error
-    expect(mockUpdate).toHaveBeenCalledWith(
+    const screenplayDoc = fakeDb.docSpies.get('projects/proj123/screenplay/data');
+    expect(screenplayDoc).toBeDefined();
+    expect(screenplayDoc!.update).toHaveBeenCalledWith(
       expect.objectContaining({
         screenplay_status: 'analysis_error',
       }),
@@ -179,11 +174,11 @@ describe('analyzeScreenplay Cloud Function - Firestore writes', () => {
   });
 
   it('analysis document includes analysis_version field set to 1', async () => {
-    expect(capturedHandler).not.toBeNull();
+    await handleAnalyzeScreenplay('proj123', 'test-api-key', fakeDb.db, fakeFV);
 
-    await capturedHandler!({ data: { projectId: 'proj123' } });
-
-    expect(mockSet).toHaveBeenCalledWith(
+    const analysisDoc = fakeDb.docSpies.get('projects/proj123/screenplay/analysis');
+    expect(analysisDoc).toBeDefined();
+    expect(analysisDoc!.set).toHaveBeenCalledWith(
       expect.objectContaining({
         analysis_version: 1,
       }),
