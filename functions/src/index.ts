@@ -6,6 +6,12 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { extractTextFromPdf } from './screenplay/extractText.js';
 import { parseScreenplayStructure } from './screenplay/parseStructure.js';
 import { handleAnalyzeScreenplay } from './screenplay/analyzeHandler.js';
+import { handleLineProducerPass } from './pipeline/passes/lineProducer.js';
+import { handleFinanceAdvisorPass } from './pipeline/passes/financeAdvisor.js';
+import { handleLegalPass } from './pipeline/passes/legal.js';
+import { handleCombinedPass } from './pipeline/passes/combined.js';
+import { loadProjectDataForGeneration } from './pipeline/orchestrator.js';
+import { initClaudeClient } from './claude/client.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 
 initializeApp();
@@ -135,5 +141,148 @@ export const analyzeScreenplay = onCall(
       if (err instanceof HttpsError) throw err;
       throw new HttpsError('internal', 'No se pudo completar el analisis del guion.');
     }
+  },
+);
+
+// ---- Generation Pipeline: Pass 2 (Line Producer) ----
+
+/**
+ * runLineProducerPass: Callable Cloud Function with streaming.
+ * Generates 5 documents: A7, A8a, A8b, A9a, A9b.
+ * Budget is computed deterministically via computeBudget (not AI).
+ * Streams real-time progress chunks to client.
+ * Timeout: 300s (5 min per pass). Memory: 1GiB.
+ */
+export const runLineProducerPass = onCall(
+  {
+    timeoutSeconds: 300,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request, response) => {
+    const { projectId } = request.data as { projectId: string };
+    if (!projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    initClaudeClient(anthropicApiKey.value());
+    const project = await loadProjectDataForGeneration(projectId);
+
+    const onProgress = (chunk: unknown) => {
+      if (request.acceptsStreaming && response) {
+        response.sendChunk(chunk);
+      }
+    };
+
+    return await handleLineProducerPass(projectId, project, onProgress);
+  },
+);
+
+// ---- Generation Pipeline: Pass 3 (Finance Advisor) ----
+
+/**
+ * runFinanceAdvisorPass: Callable Cloud Function with streaming.
+ * Generates 3 documents: A9d, E1, E2.
+ * Financial figures from deterministic computation (buildCashFlow, computeFinancialScheme).
+ * Requires lineProducer pass to have run first (reads budget from documentStore).
+ * Streams real-time progress chunks to client.
+ * Timeout: 300s (5 min per pass). Memory: 1GiB.
+ */
+export const runFinanceAdvisorPass = onCall(
+  {
+    timeoutSeconds: 300,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request, response) => {
+    const { projectId } = request.data as { projectId: string };
+    if (!projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    initClaudeClient(anthropicApiKey.value());
+    const project = await loadProjectDataForGeneration(projectId);
+
+    const onProgress = (chunk: unknown) => {
+      if (request.acceptsStreaming && response) {
+        response.sendChunk(chunk);
+      }
+    };
+
+    return await handleFinanceAdvisorPass(projectId, project, onProgress);
+  },
+);
+
+// ---- Generation Pipeline: Pass 4 (Legal) ----
+
+/**
+ * runLegalPass: Callable Cloud Function with streaming.
+ * Generates 5 documents: B3-prod, B3-dir, C2b, C3a, C3b.
+ * Fee amounts injected deterministically from intake team data via formatMXNLegal.
+ * Requires lineProducer pass to have run first (validates budget exists).
+ * Streams real-time progress chunks to client.
+ * Timeout: 300s (5 min per pass). Memory: 1GiB.
+ */
+export const runLegalPass = onCall(
+  {
+    timeoutSeconds: 300,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request, response) => {
+    const { projectId } = request.data as { projectId: string };
+    if (!projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    initClaudeClient(anthropicApiKey.value());
+    const project = await loadProjectDataForGeneration(projectId);
+
+    const onProgress = (chunk: unknown) => {
+      if (request.acceptsStreaming && response) {
+        response.sendChunk(chunk);
+      }
+    };
+
+    return await handleLegalPass(projectId, project, onProgress);
+  },
+);
+
+// ---- Generation Pipeline: Pass 5 (Combined -- final pass) ----
+
+/**
+ * runCombinedPass: Callable Cloud Function with streaming.
+ * Generates 8 documents: A1, A2, A4, A6, A10, A11, C4, PITCH.
+ * Synthesizes ALL prior pass outputs. A4 is a template (no AI).
+ * PITCH targets corporate CFOs per AIGEN-11.
+ * Streams real-time progress chunks to client.
+ * Timeout: 600s (10 min -- 8 documents, largest pass). Memory: 1GiB.
+ */
+export const runCombinedPass = onCall(
+  {
+    timeoutSeconds: 600,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request, response) => {
+    const { projectId } = request.data as { projectId: string };
+    if (!projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    initClaudeClient(anthropicApiKey.value());
+    const project = await loadProjectDataForGeneration(projectId);
+
+    const onProgress = (chunk: unknown) => {
+      if (request.acceptsStreaming && response) {
+        response.sendChunk(chunk);
+      }
+    };
+
+    return await handleCombinedPass(projectId, project, onProgress);
   },
 );
