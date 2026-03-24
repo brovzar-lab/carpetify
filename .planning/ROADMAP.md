@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Scaffold + Intake Wizard** - React/Firebase project with 5-screen Spanish intake wizard and multi-project support (completed 2026-03-22)
 - [x] **Phase 2: Screenplay Processing** - PDF upload, text extraction, Claude analysis, and manual correction UI (completed 2026-03-23)
 - [ ] **Phase 3: AI Document Generation Pipeline** - 4-pass document generation with prompt injection, staleness tracking, and one-click regeneration
-- [ ] **Phase 4: Validation Engine + Dashboard** - 17 compliance rules, traffic light dashboard, score estimation, and real-time validation
+- [x] **Phase 4: Validation Engine + Dashboard** - 17 compliance rules, traffic light dashboard, score estimation, and real-time validation (completed 2026-03-24)
 - [ ] **Phase 5: Export Manager** - PDF generation, IMCINE naming, pre-export language check, ZIP packaging
 
 ## Phase Details
@@ -83,7 +83,7 @@ Plans:
   3. Warning-level validations fire correctly: ruta critica/cash flow sync, hyperlink accessibility, bonus points eligibility, and document expiration alerts with days remaining
   4. User sees a score estimate against the EFICINE rubric (100 pts + 5 bonus) with actionable improvement suggestions
   5. Validation runs in real time as data is entered in the intake wizard, not just at export time
-**Plans:** 7 plans
+**Plans:** 7/7 plans complete
 
 Plans:
 - [x] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions with TDD test suite
@@ -92,7 +92,7 @@ Plans:
 - [x] 04-04-PLAN.md — Validation engine orchestrator with D-11 tiered timing (instant 12 rules + medium 2 rules)
 - [x] 04-05-PLAN.md — useValidation hook with tiered execution and Firestore financial wiring, wizard sidebar/route integration
 - [x] 04-06-PLAN.md — Validation dashboard UI (two-panel layout, severity-grouped rules, score estimation panel with httpsCallable)
-- [ ] 04-07-PLAN.md — Integration touchpoints: project card validation badges, document expiration alerts (3 touchpoints), hyperlink verifier, "Ir al campo" field navigation, and visual verification checkpoint
+- [x] 04-07-PLAN.md — Integration touchpoints: project card validation badges, document expiration alerts (3 touchpoints), hyperlink verifier, "Ir al campo" field navigation, and visual verification checkpoint
 
 ### Phase 5: Export Manager
 **Goal**: User can export a complete, validated carpeta as a ZIP package ready for upload to the SHCP portal
@@ -120,5 +120,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Scaffold + Intake Wizard | 4/4 | Complete   | 2026-03-22 |
 | 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
 | 3. AI Document Generation Pipeline | 0/6 | Not started | - |
-| 4. Validation Engine + Dashboard | 0/7 | Not started | - |
+| 4. Validation Engine + Dashboard | 7/7 | Complete   | 2026-03-24 |
 | 5. Export Manager | 0/2 | Not started | - |
