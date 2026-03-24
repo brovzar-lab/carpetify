@@ -56,7 +56,7 @@
 - [x] **VALD-12**: Hyperlink accessibility — verify filmmaker portfolio and material visual links are publicly accessible (warning)
 - [x] **VALD-13**: Bonus points eligibility — detect applicable bonus category (+5 pts) and flag required documentation (warning)
 - [ ] **VALD-14**: Real-time validation — compliance checks run as data is entered, not just at export time
-- [ ] **VALD-15**: Score estimation — estimate project's EFICINE score against the rubric (100 pts + 5 bonus) with actionable improvement suggestions
+- [x] **VALD-15**: Score estimation — estimate project's EFICINE score against the rubric (100 pts + 5 bonus) with actionable improvement suggestions
 - [ ] **VALD-16**: Traffic light dashboard — per-document and per-rule status (🟢 complete, 🟡 needs attention, 🔴 missing/blocking) as primary navigation surface
 - [x] **VALD-17**: Document expiration alert system — proactive warnings when uploaded documents (insurance quote, CPA quote, bank statements, third-party support letters, in-kind quotes) approach 3-month expiration relative to target registration close date. Show days remaining, flag red when <14 days
 
@@ -159,7 +159,7 @@
 | VALD-12 | Phase 4 | Complete |
 | VALD-13 | Phase 4 | Complete |
 | VALD-14 | Phase 4 | Pending |
-| VALD-15 | Phase 4 | Pending |
+| VALD-15 | Phase 4 | Complete |
 | VALD-16 | Phase 4 | Pending |
 | VALD-17 | Phase 4 | Complete |
 | EXPRT-01 | Phase 5 | Pending |
