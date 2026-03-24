@@ -48,7 +48,7 @@ Inherited from Phase 1. Phase 5 uses the same 8-point scale with the following u
 Exceptions:
 - Export CTA button: 48px height (oversized relative to standard 36px -- this is the most consequential action in the entire app, producing the final submission package)
 - Language check results panel: max-width 640px centered (readable width for finding descriptions)
-- Re-download link area: 44px height (touch target for the persistent download link)
+- Re-download link area: 48px height (2xl token, touch-friendly target for the persistent download link)
 
 ---
 
