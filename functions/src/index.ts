@@ -3,8 +3,7 @@ import { defineSecret } from 'firebase-functions/params';
 import { initializeApp } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { extractTextFromPdf } from './screenplay/extractText.js';
-import { parseScreenplayStructure } from './screenplay/parseStructure.js';
+import { extractScreenplayWithClaude } from './screenplay/extractWithClaude.js';
 import { handleAnalyzeScreenplay } from './screenplay/analyzeHandler.js';
 import { handleLineProducerPass } from './pipeline/passes/lineProducer.js';
 import { handleFinanceAdvisorPass } from './pipeline/passes/financeAdvisor.js';
@@ -12,7 +11,9 @@ import { handleLegalPass } from './pipeline/passes/legal.js';
 import { handleCombinedPass } from './pipeline/passes/combined.js';
 import { loadProjectDataForGeneration } from './pipeline/orchestrator.js';
 import { initClaudeClient } from './claude/client.js';
+import { handleScoreEstimation } from './scoreHandler.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
+import type { ScoreEstimationRequest } from './scoreHandler.js';
 
 initializeApp();
 
@@ -30,9 +31,10 @@ const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
  */
 export const extractScreenplay = onCall(
   {
-    timeoutSeconds: 120,
+    timeoutSeconds: 240,
     memory: '1GiB',
     region: 'us-central1',
+    secrets: [anthropicApiKey],
   },
   async (request): Promise<ExtractResponse> => {
     const { projectId, storagePath } = request.data as ExtractRequest;
@@ -55,21 +57,11 @@ export const extractScreenplay = onCall(
         );
       }
 
-      // 2. Extract text
-      const extraction = await extractTextFromPdf(buffer);
+      // 2. Extract screenplay structure using Claude AI (reads PDF natively)
+      const apiKey = anthropicApiKey.value();
+      const breakdown = await extractScreenplayWithClaude(buffer, apiKey);
 
-      // D-05: Check page count (200 page limit)
-      if (extraction.numPages > 200) {
-        throw new HttpsError(
-          'invalid-argument',
-          'El guion excede el limite de 200 paginas.',
-        );
-      }
-
-      // 3. Parse screenplay structure
-      const breakdown = parseScreenplayStructure(extraction.text, extraction.numPages);
-
-      // 4. Store in Firestore
+      // 3. Store in Firestore
       const db = getFirestore();
       const docRef = db.doc(`projects/${projectId}/screenplay/data`);
       await docRef.set(
@@ -90,7 +82,6 @@ export const extractScreenplay = onCall(
           desglose_dia_noche: breakdown.desglose_dia_noche,
           screenplay_status: breakdown.num_escenas > 0 ? 'parsed' : 'uploaded',
           parsed_at: FieldValue.serverTimestamp(),
-          // Mark any existing analysis as stale per D-11 / AIGEN-09
           analysis_stale: true,
           updatedAt: FieldValue.serverTimestamp(),
         },
@@ -284,5 +275,44 @@ export const runCombinedPass = onCall(
     };
 
     return await handleCombinedPass(projectId, project, onProgress);
+  },
+);
+
+// ---- Score Estimation ----
+
+/**
+ * estimateScore: Callable Cloud Function.
+ * Runs 5 parallel AI persona evaluations to estimate EFICINE artistic score.
+ * Each persona independently scores guion (40pts), direccion (12pts), material_visual (10pts).
+ * Per D-06: 5 named evaluator personas with distinct perspectives.
+ * Timeout: 300s (5 parallel calls, each up to 120s, but concurrent).
+ * Memory: 1GiB (same as generation functions).
+ */
+export const estimateScore = onCall(
+  {
+    timeoutSeconds: 300,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request) => {
+    const data = request.data as ScoreEstimationRequest;
+
+    if (!data.projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    const apiKey = anthropicApiKey.value();
+    if (!apiKey) {
+      throw new HttpsError('internal', 'ANTHROPIC_API_KEY no esta configurada.');
+    }
+
+    try {
+      return await handleScoreEstimation(data, apiKey);
+    } catch (err) {
+      if (err instanceof HttpsError) throw err;
+      console.error('estimateScore error:', err);
+      throw new HttpsError('internal', 'No se pudo completar la evaluacion de puntaje.');
+    }
   },
 );
