@@ -306,8 +306,8 @@ describe('VALD-17: Document Expiration', () => {
   })
 
   it('should pass when all docs are more than 30 days from expiry', () => {
-    // Close date 2026-02-13, issue date 2025-12-15 => 60 days => 30 remaining
-    const docs = [makeDoc('seguro', new Date('2025-12-15'))]
+    // Close date 2026-02-13, issue date 2025-12-20 => 55 days => 35 remaining
+    const docs = [makeDoc('seguro', new Date('2025-12-20'))]
     const result = validateDocumentExpiration(docs, periodo)
     expect(result.status).toBe('pass')
     expect(result.severity).toBe('warning')
@@ -349,13 +349,13 @@ describe('VALD-17: Document Expiration', () => {
   })
 
   it('should recalculate correctly when period changes to P2', () => {
-    // P2 closes 2026-07-15, issue date 2026-05-01 => 75 days => 15 remaining
-    const docs = [makeDoc('contador', new Date('2026-05-01'))]
+    // P2 closes 2026-07-15, issue date 2026-04-30 => 76 days => 14 remaining
+    const docs = [makeDoc('contador', new Date('2026-04-30'))]
     const result = validateDocumentExpiration(docs, '2026-P2')
     expect(result.status).toBe('fail')
     expect(result.severity).toBe('warning')
     const meta = result.metadata!.documents as Array<{ tipo: string; daysRemaining: number; status: string }>
-    expect(meta[0].daysRemaining).toBe(15)
+    expect(meta[0].daysRemaining).toBe(14)
     expect(meta[0].status).toBe('critico')
   })
 
