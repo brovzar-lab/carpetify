@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-05-PLAN.md
-last_updated: "2026-03-24T04:04:38.021Z"
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-24T14:31:54.673Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 3
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 19
+  completed_plans: 13
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 03 — ai-doc-generation
+**Current focus:** Phase 04 — validation-dashboard
 
 ## Current Position
 
-Phase: 04
-Plan: Not started
+Phase: 04 (validation-dashboard) — EXECUTING
+Plan: 2 of 7
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: Not started
 | Phase 03 P04 | 14min | 3 tasks | 13 files |
 | Phase 03 P06 | 5min | 1 tasks | 9 files |
 | Phase 03 P05 | 5min | 2 tasks | 7 files |
+| Phase 04 P01 | 7min | 1 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [Phase 03]: A4 Word export uses lightweight .txt template (Claude discretion per CONTEXT.md)
 - [Phase 03]: useStaleness uses pure function computeStalePasses for testable staleness logic, separate from Firestore listener
 - [Phase 03]: DOC_TO_PASS static map in useStaleness for O(1) document-to-pass staleness lookup
+- [Phase 04]: Pure function signatures with typed params per rule rather than full ProjectDataSnapshot for independent testability
+- [Phase 04]: TeamMemberLike interface in experienceThresholds for loose coupling to schema layer
+- [Phase 04]: NavigateTo type with screen, fieldId, memberIndex for precise Ir al campo deep links
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T19:54:10.771Z
-Stopped at: Completed 03-05-PLAN.md
+Last session: 2026-03-24T14:31:54.670Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

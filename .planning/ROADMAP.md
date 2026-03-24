@@ -86,7 +86,7 @@ Plans:
 **Plans:** 7 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions with TDD test suite
+- [x] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions with TDD test suite
 - [ ] 04-02-PLAN.md — 4 warning rule functions (ruta critica sync, hyperlink accessibility, bonus eligibility, document expiration)
 - [ ] 04-03-PLAN.md — Viability scoring module (deterministic, 38 pts), AI persona scoring Cloud Function (5 evaluators, 62 pts), persona prompt files, and locales
 - [ ] 04-04-PLAN.md — Validation engine orchestrator with D-11 tiered timing (instant 12 rules + medium 2 rules)
