@@ -109,7 +109,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Export foundation: dependencies, NotoSans fonts, file naming registry (EXPORT_FILE_MAP), folder structure constants, language check utility (LANG-05), PDF font registration and shared stylesheet
-- [ ] 05-02-PLAN.md — 15 PDF template components (12 document templates + 3 meta-document templates) and pdfRenderer routing module for FORMATO-compliant PDF generation
+- [x] 05-02-PLAN.md — 15 PDF template components (12 document templates + 3 meta-document templates) and pdfRenderer routing module for FORMATO-compliant PDF generation
 - [ ] 05-03-PLAN.md — Export pipeline UI: wizard integration, export screen with readiness card, language check results, progress view, ZIP compilation, auto-download, blocker modal, and end-to-end verification
 
 ## Progress

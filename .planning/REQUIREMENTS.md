@@ -64,7 +64,7 @@
 
 - [x] **EXPRT-01**: App generates PDFs from stored document data using IMCINE file naming convention (max 15 chars, ASCII only)
 - [ ] **EXPRT-02**: App compiles complete carpeta as ZIP with organized folder structure: 00_ERPI/, A_PROPUESTA/, B_PERSONAL/, C_ERPI/, D_COTIZ/, E_FINANZAS/
-- [ ] **EXPRT-03**: Export includes validation report, score estimate, and submission upload guide
+- [x] **EXPRT-03**: Export includes validation report, score estimate, and submission upload guide
 - [ ] **EXPRT-04**: Export only proceeds when all blocker validations pass — warnings are flagged but don't block
 - [x] **EXPRT-05**: Generated documents conform to IMCINE's official FORMATO structures (FORMATO 1–11). Validation checks that output matches required table/field structure, not just content
 
@@ -164,7 +164,7 @@
 | VALD-17 | Phase 4 | Complete |
 | EXPRT-01 | Phase 5 | Complete |
 | EXPRT-02 | Phase 5 | Pending |
-| EXPRT-03 | Phase 5 | Pending |
+| EXPRT-03 | Phase 5 | Complete |
 | EXPRT-04 | Phase 5 | Pending |
 | EXPRT-05 | Phase 5 | Complete |
 | LANG-01 | Phase 3 | Complete |

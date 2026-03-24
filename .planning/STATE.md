@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-24T20:24:15.627Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-24T20:33:01.799Z"
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 23
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 05 (export-manager) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Plan: 2 of 3
 | Phase 04 P07 | 8min | 3 tasks | 11 files |
 | Phase 04 P08 | 4min | 2 tasks | 4 files |
 | Phase 05 P01 | 7min | 2 tasks | 13 files |
+| Phase 05 P02 | 5min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,10 @@ Recent decisions affecting current work:
 - [Phase 05]: NotoSans variable font files reused for all three weight registrations (Regular/Bold/Italic)
 - [Phase 05]: Language check passed=true even with flagged anglicisms per D-07; only title mismatches are blockers
 - [Phase 05]: Currency/date regex patterns defined internally in languageCheck.ts (format.ts exports functions not regex patterns)
+- [Phase 05]: React.createElement used in pdfRenderer routing instead of JSX for plain .ts module compatibility
+- [Phase 05]: ContractDocument splits by legal clause markers with fee-reference detection for contextual yellow highlight placement
+- [Phase 05]: RutaCritica supports dual rendering: structured timeline grid or prose fallback
+- [Phase 05]: PORTAL_FIELD_MAP hardcoded in SubmissionGuide since SHCP portal fields are stable across EFICINE periods
 
 ### Pending Todos
 
@@ -148,6 +153,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T20:24:15.619Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-24T20:33:01.792Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
