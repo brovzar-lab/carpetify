@@ -483,6 +483,12 @@ export const es = {
     hyperlinkNotAccessible:
       'Enlace no accesible. Verifica que sea publico y no requiera contrasena.',
     hyperlinkChecking: 'Verificando...',
+    hyperlinkCorsError:
+      'No se pudo verificar automaticamente',
+
+    // Project card validation
+    projectCardNoBlockers: 'Sin bloqueadores',
+    projectCardWarnings: (n: number) => `${n} advertencia(s)`,
 
     // Error states
     dataLoadFailure:
