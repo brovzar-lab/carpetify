@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-08-PLAN.md
-last_updated: "2026-03-24T18:10:16.981Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-24T20:24:15.627Z"
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 23
+  completed_plans: 21
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 04 — validation-dashboard
+**Current focus:** Phase 05 — export-manager
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
+Phase: 05 (export-manager) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Plan: Not started
 | Phase 04 P06 | 24min | 2 tasks | 10 files |
 | Phase 04 P07 | 8min | 3 tasks | 11 files |
 | Phase 04 P08 | 4min | 2 tasks | 4 files |
+| Phase 05 P01 | 7min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - [Phase 04]: Cargo values use actual constants ('Director', 'Guionista', 'Productor') not parenthesized forms from plan interfaces
 - [Phase 04]: Regional bonus fields (c) remain defaults -- current schema lacks location data; only categories (a)(b)(d) wired from team data
 - [Phase 04]: A8b prose parsing uses 200-char lookahead after stage name for month extraction; cash flow phase boundaries at 25%/60% of month count
+- [Phase 05]: NotoSans variable font files reused for all three weight registrations (Regular/Bold/Italic)
+- [Phase 05]: Language check passed=true even with flagged anglicisms per D-07; only title mismatches are blockers
+- [Phase 05]: Currency/date regex patterns defined internally in languageCheck.ts (format.ts exports functions not regex patterns)
 
 ### Pending Todos
 
@@ -144,6 +148,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T18:04:54.789Z
-Stopped at: Completed 04-08-PLAN.md
+Last session: 2026-03-24T20:24:15.619Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

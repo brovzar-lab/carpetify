@@ -62,11 +62,11 @@
 
 ### Export
 
-- [ ] **EXPRT-01**: App generates PDFs from stored document data using IMCINE file naming convention (max 15 chars, ASCII only)
+- [x] **EXPRT-01**: App generates PDFs from stored document data using IMCINE file naming convention (max 15 chars, ASCII only)
 - [ ] **EXPRT-02**: App compiles complete carpeta as ZIP with organized folder structure: 00_ERPI/, A_PROPUESTA/, B_PERSONAL/, C_ERPI/, D_COTIZ/, E_FINANZAS/
 - [ ] **EXPRT-03**: Export includes validation report, score estimate, and submission upload guide
 - [ ] **EXPRT-04**: Export only proceeds when all blocker validations pass — warnings are flagged but don't block
-- [ ] **EXPRT-05**: Generated documents conform to IMCINE's official FORMATO structures (FORMATO 1–11). Validation checks that output matches required table/field structure, not just content
+- [x] **EXPRT-05**: Generated documents conform to IMCINE's official FORMATO structures (FORMATO 1–11). Validation checks that output matches required table/field structure, not just content
 
 ### Language & Formatting
 
@@ -74,7 +74,7 @@
 - [x] **LANG-02**: Monetary amounts formatted as $X,XXX,XXX MXN throughout — comma thousands separator, no decimals, peso sign, MXN suffix
 - [x] **LANG-03**: Dates formatted in Spanish: "15 de julio de 2026" or "Agosto 2026"
 - [x] **LANG-04**: Generated prose uses formal but non-bureaucratic Mexican Spanish — precise, concrete, cinematographic vocabulary per politica_idioma.md guidelines
-- [ ] **LANG-05**: Pre-export language check — scan for anglicisms, verify format consistency, confirm title identity across all documents
+- [x] **LANG-05**: Pre-export language check — scan for anglicisms, verify format consistency, confirm title identity across all documents
 
 ## v2 Requirements
 
@@ -162,16 +162,16 @@
 | VALD-15 | Phase 4 | Complete |
 | VALD-16 | Phase 4 | Complete |
 | VALD-17 | Phase 4 | Complete |
-| EXPRT-01 | Phase 5 | Pending |
+| EXPRT-01 | Phase 5 | Complete |
 | EXPRT-02 | Phase 5 | Pending |
 | EXPRT-03 | Phase 5 | Pending |
 | EXPRT-04 | Phase 5 | Pending |
-| EXPRT-05 | Phase 5 | Pending |
+| EXPRT-05 | Phase 5 | Complete |
 | LANG-01 | Phase 3 | Complete |
 | LANG-02 | Phase 1 | Complete |
 | LANG-03 | Phase 1 | Complete |
 | LANG-04 | Phase 3 | Complete |
-| LANG-05 | Phase 5 | Pending |
+| LANG-05 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 49 total
