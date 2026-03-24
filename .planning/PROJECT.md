@@ -26,6 +26,9 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [x] Real-time validation as data is entered — flag blockers vs warnings *(Validated in Phase 04: validation-dashboard — tiered D-11 timing)*
 - [x] Score estimate against EFICINE rubric (100 points + 5 bonus, 90/100 minimum to pass) *(Validated in Phase 04: validation-dashboard — viability + 5 AI personas)*
 - [x] Financial compliance checks: ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, screenwriter ≥ 3%, in-kind ≤ 10% *(Validated in Phase 04: validation-dashboard — VALD-05)*
+- [x] PDF generation from stored documents with IMCINE file naming convention (max 15 chars, no accents/ñ/symbols) *(Validated in Phase 05: export-manager — 15 PDF templates, fileNaming registry)*
+- [x] ZIP export of complete carpeta with organized folder structure (A_PROPUESTA/, B_PERSONAL/, C_ERPI/, D_COTIZ/, E_FINANZAS/) *(Validated in Phase 05: export-manager — 7 folders + _INTERNO)*
+- [x] Language check utility detecting anglicisms and formatting violations in AI-generated docs *(Validated in Phase 05: export-manager — LANG-05)*
 
 ### Active
 
@@ -40,8 +43,8 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [x] ~~13 cross-module validation rules~~ → moved to Validated
 - [x] ~~Traffic light dashboard~~ → moved to Validated
 - [x] ~~Real-time validation~~ → moved to Validated
-- [ ] PDF generation from stored documents with IMCINE file naming convention (max 15 chars, no accents/ñ/symbols)
-- [ ] ZIP export of complete carpeta with organized folder structure (A_PROPUESTA/, B_PERSONAL/, C_ERPI/, D_COTIZ/, E_FINANZAS/)
+- [x] ~~PDF generation with IMCINE file naming~~ → moved to Validated
+- [x] ~~ZIP export with organized folder structure~~ → moved to Validated
 - [x] ~~Score estimate against EFICINE rubric~~ → moved to Validated
 - [ ] Entire UI in Mexican Spanish — no English visible to user, ever
 - [ ] All generated documents in Mexican Spanish using IMCINE/EFICINE terminology without translation
@@ -111,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after Phase 04 completion — validation engine (14 rules), traffic light dashboard, score estimation (viability + 5 AI personas) verified*
+*Last updated: 2026-03-24 after Phase 05 completion — milestone v1.0 complete. All 5 phases verified. Export manager with 15 PDF templates, ZIP compilation, language check.*
