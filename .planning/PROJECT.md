@@ -16,6 +16,11 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 
 - [x] Screenplay PDF parsing — extract scene count, locations, characters, INT/EXT/DAY/NIGHT breakdown *(Validated in Phase 02: screenplay-processing)*
 - [x] AI screenplay analysis via Anthropic Claude API using Spanish prompts from `prompts/` folder *(Validated in Phase 02: screenplay-processing)*
+- [x] AI document generation pipeline: 4 sequential passes (Line Producer → Finance Advisor → Legal → Combined) *(Validated in Phase 03: ai-doc-generation)*
+- [x] ~20 AI-generated documents across Sections A, C, and E of the carpeta *(Validated in Phase 03: ai-doc-generation — 21 documents)*
+- [x] Budget generation using IMCINE standard account structure (accounts 100–1200) with Mexican market crew rates *(Validated in Phase 03: ai-doc-generation)*
+- [x] Contract template generation (cesión de derechos, producer/director contracts) with fee amounts matching budget *(Validated in Phase 03: ai-doc-generation)*
+- [x] One-click regeneration — changing data regenerates affected documents *(Validated in Phase 03: ai-doc-generation)*
 
 ### Active
 
@@ -24,8 +29,8 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [ ] 5-screen intake wizard: project setup, screenplay upload, creative team, financial structure, document upload
 - [x] ~~Screenplay PDF parsing~~ → moved to Validated
 - [x] ~~AI screenplay analysis~~ → moved to Validated
-- [ ] AI document generation pipeline: 4 sequential passes (Line Producer → Finance Advisor → Legal → Combined)
-- [ ] ~20 AI-generated documents across Sections A, C, and E of the carpeta
+- [x] ~~AI document generation pipeline~~ → moved to Validated
+- [x] ~~~20 AI-generated documents~~ → moved to Validated
 - [ ] User-uploaded document management for items the app cannot generate (acta constitutiva, INDAUTOR certs, bank statements, IDs, signed contracts, etc.)
 - [ ] 13 cross-module validation rules (financial reconciliation, title consistency, fee matching, date compliance, ERPI eligibility, etc.)
 - [ ] Traffic light dashboard (🟢🟡🔴) showing validation status per document and per rule
@@ -36,10 +41,10 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [ ] Entire UI in Mexican Spanish — no English visible to user, ever
 - [ ] All generated documents in Mexican Spanish using IMCINE/EFICINE terminology without translation
 - [ ] Amounts formatted as $X,XXX,XXX MXN throughout; dates in Spanish format
-- [ ] Budget generation using IMCINE standard account structure (accounts 100–1200) with Mexican market crew rates
+- [x] ~~Budget generation~~ → moved to Validated
 - [ ] Financial compliance checks: ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, screenwriter ≥ 3%, in-kind ≤ 10%
-- [ ] Contract template generation (cesión de derechos, producer/director contracts) with fee amounts matching budget
-- [ ] One-click regeneration — changing data regenerates affected documents
+- [x] ~~Contract template generation~~ → moved to Validated
+- [x] ~~One-click regeneration~~ → moved to Validated
 - [ ] Completeness checklist showing what's done and what the user still needs to provide
 
 ### Out of Scope
@@ -101,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-22 after Phase 02 completion — screenplay processing pipeline verified*
+*Last updated: 2026-03-23 after Phase 03 completion — AI document generation pipeline verified (21 docs, 4 passes, budget editor, staleness tracking)*
