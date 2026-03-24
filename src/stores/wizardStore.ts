@@ -8,6 +8,7 @@ export type WizardScreen =
   | 'documentos'
   | 'generacion'
   | 'validacion'
+  | 'exportar'
 
 interface WizardState {
   activeScreen: WizardScreen

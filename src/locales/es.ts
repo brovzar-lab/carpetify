@@ -38,6 +38,7 @@ export const es = {
     screen5: 'Documentos',
     screen6: 'Generacion',
     screen7: 'Validacion',
+    screen8: 'Exportar',
     backToDashboard: 'Mis Proyectos',
   },
 
@@ -598,6 +599,103 @@ export const es = {
       'La evaluacion de puntaje tardo demasiado. Intenta de nuevo.',
     rateLimitError:
       'Limite de solicitudes alcanzado. Espera unos minutos e intenta de nuevo.',
+  },
+
+  // -- Export Screen --
+  export: {
+    // Page
+    pageTitle: 'Exportar',
+
+    // CTA states
+    ctaLabel: 'Exportar carpeta',
+    ctaSubtextBlockers: (n: number) => `${n} bloqueador(es) impiden la exportacion`,
+    ctaSubtextWarnings: (n: number) => `${n} advertencia(s) — exportar de todos modos`,
+
+    // Readiness messages
+    readinessClean: 'Carpeta lista para exportar. Todos los documentos generados y validaciones cumplidas.',
+    readinessWarnings: (n: number) => `${n} advertencia(s) detectada(s). Puedes exportar, pero revisa los avisos.`,
+    readinessBlockers: (n: number) => `${n} bloqueador(es) impiden la exportacion. Resuelve los problemas antes de exportar.`,
+
+    // Empty state
+    emptyStateHeading: 'Genera los documentos primero',
+    emptyStateBody: 'Completa los datos del proyecto y genera la carpeta desde la pantalla "Generacion" antes de exportar.',
+
+    // Language check
+    langCheckHeading: 'Verificacion de idioma',
+    langCheckRunning: 'Verificando idioma y formatos...',
+    langCheckPassed: 'Sin problemas detectados',
+    langCheckAnglicisms: 'Anglicismos',
+    langCheckFormats: 'Formatos de montos y fechas',
+    langCheckTitles: 'Consistencia del titulo',
+    langCheckAnglicismFlagged: (word: string, docName: string, replacement: string) =>
+      `Anglicismo detectado: "${word}" en ${docName}. Sugerencia: usar "${replacement}".`,
+    langCheckAnglicismNoted: (word: string) => `Termino tecnico aceptado: "${word}".`,
+    langCheckFormatCurrency: (docName: string, found: string) =>
+      `Formato de monto inconsistente en ${docName}: "${found}". Usar "$X,XXX,XXX MXN".`,
+    langCheckFormatDate: (docName: string, found: string) =>
+      `Formato de fecha en ingles en ${docName}: "${found}". Usar formato espanol.`,
+    langCheckTitlePass: (n: number, total: number) =>
+      `Titulo identico en ${n}/${total} documentos.`,
+    langCheckTitleMismatch: (n: number, list: string) =>
+      `El titulo no coincide en ${n} documento(s): ${list}. Corrige antes de exportar.`,
+    langCheckDismiss: 'Ignorar advertencia',
+    langCheckDismissAll: 'Ignorar todas las advertencias',
+    langCheckNoAnglicisms: 'Sin anglicismos detectados',
+    langCheckNoFormatIssues: 'Sin problemas de formato',
+    langCheckTitleConsistent: 'Titulo consistente en todos los documentos',
+
+    // Export progress
+    progressStep1Label: 'Verificacion de idioma',
+    progressStep1Running: 'Verificando idioma y formatos...',
+    progressStep1Complete: 'Sin problemas de idioma',
+    progressStep2Label: 'Generando PDFs',
+    progressStep2Running: (current: number, total: number) =>
+      `Generando PDFs... (${current}/${total})`,
+    progressStep2Complete: (total: number) => `${total} PDFs generados`,
+    progressStep3Label: 'Descargando documentos subidos',
+    progressStep3Running: (current: number, total: number) =>
+      `Descargando archivos... (${current}/${total})`,
+    progressStep3Complete: (total: number) => `${total} archivos descargados`,
+    progressStep4Label: 'Compilando ZIP',
+    progressStep4Running: 'Compilando carpeta...',
+    progressStep4Complete: 'Carpeta compilada',
+    progressComplete: 'Listo',
+    progressAutoDownload: 'La carpeta se descargo automaticamente.',
+    progressError: (msg: string) => `Error al exportar: ${msg}. Intenta de nuevo.`,
+    progressRetry: 'Reintentar exportacion',
+
+    // Download card
+    downloadToast: (filename: string) => `Carpeta descargada: ${filename}`,
+    downloadRedownload: 'Descargar de nuevo',
+    downloadMeta: (filename: string, sizeMB: string) => `${filename} (${sizeMB} MB)`,
+    downloadDate: (date: string) => `Generada el ${date}`,
+
+    // Blocked modal
+    blockedModalTitle: 'Exportacion bloqueada',
+    blockedModalBody: 'Resuelve los siguientes problemas antes de exportar la carpeta.',
+    blockedModalFixLink: 'Ir al campo',
+    blockedModalClose: 'Cerrar',
+
+    // Warnings panel
+    warningsPanelHeading: 'Advertencias',
+    warningsPanelBody: 'Estas advertencias no bloquean la exportacion, pero revisa antes de enviar a IMCINE.',
+    warningsDismiss: 'Ignorar',
+    warningsDismissAll: 'Ignorar todas',
+
+    // Error states
+    errorPdfGeneration: (docName: string) =>
+      `Error al generar ${docName}. La exportacion continua con los demas documentos.`,
+    errorFileFetch: (filename: string) =>
+      `No se pudo descargar ${filename} de almacenamiento. Verifica tu conexion.`,
+    errorZipCompilation: 'Error al compilar la carpeta. El proyecto puede ser demasiado grande. Intenta de nuevo o contacta soporte.',
+    errorLangCheckTimeout: 'La verificacion de idioma tardo demasiado. Se omitio. Puedes exportar sin esta verificacion.',
+    errorNoDocs: 'Genera los documentos primero. Completa los datos y usa "Generar carpeta" en la pantalla de generacion.',
+    errorBlockersResolved: 'Todos los bloqueadores resueltos. Ya puedes exportar.',
+
+    // Upload validation
+    uploadErrorNotPdf: (tipo: string) => `${tipo}: El archivo no es PDF.`,
+    uploadErrorTooLarge: (tipo: string, sizeMB: string) => `${tipo}: El archivo excede 40 MB (${sizeMB} MB).`,
+    uploadErrorFetchFailed: (tipo: string) => `${tipo}: No se pudo descargar el archivo.`,
   },
 
   // -- Error States --

@@ -97,6 +97,19 @@ export function WizardSidebar({ screenStatuses = {} }: WizardSidebarProps) {
           <TrafficLight status={screenStatuses.validacion || 'partial'} />
           <span>{es.wizard.screen7}</span>
         </Link>
+
+        <Link
+          to={`/project/${projectId}/exportar`}
+          className={cn(
+            'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
+            activeScreen === 'exportar'
+              ? 'bg-primary/10 text-primary font-semibold'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+          )}
+        >
+          <TrafficLight status={screenStatuses.exportar || 'partial'} />
+          <span>{es.wizard.screen8}</span>
+        </Link>
       </nav>
     </aside>
   )
