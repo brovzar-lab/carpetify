@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { DocumentChecklist } from '@/components/wizard/DocumentChecklist'
 import { es } from '@/locales/es'
@@ -26,6 +26,7 @@ export function DocumentUpload({ projectId }: DocumentUploadProps) {
   const [documents, setDocuments] = useState<Map<string, DocumentRecord>>(
     new Map(),
   )
+  const [periodoRegistro, setPeriodoRegistro] = useState<string | undefined>()
   const [loaded, setLoaded] = useState(false)
 
   const loadDocuments = useCallback(async () => {
@@ -33,10 +34,10 @@ export function DocumentUpload({ projectId }: DocumentUploadProps) {
       const colRef = collection(db, `projects/${projectId}/documents`)
       const snap = await getDocs(colRef)
       const map = new Map<string, DocumentRecord>()
-      snap.docs.forEach((doc) => {
-        const data = doc.data()
-        map.set(doc.id, {
-          tipo: data.tipo || doc.id,
+      snap.docs.forEach((d) => {
+        const data = d.data()
+        map.set(d.id, {
+          tipo: data.tipo || d.id,
           filename: data.filename || '',
           storagePath: data.storagePath || '',
           uploadedAt: data.uploadedAt?.toDate?.() || null,
@@ -49,6 +50,23 @@ export function DocumentUpload({ projectId }: DocumentUploadProps) {
       // No documents yet
     }
     setLoaded(true)
+  }, [projectId])
+
+  // Load periodo_registro from project metadata
+  useEffect(() => {
+    async function loadPeriodo() {
+      try {
+        const projectRef = doc(db, 'projects', projectId)
+        const snap = await getDoc(projectRef)
+        if (snap.exists()) {
+          const data = snap.data()
+          setPeriodoRegistro(data.periodo_registro as string | undefined)
+        }
+      } catch {
+        // ignore
+      }
+    }
+    loadPeriodo()
   }, [projectId])
 
   useEffect(() => {
@@ -74,6 +92,7 @@ export function DocumentUpload({ projectId }: DocumentUploadProps) {
         projectId={projectId}
         documents={documents}
         onRefresh={loadDocuments}
+        periodoRegistro={periodoRegistro}
       />
     </div>
   )

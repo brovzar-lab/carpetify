@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useSearchParams } from 'react-router'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   doc,
   getDoc,
-  setDoc,
   collection,
   getDocs,
 } from 'firebase/firestore'
+import type { ProjectMetadata } from '@/schemas/project'
 import { db } from '@/lib/firebase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,7 +23,7 @@ import {
   calculateCompliance,
   type ComplianceResult,
 } from '@/hooks/useCompliance'
-import { financialsSchema, type Financials, type Tercero } from '@/schemas/financials'
+import { financialsSchema, type Financials } from '@/schemas/financials'
 import type { TeamMember } from '@/schemas/team'
 import { formatMXN } from '@/lib/format'
 import { es } from '@/locales/es'
@@ -57,6 +58,31 @@ const emptyCompliance: ComplianceResult = {
  * Per INTK-07, D-14 through D-22.
  */
 export function FinancialStructure({ projectId }: FinancialStructureProps) {
+  const [searchParams] = useSearchParams()
+  const highlightField = searchParams.get('highlight')
+  const [highlightActive, setHighlightActive] = useState(false)
+  const highlightFieldRef = useRef<HTMLElement | null>(null)
+
+  // Field highlight from "Ir al campo" navigation
+  useEffect(() => {
+    if (highlightField) {
+      setHighlightActive(true)
+      // Scroll to highlighted field after render
+      const timer = setTimeout(() => {
+        const el = document.querySelector(`[data-field="${highlightField}"]`)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          highlightFieldRef.current = el as HTMLElement
+        }
+      }, 100)
+      const fadeTimer = setTimeout(() => setHighlightActive(false), 3000)
+      return () => {
+        clearTimeout(timer)
+        clearTimeout(fadeTimer)
+      }
+    }
+  }, [highlightField])
+
   const [loaded, setLoaded] = useState(false)
   const [totalBudgetCentavos, setTotalBudgetCentavos] = useState(0)
   const [eficineCentavos, setEficineCentavos] = useState(0)
@@ -78,7 +104,8 @@ export function FinancialStructure({ projectId }: FinancialStructureProps) {
     reset,
     formState: { errors },
   } = useForm<Financials>({
-    resolver: zodResolver(financialsSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(financialsSchema) as any,
     defaultValues: defaultFinancials,
     mode: 'onTouched',
   })
@@ -93,7 +120,7 @@ export function FinancialStructure({ projectId }: FinancialStructureProps) {
     async function loadData() {
       try {
         // Load financials
-        const finRef = doc(db, `projects/${projectId}/financials`)
+        const finRef = doc(db, `projects/${projectId}/financials/data`)
         const finSnap = await getDoc(finRef)
         if (finSnap.exists()) {
           const raw = finSnap.data()
@@ -103,11 +130,11 @@ export function FinancialStructure({ projectId }: FinancialStructureProps) {
           }
         }
 
-        // Load project metadata for budget, EFICINE amount, category, co-production
-        const metaRef = doc(db, `projects/${projectId}/metadata`)
-        const metaSnap = await getDoc(metaRef)
-        if (metaSnap.exists()) {
-          const meta = metaSnap.data()
+        // Load project metadata from root document (metadata is a nested field, not a subcollection)
+        const projectRef = doc(db, 'projects', projectId)
+        const projectSnap = await getDoc(projectRef)
+        if (projectSnap.exists()) {
+          const meta = projectSnap.data().metadata as Partial<ProjectMetadata>
           setTotalBudgetCentavos(meta.costo_total_proyecto_centavos || 0)
           setEficineCentavos(meta.monto_solicitado_eficine_centavos || 0)
           setCategoriaCinematografica(meta.categoria_cinematografica || '')
@@ -212,7 +239,14 @@ export function FinancialStructure({ projectId }: FinancialStructureProps) {
         {/* Form area */}
         <div className="flex-1 space-y-6">
           {/* Section 1: Aportacion ERPI */}
-          <section className="space-y-3">
+          <section
+            data-field="aportacion_erpi"
+            className={`space-y-3 transition-all duration-300 rounded-md ${
+              highlightField === 'aportacion_erpi' && highlightActive
+                ? 'ring-2 ring-primary/50 p-2 -m-2'
+                : ''
+            }`}
+          >
             <h2 className="text-sm font-semibold">{es.screen4.erpiSection}</h2>
             <div className="grid grid-cols-2 gap-4">
               <Controller
@@ -311,7 +345,14 @@ export function FinancialStructure({ projectId }: FinancialStructureProps) {
           <Separator />
 
           {/* Section 5: Gestor de Recursos */}
-          <section className="space-y-3">
+          <section
+            data-field="gestor"
+            className={`space-y-3 transition-all duration-300 rounded-md ${
+              highlightField === 'gestor' && highlightActive
+                ? 'ring-2 ring-primary/50 p-2 -m-2'
+                : ''
+            }`}
+          >
             <div className="flex items-center gap-3">
               <Controller
                 control={control}

@@ -1,4 +1,6 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { differenceInCalendarDays } from 'date-fns'
 import { formatDateES } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +12,9 @@ import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { toast } from 'sonner'
 import { es } from '@/locales/es'
+import { PERIODOS_EFICINE } from '@/lib/constants'
+import { ExpirationBadge } from '@/components/validation/ExpirationBadge'
+import { ExpirationAlert } from '@/components/validation/ExpirationAlert'
 
 interface DocumentRecord {
   tipo: string
@@ -24,6 +29,37 @@ interface DocumentChecklistProps {
   projectId: string
   documents: Map<string, DocumentRecord>
   onRefresh: () => void
+  periodoRegistro?: string
+}
+
+type ExpirationStatus = 'vigente' | 'proximo' | 'critico' | 'vencido'
+
+function computeExpirationStatus(
+  fechaEmision: string,
+  periodoRegistro: string,
+): { daysRemaining: number; status: ExpirationStatus } | null {
+  const periodo = PERIODOS_EFICINE[periodoRegistro as keyof typeof PERIODOS_EFICINE]
+  if (!periodo) return null
+
+  const closeDate = new Date(periodo.close)
+  const issueDate = new Date(fechaEmision)
+  if (isNaN(issueDate.getTime())) return null
+
+  const daysDiff = differenceInCalendarDays(closeDate, issueDate)
+  const daysRemaining = 90 - daysDiff
+
+  let status: ExpirationStatus
+  if (daysRemaining < 0) {
+    status = 'vencido'
+  } else if (daysRemaining <= 14) {
+    status = 'critico'
+  } else if (daysRemaining <= 30) {
+    status = 'proximo'
+  } else {
+    status = 'vigente'
+  }
+
+  return { daysRemaining, status }
 }
 
 const REQUIRED_UPLOADS = [
@@ -50,7 +86,23 @@ export function DocumentChecklist({
   projectId,
   documents,
   onRefresh,
+  periodoRegistro,
 }: DocumentChecklistProps) {
+  const [searchParams] = useSearchParams()
+  const highlightField = searchParams.get('highlight')
+  const [highlightActive, setHighlightActive] = useState(false)
+  const highlightRef = useRef<HTMLDivElement | null>(null)
+
+  // Field highlight effect: apply ring for 3 seconds then fade
+  useEffect(() => {
+    if (highlightField && highlightRef.current) {
+      setHighlightActive(true)
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const timer = setTimeout(() => setHighlightActive(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [highlightField])
+
   const [uploadingType, setUploadingType] = useState<string | null>(null)
   const fileInputRefs = useRef<Map<string, HTMLInputElement>>(new Map())
 
@@ -165,11 +217,23 @@ export function DocumentChecklist({
         {REQUIRED_UPLOADS.map((docType) => {
           const record = documents.get(docType.tipo)
           const isUploading = uploadingType === docType.tipo
+          const isHighlighted = highlightField === docType.tipo
+
+          // Compute expiration if applicable
+          const expiration =
+            docType.hasExpiry && record?.fecha_emision && periodoRegistro
+              ? computeExpirationStatus(record.fecha_emision, periodoRegistro)
+              : null
 
           return (
             <div
               key={docType.tipo}
-              className="flex items-center gap-3 rounded-md border p-3"
+              ref={isHighlighted ? highlightRef : undefined}
+              className={`flex items-center gap-3 rounded-md border p-3 transition-all duration-300 ${
+                isHighlighted && highlightActive
+                  ? 'ring-2 ring-primary/50'
+                  : ''
+              }`}
             >
               {/* Doc info */}
               <div className="flex-1 space-y-1">
@@ -181,6 +245,13 @@ export function DocumentChecklist({
                     </Badge>
                   )}
                   {getStatusBadge(docType.tipo)}
+                  {/* Expiration badge inline */}
+                  {expiration && (
+                    <ExpirationBadge
+                      daysRemaining={expiration.daysRemaining}
+                      status={expiration.status}
+                    />
+                  )}
                 </div>
 
                 {/* Uploaded file info */}
@@ -204,7 +275,17 @@ export function DocumentChecklist({
                         handleDateChange(docType.tipo, e.target.value)
                       }
                     />
+                    <span className="text-xs text-muted-foreground">DD/MM/AAAA</span>
                   </div>
+                )}
+
+                {/* Expiration alert below the row */}
+                {expiration && expiration.status !== 'vigente' && (
+                  <ExpirationAlert
+                    docType={docType.tipo}
+                    daysRemaining={expiration.daysRemaining}
+                    status={expiration.status}
+                  />
                 )}
               </div>
 

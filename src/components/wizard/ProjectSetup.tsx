@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -20,7 +21,7 @@ import {
   CATEGORIAS_CINEMATOGRAFICAS,
   CATEGORIAS_DIRECTOR,
 } from '@/lib/constants'
-import { useAutoSave } from '@/hooks/useAutoSave'
+import { getProject, updateProjectMetadata } from '@/services/projects'
 import { AutoSaveIndicator } from '@/components/common/AutoSaveIndicator'
 
 /**
@@ -32,16 +33,16 @@ const projectFormSchema = z
   .object({
     titulo_proyecto: z.string().min(1, 'El titulo es obligatorio').max(100),
     periodo_registro: z.enum(['2026-P1', '2026-P2'], {
-      required_error: 'Selecciona un periodo',
+      error: 'Selecciona un periodo',
     }),
-    categoria_cinematografica: z.enum(CATEGORIAS_CINEMATOGRAFICAS, {
-      required_error: 'Selecciona una categoria',
+    categoria_cinematografica: z.enum([...CATEGORIAS_CINEMATOGRAFICAS], {
+      error: 'Selecciona una categoria',
     }),
-    categoria_director: z.enum(CATEGORIAS_DIRECTOR, {
-      required_error: 'Selecciona una categoria de director',
+    categoria_director: z.enum([...CATEGORIAS_DIRECTOR], {
+      error: 'Selecciona una categoria de director',
     }),
     duracion_estimada_minutos: z.coerce
-      .number({ invalid_type_error: 'Ingresa un numero valido' })
+      .number({ error: 'Ingresa un numero valido' })
       .int()
       .min(60, 'La duracion minima es 60 minutos'),
     formato_filmacion: z.string().min(1, 'Ingresa el formato de filmacion'),
@@ -95,16 +96,72 @@ interface ProjectSetupProps {
  * Auto-saves to Firestore on every form change.
  */
 export function ProjectSetup({ projectId }: ProjectSetupProps) {
-  const { save, status: saveStatus } = useAutoSave(projectId, 'metadata')
+  const [searchParams] = useSearchParams()
+  const highlightField = searchParams.get('highlight')
+  const [highlightActive, setHighlightActive] = useState(false)
+  const highlightRef = useRef<HTMLElement | null>(null)
+
+  // Field highlight from "Ir al campo" navigation
+  useEffect(() => {
+    if (highlightField) {
+      setHighlightActive(true)
+      // Find the field by id
+      const el = document.getElementById(highlightField)
+      if (el) {
+        highlightRef.current = el.closest('[data-field]') as HTMLElement | null
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+      const timer = setTimeout(() => setHighlightActive(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [highlightField])
+
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  const save = useCallback(
+    (formValues: ProjectFormData) => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = setTimeout(async () => {
+        setSaveStatus('saving')
+        try {
+          await updateProjectMetadata(projectId, {
+            titulo_proyecto: formValues.titulo_proyecto,
+            periodo_registro: formValues.periodo_registro,
+            categoria_cinematografica: formValues.categoria_cinematografica,
+            categoria_director: formValues.categoria_director,
+            duracion_estimada_minutos: formValues.duracion_estimada_minutos,
+            formato_filmacion: formValues.formato_filmacion,
+            relacion_aspecto: formValues.relacion_aspecto,
+            idiomas: formValues.idiomas
+              ? formValues.idiomas.split(',').map((s) => s.trim()).filter(Boolean)
+              : [],
+            costo_total_proyecto_centavos: formValues.costo_total_proyecto_centavos,
+            monto_solicitado_eficine_centavos: formValues.monto_solicitado_eficine_centavos,
+            es_coproduccion_internacional: formValues.es_coproduccion_internacional,
+            tipo_cambio_fx: formValues.tipo_cambio_fx,
+            fecha_tipo_cambio: formValues.fecha_tipo_cambio,
+          })
+          setSaveStatus('saved')
+          setTimeout(() => setSaveStatus((s) => (s === 'saved' ? 'idle' : s)), 3000)
+        } catch (err) {
+          console.error('[ProjectSetup] Save failed:', err)
+          setSaveStatus('error')
+        }
+      }, 1500)
+    },
+    [projectId],
+  )
 
   const {
     register,
     control,
     watch,
+    reset,
     formState: { errors, touchedFields },
-    setValue,
   } = useForm<ProjectFormData>({
-    resolver: zodResolver(projectFormSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(projectFormSchema) as any,
     mode: 'onTouched',
     defaultValues: {
       titulo_proyecto: '',
@@ -125,17 +182,55 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
     },
   })
 
+  /**
+   * Load saved metadata from Firestore on mount and hydrate the form.
+   * This ensures that after a page refresh, previously-saved values
+   * are visible in the form instead of blank defaults.
+   */
+  useEffect(() => {
+    let cancelled = false
+    getProject(projectId).then((project) => {
+      if (cancelled || !project?.metadata) return
+      const m = project.metadata
+      reset({
+        titulo_proyecto: m.titulo_proyecto ?? '',
+        periodo_registro: (m.periodo_registro as ProjectFormData['periodo_registro']) ?? undefined,
+        categoria_cinematografica:
+          (m.categoria_cinematografica as ProjectFormData['categoria_cinematografica']) ?? undefined,
+        categoria_director:
+          (m.categoria_director as ProjectFormData['categoria_director']) ?? undefined,
+        duracion_estimada_minutos: m.duracion_estimada_minutos ?? (undefined as unknown as number),
+        formato_filmacion: m.formato_filmacion ?? '',
+        relacion_aspecto: m.relacion_aspecto ?? '',
+        idiomas: Array.isArray(m.idiomas) ? m.idiomas.join(', ') : m.idiomas ?? '',
+        costo_total_proyecto_centavos: m.costo_total_proyecto_centavos ?? 0,
+        monto_solicitado_eficine_centavos: m.monto_solicitado_eficine_centavos ?? 0,
+        es_coproduccion_internacional: m.es_coproduccion_internacional ?? false,
+        tipo_cambio_fx: m.tipo_cambio_fx,
+        fecha_tipo_cambio: m.fecha_tipo_cambio ?? '',
+        desglose_nacional_pct: undefined,
+        desglose_extranjero_pct: undefined,
+      })
+    }).catch((err) => {
+      console.error('[ProjectSetup] Failed to load project metadata:', err)
+    })
+    return () => { cancelled = true }
+  }, [projectId, reset])
+
   const isCoproduction = watch('es_coproduccion_internacional')
   const formValues = watch()
 
-  // Auto-save on form changes
+  // Auto-save on form changes (only when title is present)
   useEffect(() => {
-    const { titulo_proyecto } = formValues
-    // Only auto-save if there's at least a title
-    if (titulo_proyecto) {
-      save(formValues as unknown as Record<string, unknown>)
+    if (formValues.titulo_proyecto) {
+      save(formValues)
     }
   }, [JSON.stringify(formValues)]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -153,7 +248,14 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
       <Separator />
 
       {/* 1. Titulo del proyecto */}
-      <div className="space-y-1.5">
+      <div
+        data-field="titulo_proyecto"
+        className={`space-y-1.5 transition-all duration-300 rounded-md ${
+          highlightField === 'titulo_proyecto' && highlightActive
+            ? 'ring-2 ring-primary/50 p-2 -m-2'
+            : ''
+        }`}
+      >
         <Label htmlFor="titulo_proyecto">{es.screen1.titleLabel}</Label>
         <Input
           id="titulo_proyecto"
@@ -413,11 +515,13 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
                 type="date"
                 {...register('fecha_tipo_cambio')}
               />
+              <p className="text-xs text-muted-foreground">Formato: DD/MM/AAAA</p>
               {errors.fecha_tipo_cambio && (
                 <p className="text-sm text-destructive">
                   {errors.fecha_tipo_cambio.message}
                 </p>
               )}
+
             </div>
 
             {/* Desglose territorial */}

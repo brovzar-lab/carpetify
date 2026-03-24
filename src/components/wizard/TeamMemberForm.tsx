@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useSearchParams } from 'react-router'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ChevronDown, ChevronRight, X, Plus } from 'lucide-react'
@@ -16,14 +17,14 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { MXNInput } from '@/components/common/MXNInput'
+import { HyperlinkVerifier } from '@/components/validation/HyperlinkVerifier'
 import { es } from '@/locales/es'
 import { CARGOS_EQUIPO } from '@/lib/constants'
-import { useState } from 'react'
 
 const filmographyEntryFormSchema = z.object({
   titulo: z.string().min(1, 'Ingresa el titulo de la obra'),
   anio: z.coerce
-    .number({ invalid_type_error: 'Ingresa un ano valido' })
+    .number({ error: 'Ingresa un ano valido' })
     .int()
     .min(1900)
     .max(2030),
@@ -36,8 +37,8 @@ const filmographyEntryFormSchema = z.object({
 const teamMemberFormSchema = z
   .object({
     nombre_completo: z.string().min(1, 'El nombre es obligatorio'),
-    cargo: z.enum(CARGOS_EQUIPO, {
-      required_error: 'Selecciona un cargo',
+    cargo: z.enum([...CARGOS_EQUIPO], {
+      error: 'Selecciona un cargo',
     }),
     nacionalidad: z.string().min(1, 'Ingresa la nacionalidad'),
     honorarios_centavos: z.number().int().nonnegative(),
@@ -46,10 +47,11 @@ const teamMemberFormSchema = z
     filmografia: z.array(filmographyEntryFormSchema),
   })
   .refine(
-    (data) => data.aportacion_especie_centavos <= data.honorarios_centavos,
+    (data) =>
+      data.aportacion_especie_centavos <= data.honorarios_centavos * 0.5,
     {
       message:
-        'La aportacion en especie no puede exceder los honorarios totales',
+        'La aportación en especie no puede exceder el 50% de los honorarios',
       path: ['aportacion_especie_centavos'],
     },
   )
@@ -74,6 +76,32 @@ export function TeamMemberForm({
   onSave,
   onRemove,
 }: TeamMemberFormProps) {
+  const [searchParams] = useSearchParams()
+  const highlightField = searchParams.get('highlight')
+  const highlightMember = searchParams.get('member')
+  const isTargetMember = highlightMember === String(index)
+  const [highlightActive, setHighlightActive] = useState(false)
+  const memberRef = useRef<HTMLDivElement | null>(null)
+  const highlightFieldRef = useRef<HTMLDivElement | null>(null)
+
+  // Auto-expand and highlight if this member is targeted by "Ir al campo"
+  useEffect(() => {
+    if (isTargetMember && highlightField) {
+      setHighlightActive(true)
+      setExpanded(true)
+      // Scroll into view after expanding
+      const timer = setTimeout(() => {
+        const target = highlightFieldRef.current || memberRef.current
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+      const fadeTimer = setTimeout(() => setHighlightActive(false), 3000)
+      return () => {
+        clearTimeout(timer)
+        clearTimeout(fadeTimer)
+      }
+    }
+  }, [isTargetMember, highlightField])
+
   const [expanded, setExpanded] = useState(!defaultValues?.nombre_completo)
 
   const {
@@ -82,8 +110,9 @@ export function TeamMemberForm({
     watch,
     formState: { errors },
   } = useForm<TeamMemberFormData>({
-    resolver: zodResolver(teamMemberFormSchema),
-    mode: 'onTouched',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(teamMemberFormSchema) as any,
+    mode: 'onChange',
     defaultValues: {
       nombre_completo: '',
       cargo: undefined,
@@ -120,7 +149,12 @@ export function TeamMemberForm({
     nombre && cargo ? `${nombre} — ${cargo}` : nombre || 'Nuevo miembro'
 
   return (
-    <div className="rounded-md border bg-card">
+    <div
+      ref={memberRef}
+      className={`rounded-md border bg-card transition-all duration-300 ${
+        isTargetMember && highlightActive ? 'ring-2 ring-primary/50' : ''
+      }`}
+    >
       {/* Collapsible header */}
       <button
         type="button"
@@ -344,13 +378,25 @@ export function TeamMemberForm({
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div
+                  className="space-y-1"
+                  ref={
+                    isTargetMember && highlightField === 'enlace'
+                      ? highlightFieldRef
+                      : undefined
+                  }
+                >
                   <Label className="text-xs">Enlace (URL)</Label>
-                  <Input
-                    {...register(`filmografia.${fIdx}.enlace`)}
-                    placeholder="https://..."
-                    className="h-8 text-sm"
-                  />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      {...register(`filmografia.${fIdx}.enlace`)}
+                      placeholder="https://..."
+                      className="h-8 text-sm flex-1"
+                    />
+                    <HyperlinkVerifier
+                      url={watch(`filmografia.${fIdx}.enlace`) || ''}
+                    />
+                  </div>
                 </div>
               </div>
             ))}
