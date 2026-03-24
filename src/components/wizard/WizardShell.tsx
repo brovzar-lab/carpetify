@@ -11,6 +11,7 @@ import { ScreenplayUpload } from '@/components/wizard/ScreenplayUpload'
 import { FinancialStructure } from '@/components/wizard/FinancialStructure'
 import { DocumentUpload } from '@/components/wizard/DocumentUpload'
 import { GenerationScreen } from '@/components/generation/GenerationScreen'
+import { ValidationDashboard } from '@/components/validation/ValidationDashboard'
 
 /**
  * Wizard layout: 240px sidebar + content area.
@@ -41,16 +42,18 @@ export function WizardShell() {
         return <DocumentUpload projectId={projectId} />
       case 'generacion':
         return <GenerationScreen projectId={projectId} />
+      case 'validacion':
+        return <ValidationDashboard projectId={projectId} />
       default:
         return <ProjectSetup projectId={projectId} />
     }
   }
 
   // Screens that use full-width layouts (no max-width constraint)
-  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera' || activeScreen === 'generacion'
+  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera' || activeScreen === 'generacion' || activeScreen === 'validacion'
 
-  // Generation screen manages its own layout (two-panel with pipeline progress)
-  if (activeScreen === 'generacion') {
+  // Generation and validation screens manage their own layout (full-width panels)
+  if (activeScreen === 'generacion' || activeScreen === 'validacion') {
     return (
       <div className="flex h-screen">
         <WizardSidebar />

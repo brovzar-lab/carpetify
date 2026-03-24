@@ -37,6 +37,7 @@ export const es = {
     screen4: 'Estructura Financiera',
     screen5: 'Documentos',
     screen6: 'Generacion',
+    screen7: 'Validacion',
     backToDashboard: 'Mis Proyectos',
   },
 

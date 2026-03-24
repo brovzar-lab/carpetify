@@ -7,6 +7,7 @@ export type WizardScreen =
   | 'financiera'
   | 'documentos'
   | 'generacion'
+  | 'validacion'
 
 interface WizardState {
   activeScreen: WizardScreen
