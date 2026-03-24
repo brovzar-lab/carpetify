@@ -20,6 +20,14 @@ const baseProjectSchema = z.object({
     .max(2500000000), // $25M in centavos
   periodo_registro: z.enum(['2026-P1', '2026-P2']),
   es_coproduccion_internacional: z.boolean().default(false),
+  // Submission tracking
+  intentos_proyecto: z.number().int().min(0).default(0),
+  // Regional bonus fields (VALD-13)
+  director_origen_fuera_zmcm: z.boolean().default(false),
+  productor_origen_fuera_zmcm: z.boolean().default(false),
+  porcentaje_rodaje_fuera_zmcm: z.number().int().min(0).max(100).default(0),
+  porcentaje_personal_creativo_local: z.number().int().min(0).max(100).default(0),
+  porcentaje_personal_tecnico_local: z.number().int().min(0).max(100).default(0),
   // Co-production conditional fields
   tipo_cambio_fx: z.number().positive().optional(),
   fecha_tipo_cambio: z.string().optional(),

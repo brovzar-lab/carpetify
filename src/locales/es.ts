@@ -68,6 +68,14 @@ export const es = {
     languagesLabel: 'Idiomas',
     totalBudgetLabel: 'Costo total del proyecto',
     eficineAmountLabel: 'Monto solicitado al estimulo EFICINE',
+    // Submission tracking & regional bonus
+    sectionRegionalBonus: 'Informacion regional y de solicitud',
+    intentos_proyecto: 'Intentos de solicitud de este proyecto',
+    director_origen_fuera_zmcm: 'Director originario fuera de la ZMCM',
+    productor_origen_fuera_zmcm: 'Productor originario fuera de la ZMCM',
+    porcentaje_rodaje_fuera_zmcm: 'Porcentaje de rodaje fuera de la ZMCM',
+    porcentaje_personal_creativo_local: 'Porcentaje de personal creativo local',
+    porcentaje_personal_tecnico_local: 'Porcentaje de personal tecnico local',
   },
 
   // -- Screen 2: Guion --
@@ -204,6 +212,8 @@ export const es = {
     companySection: 'Datos de la Empresa',
     priorProjectsSection: 'Proyectos Previos EFICINE',
     addPriorProject: '+ Agregar proyecto previo',
+    solicitudes_periodo_actual: 'Solicitudes en el periodo actual',
+    domicilio_fuera_zmcm: 'Domicilio fiscal fuera de la ZMCM',
   },
 
   // -- Generation Screen --

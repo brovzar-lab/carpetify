@@ -16,6 +16,8 @@ export const erpiSettingsSchema = z.object({
   representante_legal: z.string().min(1),
   domicilio_fiscal: z.string().min(1),
   proyectos_previos_eficine: z.array(proyectoPrevioSchema).default([]),
+  solicitudes_periodo_actual: z.number().int().min(0).default(0),
+  domicilio_fuera_zmcm: z.boolean().default(false),
 })
 
 export type ERPISettings = z.infer<typeof erpiSettingsSchema>

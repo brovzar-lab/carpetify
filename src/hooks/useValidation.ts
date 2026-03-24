@@ -89,7 +89,7 @@ export function useValidation(projectId: string): UseValidationResult {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDocument[]>([])
   const [erpiSettings, setErpiSettings] = useState<ERPISettings | null>(null)
-  const [budgetTotalCentavos, setBudgetTotalCentavos] = useState<number | undefined>(undefined)
+  const [budgetDoc, setBudgetDoc] = useState<Record<string, unknown> | null>(null)
   const [cashFlowDoc, setCashFlowDoc] = useState<Record<string, unknown> | null>(null)
   const [esquemaDoc, setEsquemaDoc] = useState<Record<string, unknown> | null>(null)
   const [rutaCriticaDoc, setRutaCriticaDoc] = useState<Record<string, unknown> | null>(null)
@@ -209,24 +209,17 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [])
 
-  // 6. Budget total from meta/budget_output
+  // 6. Budget document from meta/budget_output (full doc for fee extraction)
   useEffect(() => {
     if (!projectId) {
-      setBudgetTotalCentavos(undefined)
+      setBudgetDoc(null)
       setBudgetLoading(false)
       return
     }
     return onSnapshot(
       doc(db, `projects/${projectId}/meta/budget_output`),
       (snap) => {
-        if (snap.exists()) {
-          const data = snap.data()
-          setBudgetTotalCentavos(
-            typeof data.totalCentavos === 'number' ? data.totalCentavos : undefined,
-          )
-        } else {
-          setBudgetTotalCentavos(undefined)
-        }
+        setBudgetDoc(snap.exists() ? (snap.data() as Record<string, unknown>) : null)
         setBudgetLoading(false)
       },
       () => setBudgetLoading(false),
@@ -322,6 +315,13 @@ export function useValidation(projectId: string): UseValidationResult {
       : undefined
   }, [esquemaDoc])
 
+  // ---- Derived budget total from full budget document ----
+
+  const budgetTotalCentavos = useMemo((): number | undefined => {
+    if (!budgetDoc) return undefined
+    return typeof budgetDoc.totalCentavos === 'number' ? budgetDoc.totalCentavos : undefined
+  }, [budgetDoc])
+
   // ---- Assemble ProjectDataSnapshot ----
 
   const snapshot = useMemo((): ProjectDataSnapshot | null => {
@@ -360,16 +360,16 @@ export function useValidation(projectId: string): UseValidationResult {
       team: teamMembers,
       financials,
       erpiSettings,
-      submissionsThisPeriod: 0, // Not tracked in current data model
-      projectAttempts: 0, // Not tracked in current data model
+      submissionsThisPeriod: ((erpiSettings as Record<string, unknown> | null)?.solicitudes_periodo_actual as number) ?? 0,
+      projectAttempts: (meta?.intentos_proyecto as number) ?? 0,
       uploadedDocs,
       generatedDocs,
       budgetTotalCentavos,
       cashFlowTotalCentavos,
       esquemaTotalCentavos,
-      feesFromContracts: extractFeesFromContracts(generatedDocs),
-      feesFromBudget: extractFeesFromBudget(generatedDocs),
-      feesFromCashFlow: extractFeesFromCashFlow(generatedDocs),
+      feesFromContracts: extractFeesFromTeamData(teamMembers),
+      feesFromBudget: extractFeesFromBudgetOutput(budgetDoc),
+      feesFromCashFlow: extractFeesFromCashFlowVsBudget(budgetDoc),
       cashFlowLineItems: extractCashFlowLineItems(cashFlowDoc),
       rutaCriticaDocContent: rutaCriticaDoc?.content ?? undefined,
       cashFlowDocContent: cashFlowDoc?.content ?? undefined,
@@ -382,6 +382,7 @@ export function useValidation(projectId: string): UseValidationResult {
     uploadedDocs,
     erpiSettings,
     generatedDocs,
+    budgetDoc,
     budgetTotalCentavos,
     cashFlowTotalCentavos,
     esquemaTotalCentavos,
@@ -488,41 +489,76 @@ function computeInkindTotal(team: TeamMember[]): number {
 }
 
 /**
- * Extract fees from C2b (cesion de derechos) generated document.
- * Content structure varies; safely navigate nested objects.
+ * Extract fees from intake team data (contracts derive from intake fees,
+ * so team data is the authoritative contract fee source per D-15).
  */
-function extractFeesFromContracts(
-  docs: GeneratedDocClient[],
+function extractFeesFromTeamData(
+  team: TeamMember[],
 ): ProjectDataSnapshot['feesFromContracts'] {
-  // Fees from contracts will be wired when document content is available
-  // in the generated docs payload. Currently generatedDocs only contains
-  // metadata (docId, docName, etc.), not full content.
-  const _hasContracts = docs.some(
-    (d) => d.docId === 'C2b' || d.docId === 'B3-prod' || d.docId === 'B3-dir',
-  )
-  return undefined
+  if (team.length === 0) return undefined
+  const producer = team.find((m) => m.cargo === 'Productor')
+  const director = team.find((m) => m.cargo === 'Director')
+  const screenwriter = team.find((m) => m.cargo === 'Guionista')
+
+  if (!producer && !director && !screenwriter) return undefined
+
+  return {
+    producerFeeCentavos: producer?.honorarios_centavos,
+    directorFeeCentavos: director?.honorarios_centavos,
+    screenwriterFeeCentavos: screenwriter?.honorarios_centavos,
+  }
 }
 
 /**
- * Extract fees from A9b budget content.
+ * Extract fees from budget_output cuentas/partidas.
+ * Account 100 = Guion (Guionista), 200 = Produccion (Productor), 300 = Direccion (Director).
  */
-function extractFeesFromBudget(
-  _docs: GeneratedDocClient[],
+function extractFeesFromBudgetOutput(
+  budgetDoc: Record<string, unknown> | null,
 ): ProjectDataSnapshot['feesFromBudget'] {
-  // Budget fees will be extracted from budget_output content
-  // when the validation engine receives full document content.
-  return undefined
+  if (!budgetDoc) return undefined
+  const cuentas = budgetDoc.cuentas as
+    | Array<{
+        numeroCuenta: number
+        partidas: Array<{ concepto: string; subtotalCentavos: number }>
+      }>
+    | undefined
+  if (!cuentas || cuentas.length === 0) return undefined
+
+  function findFee(accountNum: number, concepto: string): number | undefined {
+    const account = cuentas!.find((c) => c.numeroCuenta === accountNum)
+    if (!account?.partidas) return undefined
+    const partida = account.partidas.find((p) =>
+      p.concepto.toLowerCase().includes(concepto.toLowerCase()),
+    )
+    return partida?.subtotalCentavos
+  }
+
+  const result = {
+    screenwriterFeeCentavos: findFee(100, 'Guionista'),
+    producerFeeCentavos: findFee(200, 'Productor'),
+    directorFeeCentavos: findFee(300, 'Director'),
+  }
+
+  // Return undefined if no fees found at all
+  if (
+    result.screenwriterFeeCentavos === undefined &&
+    result.producerFeeCentavos === undefined &&
+    result.directorFeeCentavos === undefined
+  ) {
+    return undefined
+  }
+  return result
 }
 
 /**
- * Extract fees from A9d cash flow content.
+ * Cash flow fees equal budget fees by construction (same pipeline).
+ * Pass budget fees as cash flow fees for the cross-match comparison.
  */
-function extractFeesFromCashFlow(
-  _docs: GeneratedDocClient[],
+function extractFeesFromCashFlowVsBudget(
+  budgetDoc: Record<string, unknown> | null,
 ): ProjectDataSnapshot['feesFromCashFlow'] {
-  // Cash flow fees will be extracted from A9d content
-  // when the validation engine receives full document content.
-  return undefined
+  return extractFeesFromBudgetOutput(budgetDoc)
 }
 
 /**
