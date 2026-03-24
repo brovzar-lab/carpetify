@@ -105,11 +105,12 @@ Plans:
   3. Export includes a validation report, score estimate, and submission upload guide
   4. Export is blocked when any blocker validation fails; warnings are flagged but do not prevent export
   5. Pre-export language check scans for anglicisms, verifies format consistency, and confirms title identity across all documents
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — Export foundation: dependencies, NotoSans fonts, file naming registry (EXPORT_FILE_MAP), folder structure constants, language check utility (LANG-05), PDF font registration and shared stylesheet
+- [ ] 05-02-PLAN.md — 15 PDF template components (12 document templates + 3 meta-document templates) and pdfRenderer routing module for FORMATO-compliant PDF generation
+- [ ] 05-03-PLAN.md — Export pipeline UI: wizard integration, export screen with readiness card, language check results, progress view, ZIP compilation, auto-download, blocker modal, and end-to-end verification
 
 ## Progress
 
@@ -122,4 +123,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
 | 3. AI Document Generation Pipeline | 0/6 | Not started | - |
 | 4. Validation Engine + Dashboard | 7/8 | Gap closure | 2026-03-24 |
-| 5. Export Manager | 0/2 | Not started | - |
+| 5. Export Manager | 0/3 | Not started | - |
