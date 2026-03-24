@@ -117,4 +117,9 @@ export interface ProjectDataSnapshot {
   rutaCriticaHasMonthlyDetail?: boolean
   /** Number of pages of material visual */
   materialVisualPages?: number
+
+  /** Raw content from generated/A8b (ruta critica) -- prose string or undefined */
+  rutaCriticaDocContent?: unknown
+  /** Raw content from generated/A9d (flujo de efectivo) -- { prose: string, structured: CashFlowOutput } or undefined */
+  cashFlowDocContent?: unknown
 }

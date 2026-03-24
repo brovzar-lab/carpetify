@@ -122,26 +122,68 @@ function buildDocConditions(data: ProjectDataSnapshot): Record<string, boolean> 
 /**
  * Build BonusCheckInput from project data for VALD-13.
  * Maps team and metadata fields to the flat boolean/number interface.
+ *
+ * Categories (a), (b), and (d) are wired from team data.
+ * Category (c) regional fields remain at defaults -- the current data model
+ * does not capture origin location or shooting location percentages.
+ * Regional fields will be wired when location data is captured in a future phase.
  */
 function buildBonusInput(data: ProjectDataSnapshot): BonusCheckInput {
-  // Bonus fields will be wired from extended team/project data
-  // when the bonus eligibility UI captures these signals.
+  // Find director(s) in team array
+  const directors = data.team.filter((m) => m.cargo === 'Director')
+  const director = directors[0] // Primary director
+
+  // (a) Female director detection
+  const directorEsMujer = director?.es_mujer === true
+
+  // Check if co-direction with a man (disqualifies bonus a)
+  const directorEsCodireccionConHombre =
+    directors.length > 1 && directors.some((d) => d.es_mujer === false)
+
+  // (b) Indigenous/Afro-Mexican director detection
+  const directorEsIndigenaAfromexicano =
+    director?.es_indigena_afromexicano === true
+
+  // Check if co-direction with non-member (disqualifies bonus b)
+  const directorEsCodireccionConNoMiembro =
+    directors.length > 1 &&
+    directors.some((d) => d.es_indigena_afromexicano !== true)
+
+  // (d) All creative team qualify (all are women or indigenous/afromexicano)
+  const creativeRoles = ['Director', 'Guionista', 'Productor']
+  const creativeTeam = data.team.filter((m) =>
+    creativeRoles.includes(m.cargo),
+  )
+  const allCreativeTeamQualify =
+    creativeTeam.length > 0 &&
+    creativeTeam.every(
+      (m) => m.es_mujer === true || m.es_indigena_afromexicano === true,
+    )
+
+  // Co-direction with non-qualifying person disqualifies bonus d
+  const noCodireccionConNoQualifying =
+    directors.length <= 1 ||
+    directors.every(
+      (d) => d.es_mujer === true || d.es_indigena_afromexicano === true,
+    )
+
   return {
-    directorEsMujer: false, // Not available in current snapshot
-    directorEsIndigenaAfromexicano: false,
-    directorEsCodireccionConHombre: false,
-    directorEsCodireccionConNoMiembro: false,
+    directorEsMujer,
+    directorEsIndigenaAfromexicano,
+    directorEsCodireccionConHombre,
+    directorEsCodireccionConNoMiembro,
     cartaAutoadscripcionUploaded: data.uploadedDocs.some(
       (d) => d.tipo === 'carta_autoadscripcion',
     ),
+    // Regional fields remain false/0 -- no location data in current schema
     directorOrigenFueraZMCM: false,
     productorOrigenFueraZMCM: false,
     porcentajeRodajeFueraZMCM: 0,
     porcentajePersonalCreativoLocal: 0,
     porcentajePersonalTecnicoLocal: 0,
     erpiDomicilioFueraZMCM: false,
-    allCreativeTeamQualify: false,
-    noCodireccionConNoQualifying: true,
+    allCreativeTeamQualify,
+    noCodireccionConNoQualifying,
   }
 }
 
@@ -156,22 +198,150 @@ function extractLinks(_data: ProjectDataSnapshot): LinkCheckInput[] {
   return []
 }
 
-/**
- * Extract ruta critica stages and cash flow periods for VALD-11.
- * Data comes from generated documents (ruta critica and cash flow).
- */
-function extractRutaCriticaStages(
-  _data: ProjectDataSnapshot,
-): StageMonths[] {
-  // Will be wired from generated ruta critica document content
-  return []
+/** Map of Spanish month names to 1-based month numbers */
+const MONTH_NAME_TO_NUMBER: Record<string, number> = {
+  enero: 1,
+  febrero: 2,
+  marzo: 3,
+  abril: 4,
+  mayo: 5,
+  junio: 6,
+  julio: 7,
+  agosto: 8,
+  septiembre: 9,
+  octubre: 10,
+  noviembre: 11,
+  diciembre: 12,
 }
 
-function extractCashFlowPeriods(
-  _data: ProjectDataSnapshot,
+/**
+ * Extract production stage/month data from A8b ruta critica prose text.
+ * Best-effort regex parsing -- returns empty array on unparseable content.
+ */
+function extractStagesFromProse(text: string): StageMonths[] {
+  const stageNames = ['Preproduccion', 'Rodaje', 'Postproduccion']
+  const stages: StageMonths[] = []
+
+  for (const stageName of stageNames) {
+    // Find stage mention in prose (case-insensitive, with optional accent)
+    const stageRegex = new RegExp(stageName.replace('o', '[oó]'), 'i')
+    const match = stageRegex.exec(text)
+    if (!match) continue
+
+    // Look for month names within 200 characters after the stage mention
+    const startIdx = match.index
+    const endIdx = Math.min(text.length, startIdx + 200)
+    const nearby = text.slice(startIdx, endIdx).toLowerCase()
+
+    const months: number[] = []
+    for (const [name, num] of Object.entries(MONTH_NAME_TO_NUMBER)) {
+      if (nearby.includes(name)) {
+        months.push(num)
+      }
+    }
+
+    if (months.length > 0) {
+      months.sort((a, b) => a - b)
+      stages.push({ etapa: stageName, months })
+    }
+  }
+
+  return stages
+}
+
+/**
+ * Extract ruta critica stages from A8b generated document content for VALD-11.
+ * A8b content is prose text (string) or { prose: string }.
+ */
+function extractRutaCriticaStages(
+  data: ProjectDataSnapshot,
 ): StageMonths[] {
-  // Will be wired from generated cash flow document content
-  return []
+  if (!data.rutaCriticaDocContent) return []
+
+  // A8b content is prose text. Extract string from various possible shapes.
+  const content =
+    typeof data.rutaCriticaDocContent === 'string'
+      ? data.rutaCriticaDocContent
+      : typeof (data.rutaCriticaDocContent as Record<string, unknown>)
+            ?.prose === 'string'
+        ? ((data.rutaCriticaDocContent as Record<string, unknown>).prose as string)
+        : ''
+
+  if (!content) return []
+
+  return extractStagesFromProse(content)
+}
+
+/**
+ * Extract cash flow period/month data from A9d generated document content for VALD-11.
+ * A9d content has structured data with months array and column totals.
+ */
+function extractCashFlowPeriods(
+  data: ProjectDataSnapshot,
+): StageMonths[] {
+  if (!data.cashFlowDocContent) return []
+
+  const structured = (
+    data.cashFlowDocContent as Record<string, unknown>
+  )?.structured as Record<string, unknown> | undefined
+
+  if (!structured) return []
+
+  const months = structured.months as string[] | undefined
+  const columnTotals = structured.columnTotals as number[] | undefined
+  const rows = structured.rows as
+    | Array<{ cuenta: string; amounts: number[] }>
+    | undefined
+
+  if (!months || !columnTotals || !rows || months.length === 0) return []
+
+  // Derive phases from cash flow column distribution.
+  // Phase boundaries follow the cash flow builder's distribution:
+  // - Preproduccion: first 25% of months
+  // - Rodaje (produccion): 25%-60% of months
+  // - Postproduccion: remaining months
+  const totalMonths = months.length
+  const preproEnd = Math.max(1, Math.floor(totalMonths * 0.25))
+  const prodEnd = Math.max(preproEnd + 1, Math.floor(totalMonths * 0.6))
+
+  function monthLabelToNumber(label: string): number {
+    const lower = label.toLowerCase()
+    for (const [name, num] of Object.entries(MONTH_NAME_TO_NUMBER)) {
+      if (lower.startsWith(name)) return num
+    }
+    return 0
+  }
+
+  const stages: StageMonths[] = []
+
+  // Preproduccion: months 0..preproEnd-1
+  const preproMonths = months
+    .slice(0, preproEnd)
+    .map(monthLabelToNumber)
+    .filter((n) => n > 0)
+  if (preproMonths.length > 0) {
+    stages.push({ etapa: 'Preproduccion', months: preproMonths })
+  }
+
+  // Rodaje: months preproEnd..prodEnd-1
+  const prodMonths = months
+    .slice(preproEnd, prodEnd)
+    .map(monthLabelToNumber)
+    .filter((n) => n > 0)
+  if (prodMonths.length > 0) {
+    stages.push({ etapa: 'Rodaje', months: prodMonths })
+  }
+
+  // Postproduccion: months prodEnd..end
+  const postMonths = months
+    .slice(prodEnd)
+    .map(monthLabelToNumber)
+    .filter((n) => n > 0)
+  if (postMonths.length > 0) {
+    stages.push({ etapa: 'Postproduccion', months: postMonths })
+  }
+
+  return stages
 }
 
 /**
