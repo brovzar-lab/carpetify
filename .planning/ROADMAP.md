@@ -83,7 +83,7 @@ Plans:
   3. Warning-level validations fire correctly: ruta critica/cash flow sync, hyperlink accessibility, bonus points eligibility, and document expiration alerts with days remaining
   4. User sees a score estimate against the EFICINE rubric (100 pts + 5 bonus) with actionable improvement suggestions
   5. Validation runs in real time as data is entered in the intake wizard, not just at export time
-**Plans:** 7/7 plans complete
+**Plans:** 8 plans (7 complete + 1 gap closure)
 
 Plans:
 - [x] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions with TDD test suite
@@ -93,6 +93,7 @@ Plans:
 - [x] 04-05-PLAN.md — useValidation hook with tiered execution and Firestore financial wiring, wizard sidebar/route integration
 - [x] 04-06-PLAN.md — Validation dashboard UI (two-panel layout, severity-grouped rules, score estimation panel with httpsCallable)
 - [x] 04-07-PLAN.md — Integration touchpoints: project card validation badges, document expiration alerts (3 touchpoints), hyperlink verifier, "Ir al campo" field navigation, and visual verification checkpoint
+- [ ] 04-08-PLAN.md — Gap closure: sidebar traffic light wiring, VALD-13 bonus input from team data, VALD-11 document content extractors
 
 ### Phase 5: Export Manager
 **Goal**: User can export a complete, validated carpeta as a ZIP package ready for upload to the SHCP portal
@@ -120,5 +121,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Scaffold + Intake Wizard | 4/4 | Complete   | 2026-03-22 |
 | 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
 | 3. AI Document Generation Pipeline | 0/6 | Not started | - |
-| 4. Validation Engine + Dashboard | 7/7 | Complete   | 2026-03-24 |
+| 4. Validation Engine + Dashboard | 7/8 | Gap closure | 2026-03-24 |
 | 5. Export Manager | 0/2 | Not started | - |
