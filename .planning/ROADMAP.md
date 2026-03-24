@@ -83,14 +83,16 @@ Plans:
   3. Warning-level validations fire correctly: ruta critica/cash flow sync, hyperlink accessibility, bonus points eligibility, and document expiration alerts with days remaining
   4. User sees a score estimate against the EFICINE rubric (100 pts + 5 bonus) with actionable improvement suggestions
   5. Validation runs in real time as data is entered in the intake wizard, not just at export time
-**Plans:** 5 plans
+**Plans:** 7 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions (financial reconciliation, title consistency, fee matching, date compliance, EFICINE percentages, document completeness, experience thresholds, ERPI eligibility, file format, prohibited expenditures)
-- [ ] 04-02-PLAN.md — 4 warning rule functions (ruta critica sync, hyperlink accessibility, bonus eligibility, document expiration) and validation engine orchestrator
+- [ ] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions with TDD test suite
+- [ ] 04-02-PLAN.md — 4 warning rule functions (ruta critica sync, hyperlink accessibility, bonus eligibility, document expiration)
 - [ ] 04-03-PLAN.md — Viability scoring module (deterministic, 38 pts), AI persona scoring Cloud Function (5 evaluators, 62 pts), persona prompt files, and locales
-- [ ] 04-04-PLAN.md — Validation dashboard UI (two-panel layout, severity-grouped rules, score estimation panel), useValidation hook, wizard sidebar/route integration
-- [ ] 04-05-PLAN.md — Integration touchpoints: project card validation badges, document expiration alerts (3 touchpoints), hyperlink verifier, "Ir al campo" field navigation, and visual verification checkpoint
+- [ ] 04-04-PLAN.md — Validation engine orchestrator with D-11 tiered timing (instant 12 rules + medium 2 rules)
+- [ ] 04-05-PLAN.md — useValidation hook with tiered execution and Firestore financial wiring, wizard sidebar/route integration
+- [ ] 04-06-PLAN.md — Validation dashboard UI (two-panel layout, severity-grouped rules, score estimation panel with httpsCallable)
+- [ ] 04-07-PLAN.md — Integration touchpoints: project card validation badges, document expiration alerts (3 touchpoints), hyperlink verifier, "Ir al campo" field navigation, and visual verification checkpoint
 
 ### Phase 5: Export Manager
 **Goal**: User can export a complete, validated carpeta as a ZIP package ready for upload to the SHCP portal
@@ -118,5 +120,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Scaffold + Intake Wizard | 4/4 | Complete   | 2026-03-22 |
 | 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
 | 3. AI Document Generation Pipeline | 0/6 | Not started | - |
-| 4. Validation Engine + Dashboard | 0/5 | Not started | - |
+| 4. Validation Engine + Dashboard | 0/7 | Not started | - |
 | 5. Export Manager | 0/2 | Not started | - |
