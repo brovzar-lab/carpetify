@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-24T20:33:01.799Z"
+stopped_at: "Completed 05-03-PLAN.md (checkpoint:human-verify pending)"
+last_updated: "2026-03-24T20:45:20.086Z"
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
 ---
 
 # Project State
@@ -68,6 +68,7 @@ Plan: 3 of 3
 | Phase 04 P08 | 4min | 2 tasks | 4 files |
 | Phase 05 P01 | 7min | 2 tasks | 13 files |
 | Phase 05 P02 | 5min | 2 tasks | 16 files |
+| Phase 05 P03 | 9min | 2 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -141,6 +142,10 @@ Recent decisions affecting current work:
 - [Phase 05]: ContractDocument splits by legal clause markers with fee-reference detection for contextual yellow highlight placement
 - [Phase 05]: RutaCritica supports dual rendering: structured timeline grid or prose fallback
 - [Phase 05]: PORTAL_FIELD_MAP hardcoded in SubmissionGuide since SHCP portal fields are stable across EFICINE periods
+- [Phase 05]: Content adapters use safe property access with fallbacks for raw Firestore content flexibility
+- [Phase 05]: PDF rendering batched 3 at a time in useExport to avoid memory pressure
+- [Phase 05]: Upload files renamed via UPLOAD_FILENAME_MAP (tipo to ASCII abbreviation + project abbrev)
+- [Phase 05]: Meta document rendering failures caught but do not block export
 
 ### Pending Todos
 
@@ -153,6 +158,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T20:33:01.792Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-03-24T20:45:20.066Z
+Stopped at: Completed 05-03-PLAN.md (checkpoint:human-verify pending)
 Resume file: None
