@@ -21,6 +21,11 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [x] Budget generation using IMCINE standard account structure (accounts 100–1200) with Mexican market crew rates *(Validated in Phase 03: ai-doc-generation)*
 - [x] Contract template generation (cesión de derechos, producer/director contracts) with fee amounts matching budget *(Validated in Phase 03: ai-doc-generation)*
 - [x] One-click regeneration — changing data regenerates affected documents *(Validated in Phase 03: ai-doc-generation)*
+- [x] 13 cross-module validation rules (financial reconciliation, title consistency, fee matching, date compliance, ERPI eligibility, etc.) *(Validated in Phase 04: validation-dashboard — 14 rules: 10 blockers + 4 warnings)*
+- [x] Traffic light dashboard showing validation status per rule *(Validated in Phase 04: validation-dashboard)*
+- [x] Real-time validation as data is entered — flag blockers vs warnings *(Validated in Phase 04: validation-dashboard — tiered D-11 timing)*
+- [x] Score estimate against EFICINE rubric (100 points + 5 bonus, 90/100 minimum to pass) *(Validated in Phase 04: validation-dashboard — viability + 5 AI personas)*
+- [x] Financial compliance checks: ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, screenwriter ≥ 3%, in-kind ≤ 10% *(Validated in Phase 04: validation-dashboard — VALD-05)*
 
 ### Active
 
@@ -32,17 +37,17 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [x] ~~AI document generation pipeline~~ → moved to Validated
 - [x] ~~~20 AI-generated documents~~ → moved to Validated
 - [ ] User-uploaded document management for items the app cannot generate (acta constitutiva, INDAUTOR certs, bank statements, IDs, signed contracts, etc.)
-- [ ] 13 cross-module validation rules (financial reconciliation, title consistency, fee matching, date compliance, ERPI eligibility, etc.)
-- [ ] Traffic light dashboard (🟢🟡🔴) showing validation status per document and per rule
-- [ ] Real-time validation as data is entered — flag blockers vs warnings
+- [x] ~~13 cross-module validation rules~~ → moved to Validated
+- [x] ~~Traffic light dashboard~~ → moved to Validated
+- [x] ~~Real-time validation~~ → moved to Validated
 - [ ] PDF generation from stored documents with IMCINE file naming convention (max 15 chars, no accents/ñ/symbols)
 - [ ] ZIP export of complete carpeta with organized folder structure (A_PROPUESTA/, B_PERSONAL/, C_ERPI/, D_COTIZ/, E_FINANZAS/)
-- [ ] Score estimate against EFICINE rubric (100 points + 5 bonus, 90/100 minimum to pass)
+- [x] ~~Score estimate against EFICINE rubric~~ → moved to Validated
 - [ ] Entire UI in Mexican Spanish — no English visible to user, ever
 - [ ] All generated documents in Mexican Spanish using IMCINE/EFICINE terminology without translation
 - [ ] Amounts formatted as $X,XXX,XXX MXN throughout; dates in Spanish format
 - [x] ~~Budget generation~~ → moved to Validated
-- [ ] Financial compliance checks: ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, screenwriter ≥ 3%, in-kind ≤ 10%
+- [x] ~~Financial compliance checks~~ → moved to Validated
 - [x] ~~Contract template generation~~ → moved to Validated
 - [x] ~~One-click regeneration~~ → moved to Validated
 - [ ] Completeness checklist showing what's done and what the user still needs to provide
@@ -106,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after Phase 03 completion — AI document generation pipeline verified (21 docs, 4 passes, budget editor, staleness tracking)*
+*Last updated: 2026-03-24 after Phase 04 completion — validation engine (14 rules), traffic light dashboard, score estimation (viability + 5 AI personas) verified*
