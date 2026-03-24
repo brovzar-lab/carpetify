@@ -25,8 +25,12 @@ export function ExportCTAButton({
   onShowBlockers,
   onRetry,
 }: ExportCTAButtonProps) {
-  // Determine button styling and behavior
-  const isDisabled = state === 'blockers' || state === 'exporting'
+  // Determine button styling and behavior.
+  // NOTE: 'blockers' is intentionally NOT disabled at the DOM level because
+  // disabled buttons don't fire onClick events. The blockers CTA should still
+  // be clickable to open the blocker detail modal; the visual "disabled" look
+  // is applied through CSS only (opacity, cursor-not-allowed).
+  const isDisabled = state === 'exporting'
 
   const handleClick = () => {
     if (state === 'blockers') {
