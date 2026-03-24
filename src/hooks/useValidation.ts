@@ -91,6 +91,7 @@ export function useValidation(projectId: string): UseValidationResult {
   const [budgetTotalCentavos, setBudgetTotalCentavos] = useState<number | undefined>(undefined)
   const [cashFlowDoc, setCashFlowDoc] = useState<Record<string, unknown> | null>(null)
   const [esquemaDoc, setEsquemaDoc] = useState<Record<string, unknown> | null>(null)
+  const [rutaCriticaDoc, setRutaCriticaDoc] = useState<Record<string, unknown> | null>(null)
 
   // -- Loading states --
   const [projectLoading, setProjectLoading] = useState(true)
@@ -100,6 +101,7 @@ export function useValidation(projectId: string): UseValidationResult {
   const [budgetLoading, setBudgetLoading] = useState(true)
   const [cashFlowLoading, setCashFlowLoading] = useState(true)
   const [esquemaLoading, setEsquemaLoading] = useState(true)
+  const [rutaCriticaLoading, setRutaCriticaLoading] = useState(true)
 
   // -- Generated docs (already real-time via existing hook) --
   const { docs: generatedDocs, loading: generatedLoading } = useGeneratedDocs(projectId)
@@ -246,6 +248,23 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
+  // 8. Ruta critica content from generated/A8b (for VALD-11)
+  useEffect(() => {
+    if (!projectId) {
+      setRutaCriticaDoc(null)
+      setRutaCriticaLoading(false)
+      return
+    }
+    return onSnapshot(
+      doc(db, `projects/${projectId}/generated/A8b`),
+      (snap) => {
+        setRutaCriticaDoc(snap.exists() ? (snap.data() as Record<string, unknown>) : null)
+        setRutaCriticaLoading(false)
+      },
+      () => setRutaCriticaLoading(false),
+    )
+  }, [projectId])
+
   // ---- Derived loading state ----
 
   const loading =
@@ -256,7 +275,8 @@ export function useValidation(projectId: string): UseValidationResult {
     budgetLoading ||
     cashFlowLoading ||
     esquemaLoading ||
-    generatedLoading
+    generatedLoading ||
+    rutaCriticaLoading
 
   // ---- Extract financial totals from Firestore documents ----
 
@@ -330,6 +350,8 @@ export function useValidation(projectId: string): UseValidationResult {
       feesFromBudget: extractFeesFromBudget(generatedDocs),
       feesFromCashFlow: extractFeesFromCashFlow(generatedDocs),
       cashFlowLineItems: extractCashFlowLineItems(cashFlowDoc),
+      rutaCriticaDocContent: rutaCriticaDoc?.content ?? undefined,
+      cashFlowDocContent: cashFlowDoc?.content ?? undefined,
     }
   }, [
     loading,
@@ -342,6 +364,7 @@ export function useValidation(projectId: string): UseValidationResult {
     cashFlowTotalCentavos,
     esquemaTotalCentavos,
     cashFlowDoc,
+    rutaCriticaDoc,
   ])
 
   // ---- Tiered validation execution ----
