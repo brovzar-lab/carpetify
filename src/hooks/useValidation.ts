@@ -85,6 +85,7 @@ function getMaxGeneratedTimestamp(docs: GeneratedDocClient[]): number {
 export function useValidation(projectId: string): UseValidationResult {
   // -- Firestore data sources --
   const [projectData, setProjectData] = useState<Record<string, unknown> | null>(null)
+  const [financialData, setFinancialData] = useState<Record<string, unknown> | null>(null)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDocument[]>([])
   const [erpiSettings, setErpiSettings] = useState<ERPISettings | null>(null)
@@ -95,6 +96,7 @@ export function useValidation(projectId: string): UseValidationResult {
 
   // -- Loading states --
   const [projectLoading, setProjectLoading] = useState(true)
+  const [financialLoading, setFinancialLoading] = useState(true)
   const [teamLoading, setTeamLoading] = useState(true)
   const [docsLoading, setDocsLoading] = useState(true)
   const [erpiLoading, setErpiLoading] = useState(true)
@@ -132,7 +134,24 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 2. Team members subcollection
+  // 2. Financial data subcollection
+  useEffect(() => {
+    if (!projectId) {
+      setFinancialData(null)
+      setFinancialLoading(false)
+      return
+    }
+    return onSnapshot(
+      doc(db, `projects/${projectId}/financials/data`),
+      (snap) => {
+        setFinancialData(snap.exists() ? (snap.data() as Record<string, unknown>) : null)
+        setFinancialLoading(false)
+      },
+      () => setFinancialLoading(false),
+    )
+  }, [projectId])
+
+  // 3. Team members subcollection
   useEffect(() => {
     if (!projectId) {
       setTeamMembers([])
@@ -150,7 +169,7 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 3. Uploaded documents subcollection
+  // 4. Uploaded documents subcollection
   useEffect(() => {
     if (!projectId) {
       setUploadedDocs([])
@@ -178,10 +197,10 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 4. ERPI settings (singleton)
+  // 5. ERPI settings (singleton)
   useEffect(() => {
     return onSnapshot(
-      doc(db, 'erpiSettings/default'),
+      doc(db, 'erpi_settings', 'default'),
       (snap) => {
         setErpiSettings(snap.exists() ? (snap.data() as ERPISettings) : null)
         setErpiLoading(false)
@@ -190,7 +209,7 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [])
 
-  // 5. Budget total from meta/budget_output
+  // 6. Budget total from meta/budget_output
   useEffect(() => {
     if (!projectId) {
       setBudgetTotalCentavos(undefined)
@@ -214,7 +233,7 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 6. Cash flow total from generated/A9d
+  // 7. Cash flow total from generated/A9d
   useEffect(() => {
     if (!projectId) {
       setCashFlowDoc(null)
@@ -231,7 +250,7 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 7. Esquema financiero total from generated/E1
+  // 8. Esquema financiero total from generated/E1
   useEffect(() => {
     if (!projectId) {
       setEsquemaDoc(null)
@@ -248,7 +267,7 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 8. Ruta critica content from generated/A8b (for VALD-11)
+  // 9. Ruta critica content from generated/A8b (for VALD-11)
   useEffect(() => {
     if (!projectId) {
       setRutaCriticaDoc(null)
@@ -269,6 +288,7 @@ export function useValidation(projectId: string): UseValidationResult {
 
   const loading =
     projectLoading ||
+    financialLoading ||
     teamLoading ||
     docsLoading ||
     erpiLoading ||
@@ -307,31 +327,32 @@ export function useValidation(projectId: string): UseValidationResult {
   const snapshot = useMemo((): ProjectDataSnapshot | null => {
     if (loading || !projectData) return null
 
-    // Extract metadata fields from project document
+    // Extract metadata fields from project document's nested metadata field
+    const meta = projectData.metadata as Record<string, unknown> | undefined
     const metadata = {
-      titulo_proyecto: (projectData.titulo_proyecto as string) ?? '',
+      titulo_proyecto: (meta?.titulo_proyecto as string) ?? '',
       categoria_cinematografica:
-        (projectData.categoria_cinematografica as string) ?? '',
-      periodo_registro: (projectData.periodo_registro as string) ?? '',
+        (meta?.categoria_cinematografica as string) ?? '',
+      periodo_registro: (meta?.periodo_registro as string) ?? '',
       es_coproduccion_internacional:
-        (projectData.es_coproduccion_internacional as boolean) ?? false,
+        (meta?.es_coproduccion_internacional as boolean) ?? false,
       costo_total_proyecto_centavos:
-        (projectData.costo_total_proyecto_centavos as number) ?? 0,
+        (meta?.costo_total_proyecto_centavos as number) ?? 0,
       monto_solicitado_eficine_centavos:
-        (projectData.monto_solicitado_eficine_centavos as number) ?? 0,
+        (meta?.monto_solicitado_eficine_centavos as number) ?? 0,
     }
 
-    // Extract financial structure fields
+    // Extract financial structure fields from financials subcollection
     const financials = {
       erpiCashCentavos:
-        (projectData.aportacion_erpi_efectivo_centavos as number) ?? 0,
+        (financialData?.aportacion_erpi_efectivo_centavos as number) ?? 0,
       erpiInkindCentavos:
-        (projectData.aportacion_erpi_especie_centavos as number) ?? 0,
-      thirdPartyCentavos: computeThirdPartyTotal(projectData),
+        (financialData?.aportacion_erpi_especie_centavos as number) ?? 0,
+      thirdPartyCentavos: computeThirdPartyTotal(financialData),
       otherFederalCentavos: 0, // No other federal resources tracked in current data model
       screenwriterFeeCentavos: computeScreenwriterFee(teamMembers),
       totalInkindHonorariosCentavos: computeInkindTotal(teamMembers),
-      gestorFeeCentavos: (projectData.gestor_monto_centavos as number) ?? 0,
+      gestorFeeCentavos: (financialData?.gestor_monto_centavos as number) ?? 0,
     }
 
     return {
@@ -356,6 +377,7 @@ export function useValidation(projectId: string): UseValidationResult {
   }, [
     loading,
     projectData,
+    financialData,
     teamMembers,
     uploadedDocs,
     erpiSettings,
@@ -441,8 +463,9 @@ export function useValidation(projectId: string): UseValidationResult {
 
 // ---- Data extraction helpers ----
 
-function computeThirdPartyTotal(projectData: Record<string, unknown>): number {
-  const terceros = projectData.terceros as
+function computeThirdPartyTotal(data: Record<string, unknown> | null): number {
+  if (!data) return 0
+  const terceros = data.terceros as
     | Array<{ monto_centavos: number }>
     | undefined
   if (!terceros) return 0
