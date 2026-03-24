@@ -99,4 +99,22 @@ export interface ProjectDataSnapshot {
     amount: number
   }>
   outputFiles?: Array<{ name: string; format: string; sizeMB: number }>
+
+  // -- Scoring signals (optional, used by scoring.ts) --
+  /** Screenplay pages per shooting day (from screenplay analysis / plan de rodaje) */
+  screenplayPagesPerDay?: number
+  /** Budget includes imprevistos (contingency) >= 10% of BTL */
+  budgetHasImprevistos?: boolean
+  /** Exhibition proposal includes spectator/revenue estimate */
+  exhibitionHasSpectatorEstimate?: boolean
+  /** Exhibition proposal includes festival strategy */
+  exhibitionHasFestivalStrategy?: boolean
+  /** Exhibition proposal defines target audience */
+  exhibitionHasTargetAudience?: boolean
+  /** Production proposal mentions safe workplace commitment */
+  productionHasSafeWorkplace?: boolean
+  /** Ruta critica has monthly detail */
+  rutaCriticaHasMonthlyDetail?: boolean
+  /** Number of pages of material visual */
+  materialVisualPages?: number
 }

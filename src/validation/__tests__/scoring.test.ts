@@ -74,7 +74,7 @@ describe('computeViabilityScore', () => {
         cargo: 'Productor/a',
         nacionalidad: 'Mexicana',
         filmografia: [
-          { titulo: 'Film A', anio: 2020, cargo_en_obra: 'Productor/a' },
+          { titulo: 'Film Compartido', anio: 2020, cargo_en_obra: 'Productor/a' },
         ],
         honorarios_centavos: 100000,
         aportacion_especie_centavos: 0,
@@ -85,7 +85,7 @@ describe('computeViabilityScore', () => {
         cargo: 'Director/a',
         nacionalidad: 'Mexicana',
         filmografia: [
-          { titulo: 'Film B', anio: 2021, cargo_en_obra: 'Director/a' },
+          { titulo: 'Film Compartido', anio: 2020, cargo_en_obra: 'Director/a' },
         ],
         honorarios_centavos: 100000,
         aportacion_especie_centavos: 0,
