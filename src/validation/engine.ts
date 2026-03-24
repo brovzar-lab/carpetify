@@ -34,6 +34,7 @@ import { validateDocumentExpiration } from './rules/documentExpiration'
 
 import type { BonusCheckInput } from './rules/bonusEligibility'
 import type { LinkCheckInput } from './rules/hyperlinkAccessibility'
+// StageMonths used in extractRutaCriticaStages/extractCashFlowPeriods return types
 import type { StageMonths } from './rules/rutaCriticaSync'
 
 /** Rule IDs that fire on every data change (instant tier per D-11) */
@@ -123,9 +124,8 @@ function buildDocConditions(data: ProjectDataSnapshot): Record<string, boolean> 
  * Maps team and metadata fields to the flat boolean/number interface.
  */
 function buildBonusInput(data: ProjectDataSnapshot): BonusCheckInput {
-  const director = data.team.find((m) => m.cargo === 'Director')
-  const producer = data.team.find((m) => m.cargo === 'Productor')
-
+  // Bonus fields will be wired from extended team/project data
+  // when the bonus eligibility UI captures these signals.
   return {
     directorEsMujer: false, // Not available in current snapshot
     directorEsIndigenaAfromexicano: false,
