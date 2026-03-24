@@ -128,10 +128,12 @@ Plans:
   7. DocumentChecklist uses formatDateES instead of toLocaleDateString
   8. Traffic light sidebar reflects real validation state (not false-green on empty data)
   9. canExport correctly blocks when EFICINE rules fail
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Fix Firestore path wiring: metadata subpath, financials subscription, ERPI snake_case path, DocumentUpload periodo fix, VALD-04 date mapping
+- [ ] 06-02-PLAN.md — Fee cross-match extractors from budget_output, ERPI submission tracking schema/UI, regional bonus schema fields and UI inputs
+- [ ] 06-03-PLAN.md — Per-screen traffic light derivation from validation results, regional bonus engine wiring, full verification
 
 ## Progress
 
@@ -145,4 +147,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. AI Document Generation Pipeline | 6/6 | Complete | 2026-03-24 |
 | 4. Validation Engine + Dashboard | 8/8 | Complete | 2026-03-24 |
 | 5. Export Manager | 3/3 | Complete | 2026-03-24 |
-| 6. Validation Data Wiring Fix | 0/TBD | Not started | - |
+| 6. Validation Data Wiring Fix | 0/3 | Not started | - |
