@@ -32,6 +32,7 @@ import { validateHyperlinkAccessibility } from './rules/hyperlinkAccessibility'
 import { validateBonusEligibility } from './rules/bonusEligibility'
 import { validateDocumentExpiration } from './rules/documentExpiration'
 
+import { PERIODOS_EFICINE } from '@/lib/constants'
 import type { BonusCheckInput } from './rules/bonusEligibility'
 import type { LinkCheckInput } from './rules/hyperlinkAccessibility'
 // StageMonths used in extractRutaCriticaStages/extractCashFlowPeriods return types
@@ -345,6 +346,18 @@ function extractCashFlowPeriods(
 }
 
 /**
+ * Map a periodo_registro string to its actual close date.
+ * Falls back to current date if periodo not found.
+ */
+function getRegistrationCloseDate(periodoRegistro: string): Date {
+  const periodo = PERIODOS_EFICINE[periodoRegistro as keyof typeof PERIODOS_EFICINE]
+  if (periodo) {
+    return new Date(periodo.close)
+  }
+  return new Date()
+}
+
+/**
  * Run only the 12 instant-tier rules.
  * Called by useValidation on every data change (300ms debounce).
  */
@@ -376,9 +389,7 @@ export function runInstantRules(
     // VALD-04: Date compliance
     validateDateCompliance(
       data.uploadedDocs as Array<{ tipo: string; fecha_emision?: Date }>,
-      data.metadata.periodo_registro
-        ? new Date(data.metadata.periodo_registro)
-        : new Date(),
+      getRegistrationCloseDate(data.metadata.periodo_registro),
     ),
 
     // VALD-05: EFICINE compliance

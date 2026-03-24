@@ -60,7 +60,7 @@ export function DocumentUpload({ projectId }: DocumentUploadProps) {
         const snap = await getDoc(projectRef)
         if (snap.exists()) {
           const data = snap.data()
-          setPeriodoRegistro(data.periodo_registro as string | undefined)
+          setPeriodoRegistro(data.metadata?.periodo_registro as string | undefined)
         }
       } catch {
         // ignore
