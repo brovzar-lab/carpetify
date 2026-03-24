@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: AI Document Generation Pipeline** - 4-pass document generation with prompt injection, staleness tracking, and one-click regeneration (completed 2026-03-24)
 - [x] **Phase 4: Validation Engine + Dashboard** - 17 compliance rules, traffic light dashboard, score estimation, and real-time validation (completed 2026-03-24)
 - [x] **Phase 5: Export Manager** - PDF generation, IMCINE naming, pre-export language check, ZIP packaging (completed 2026-03-24)
+- [ ] **Phase 6: Validation Data Wiring Fix** - Fix Firestore path mismatches in useValidation, implement fee cross-match extractors, add ERPI submission tracking, regional bonus fields, and date format fix
 
 ## Phase Details
 
@@ -112,10 +113,30 @@ Plans:
 - [x] 05-02-PLAN.md — 15 PDF template components (12 document templates + 3 meta-document templates) and pdfRenderer routing module for FORMATO-compliant PDF generation
 - [x] 05-03-PLAN.md — Export pipeline UI: wizard integration, export screen with readiness card, language check results, progress view, ZIP compilation, auto-download, blocker modal, and end-to-end verification
 
+### Phase 6: Validation Data Wiring Fix
+**Goal**: All 14 validation rules receive correct data from Firestore, enabling accurate compliance gating, traffic light status, and export blocking
+**Depends on**: Phase 4, Phase 5
+**Requirements**: VALD-01, VALD-02, VALD-03, VALD-04, VALD-05, VALD-07, VALD-08, VALD-13, VALD-14, VALD-16, LANG-03
+**Gap Closure**: Closes gaps from v1.0 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. useValidation reads project metadata from correct Firestore path (metadata.* subpath, not document root)
+  2. useValidation subscribes to projects/{id}/financials/data for EFICINE financial fields
+  3. ERPI subscription uses correct collection path (erpi_settings/default, not erpiSettings/default)
+  4. Fee cross-match extracts actual fee amounts from contracts, budget, and cash flow documents
+  5. ERPI submission/attempt counts are tracked and enforced (not hardcoded to 0)
+  6. Regional bonus fields read from project data (not always false)
+  7. DocumentChecklist uses formatDateES instead of toLocaleDateString
+  8. Traffic light sidebar reflects real validation state (not false-green on empty data)
+  9. canExport correctly blocks when EFICINE rules fail
+**Plans:** TBD
+
+Plans:
+- [ ] 06-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -124,3 +145,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 3. AI Document Generation Pipeline | 6/6 | Complete | 2026-03-24 |
 | 4. Validation Engine + Dashboard | 8/8 | Complete | 2026-03-24 |
 | 5. Export Manager | 3/3 | Complete | 2026-03-24 |
+| 6. Validation Data Wiring Fix | 0/TBD | Not started | - |
