@@ -14,9 +14,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scaffold + Intake Wizard** - React/Firebase project with 5-screen Spanish intake wizard and multi-project support (completed 2026-03-22)
 - [x] **Phase 2: Screenplay Processing** - PDF upload, text extraction, Claude analysis, and manual correction UI (completed 2026-03-23)
-- [ ] **Phase 3: AI Document Generation Pipeline** - 4-pass document generation with prompt injection, staleness tracking, and one-click regeneration
+- [x] **Phase 3: AI Document Generation Pipeline** - 4-pass document generation with prompt injection, staleness tracking, and one-click regeneration (completed 2026-03-24)
 - [x] **Phase 4: Validation Engine + Dashboard** - 17 compliance rules, traffic light dashboard, score estimation, and real-time validation (completed 2026-03-24)
-- [ ] **Phase 5: Export Manager** - PDF generation, IMCINE naming, pre-export language check, ZIP packaging
+- [x] **Phase 5: Export Manager** - PDF generation, IMCINE naming, pre-export language check, ZIP packaging (completed 2026-03-24)
 
 ## Phase Details
 
@@ -63,7 +63,7 @@ Plans:
   3. User can view any generated document in the UI and see structured content stored in Firestore
   4. When user changes upstream data (intake fields, screenplay reparse), affected downstream documents are marked as stale and user can trigger one-click regeneration
   5. Budget uses IMCINE standard account structure (100-1200) with Mexican market crew rates
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 
 Plans:
 - [x] 03-01-PLAN.md — Foundation: shared types, Handlebars prompt loader, financial computation (budget, cash flow, esquema financiero), Claude client, staleness tracker
@@ -83,7 +83,7 @@ Plans:
   3. Warning-level validations fire correctly: ruta critica/cash flow sync, hyperlink accessibility, bonus points eligibility, and document expiration alerts with days remaining
   4. User sees a score estimate against the EFICINE rubric (100 pts + 5 bonus) with actionable improvement suggestions
   5. Validation runs in real time as data is entered in the intake wizard, not just at export time
-**Plans:** 8 plans (7 complete + 1 gap closure)
+**Plans:** 8/8 plans complete
 
 Plans:
 - [x] 04-01-PLAN.md — Validation types, constants, and 10 blocker rule functions with TDD test suite
@@ -105,7 +105,7 @@ Plans:
   3. Export includes a validation report, score estimate, and submission upload guide
   4. Export is blocked when any blocker validation fails; warnings are flagged but do not prevent export
   5. Pre-export language check scans for anglicisms, verifies format consistency, and confirms title identity across all documents
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 05-01-PLAN.md — Export foundation: dependencies, NotoSans fonts, file naming registry (EXPORT_FILE_MAP), folder structure constants, language check utility (LANG-05), PDF font registration and shared stylesheet
@@ -121,6 +121,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Intake Wizard | 4/4 | Complete   | 2026-03-22 |
 | 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
-| 3. AI Document Generation Pipeline | 0/6 | Not started | - |
-| 4. Validation Engine + Dashboard | 7/8 | Gap closure | 2026-03-24 |
-| 5. Export Manager | 0/3 | Not started | - |
+| 3. AI Document Generation Pipeline | 6/6 | Complete | 2026-03-24 |
+| 4. Validation Engine + Dashboard | 8/8 | Complete | 2026-03-24 |
+| 5. Export Manager | 3/3 | Complete | 2026-03-24 |
