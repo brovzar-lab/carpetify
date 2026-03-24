@@ -93,7 +93,7 @@ Plans:
 - [x] 04-05-PLAN.md — useValidation hook with tiered execution and Firestore financial wiring, wizard sidebar/route integration
 - [x] 04-06-PLAN.md — Validation dashboard UI (two-panel layout, severity-grouped rules, score estimation panel with httpsCallable)
 - [x] 04-07-PLAN.md — Integration touchpoints: project card validation badges, document expiration alerts (3 touchpoints), hyperlink verifier, "Ir al campo" field navigation, and visual verification checkpoint
-- [ ] 04-08-PLAN.md — Gap closure: sidebar traffic light wiring, VALD-13 bonus input from team data, VALD-11 document content extractors
+- [x] 04-08-PLAN.md — Gap closure: sidebar traffic light wiring, VALD-13 bonus input from team data, VALD-11 document content extractors
 
 ### Phase 5: Export Manager
 **Goal**: User can export a complete, validated carpeta as a ZIP package ready for upload to the SHCP portal

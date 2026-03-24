@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-07-PLAN.md
-last_updated: "2026-03-24T17:12:55.300Z"
+stopped_at: Completed 04-08-PLAN.md
+last_updated: "2026-03-24T18:04:54.799Z"
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 20
+  completed_plans: 20
 ---
 
 # Project State
@@ -65,6 +65,7 @@ Plan: 7 of 7
 | Phase 04 P05 | 13min | 2 tasks | 8 files |
 | Phase 04 P06 | 24min | 2 tasks | 10 files |
 | Phase 04 P07 | 8min | 3 tasks | 11 files |
+| Phase 04 P08 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,9 @@ Recent decisions affecting current work:
 - [Phase 04]: ExpirationBadge uses 4-tier color system: vigente(green)/proximo(yellow)/critico(red)/vencido(solid-red) matching UI-SPEC copywriting contract
 - [Phase 04]: HyperlinkVerifier caches results per URL in component local state, with CORS fallback showing 'No se pudo verificar automaticamente'
 - [Phase 04]: Field highlighting reads ?highlight= query param, applies ring-2 ring-primary/50, scrolls into view, fades after 3s via setTimeout across all 4 wizard screens
+- [Phase 04]: Cargo values use actual constants ('Director', 'Guionista', 'Productor') not parenthesized forms from plan interfaces
+- [Phase 04]: Regional bonus fields (c) remain defaults -- current schema lacks location data; only categories (a)(b)(d) wired from team data
+- [Phase 04]: A8b prose parsing uses 200-char lookahead after stage name for month extraction; cash flow phase boundaries at 25%/60% of month count
 
 ### Pending Todos
 
@@ -140,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T17:12:55.296Z
-Stopped at: Completed 04-07-PLAN.md
+Last session: 2026-03-24T18:04:54.789Z
+Stopped at: Completed 04-08-PLAN.md
 Resume file: None
