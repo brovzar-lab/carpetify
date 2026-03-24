@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-03-PLAN.md (all tasks done, checkpoint approved)
-last_updated: "2026-03-24T21:56:46.618Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-24T23:54:06.018Z"
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 5
-  total_plans: 23
-  completed_plans: 23
+  total_plans: 26
+  completed_plans: 24
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** All v1 phases complete
+**Current focus:** Phase 06 — validation-data-wiring-fix
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
+Phase: 06 (validation-data-wiring-fix) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Plan: Not started
 | Phase 05 P02 | 5min | 2 tasks | 16 files |
 | Phase 05 P03 | 9min | 2 tasks | 18 files |
 | Phase 05 P03 | 9min | 3 tasks | 18 files |
+| Phase 06 P01 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Upload files renamed via UPLOAD_FILENAME_MAP (tipo to ASCII abbreviation + project abbrev)
 - [Phase 05]: Meta document rendering failures caught but do not block export
 - [Phase 05]: ExportCTAButton blocker state kept clickable (not DOM-disabled) so onClick fires to open blocker modal -- visual disabled styling via CSS only
+- [Phase 06]: Financial data subscription reads from projects/{id}/financials/data subcollection, matching auto-save write path
+- [Phase 06]: getRegistrationCloseDate uses PERIODOS_EFICINE constant lookup, falls back to current date for unknown periods
 
 ### Pending Todos
 
@@ -160,6 +163,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T21:23:26.062Z
-Stopped at: Completed 05-03-PLAN.md (all tasks done, checkpoint approved)
+Last session: 2026-03-24T23:54:06.016Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None

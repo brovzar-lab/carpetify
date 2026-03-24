@@ -42,11 +42,11 @@
 
 ### Validation & Compliance
 
-- [ ] **VALD-01**: Financial reconciliation — budget total == cash flow total == esquema financiero total, with per-account and per-source cross-checks (blocker)
-- [ ] **VALD-02**: Title consistency — project title is character-identical across all generated and uploaded documents (blocker)
+- [x] **VALD-01**: Financial reconciliation — budget total == cash flow total == esquema financiero total, with per-account and per-source cross-checks (blocker)
+- [x] **VALD-02**: Title consistency — project title is character-identical across all generated and uploaded documents (blocker)
 - [ ] **VALD-03**: Fee cross-matching — producer, director, and screenwriter fees match across contracts, budget line items, and cash flow (blocker)
-- [ ] **VALD-04**: Date compliance — all supporting documents have issue dates within 3 months of the target registration period close date (blocker)
-- [ ] **VALD-05**: EFICINE compliance — ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, federal sources ≤ 80%, screenwriter ≥ 3%, in-kind ≤ 10%, per-person in-kind ≤ 50% of fee, gestor cap (blocker)
+- [x] **VALD-04**: Date compliance — all supporting documents have issue dates within 3 months of the target registration period close date (blocker)
+- [x] **VALD-05**: EFICINE compliance — ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, federal sources ≤ 80%, screenwriter ≥ 3%, in-kind ≤ 10%, per-person in-kind ≤ 50% of fee, gestor cap (blocker)
 - [x] **VALD-06**: Document completeness — every required document in Sections A–E is generated or uploaded; missing any = flagged as blocker
 - [ ] **VALD-07**: Experience thresholds — producer has ≥ 1 exhibited feature (fiction/doc) or ≥ 3 shorts (animation); director has ≥ 1 feature or ≥ 2 shorts (blocker)
 - [ ] **VALD-08**: ERPI eligibility — fewer than 2 unexhibited prior EFICINE projects, ≤ 3 submissions this period, ≤ 3 total attempts for this project (blocker)
@@ -55,7 +55,7 @@
 - [x] **VALD-11**: Ruta crítica ↔ cash flow sync — timeline stages align with spending periods (warning)
 - [x] **VALD-12**: Hyperlink accessibility — verify filmmaker portfolio and material visual links are publicly accessible (warning)
 - [ ] **VALD-13**: Bonus points eligibility — detect applicable bonus category (+5 pts) and flag required documentation (warning)
-- [ ] **VALD-14**: Real-time validation — compliance checks run as data is entered, not just at export time
+- [x] **VALD-14**: Real-time validation — compliance checks run as data is entered, not just at export time
 - [x] **VALD-15**: Score estimation — estimate project's EFICINE score against the rubric (100 pts + 5 bonus) with actionable improvement suggestions
 - [ ] **VALD-16**: Traffic light dashboard — per-document and per-rule status (🟢 complete, 🟡 needs attention, 🔴 missing/blocking) as primary navigation surface
 - [x] **VALD-17**: Document expiration alert system — proactive warnings when uploaded documents (insurance quote, CPA quote, bank statements, third-party support letters, in-kind quotes) approach 3-month expiration relative to target registration close date. Show days remaining, flag red when <14 days
@@ -72,7 +72,7 @@
 
 - [x] **LANG-01**: All generated documents use Mexican Spanish with IMCINE/EFICINE terminology never translated (protected terms per `politica_idioma.md`)
 - [x] **LANG-02**: Monetary amounts formatted as $X,XXX,XXX MXN throughout — comma thousands separator, no decimals, peso sign, MXN suffix
-- [ ] **LANG-03**: Dates formatted in Spanish: "15 de julio de 2026" or "Agosto 2026"
+- [x] **LANG-03**: Dates formatted in Spanish: "15 de julio de 2026" or "Agosto 2026"
 - [x] **LANG-04**: Generated prose uses formal but non-bureaucratic Mexican Spanish — precise, concrete, cinematographic vocabulary per politica_idioma.md guidelines
 - [x] **LANG-05**: Pre-export language check — scan for anglicisms, verify format consistency, confirm title identity across all documents
 
@@ -145,11 +145,11 @@
 | AIGEN-09 | Phase 3 | Complete |
 | AIGEN-10 | Phase 3 | Complete |
 | AIGEN-11 | Phase 3 | Complete |
-| VALD-01 | Phase 6 | Pending |
-| VALD-02 | Phase 6 | Pending |
+| VALD-01 | Phase 6 | Complete |
+| VALD-02 | Phase 6 | Complete |
 | VALD-03 | Phase 6 | Pending |
-| VALD-04 | Phase 6 | Pending |
-| VALD-05 | Phase 6 | Pending |
+| VALD-04 | Phase 6 | Complete |
+| VALD-05 | Phase 6 | Complete |
 | VALD-06 | Phase 4 | Complete |
 | VALD-07 | Phase 6 | Pending |
 | VALD-08 | Phase 6 | Pending |
@@ -158,7 +158,7 @@
 | VALD-11 | Phase 4 | Complete |
 | VALD-12 | Phase 4 | Complete |
 | VALD-13 | Phase 6 | Pending |
-| VALD-14 | Phase 6 | Pending |
+| VALD-14 | Phase 6 | Complete |
 | VALD-15 | Phase 4 | Complete |
 | VALD-16 | Phase 6 | Pending |
 | VALD-17 | Phase 4 | Complete |
@@ -169,7 +169,7 @@
 | EXPRT-05 | Phase 5 | Complete |
 | LANG-01 | Phase 3 | Complete |
 | LANG-02 | Phase 1 | Complete |
-| LANG-03 | Phase 6 | Pending |
+| LANG-03 | Phase 6 | Complete |
 | LANG-04 | Phase 3 | Complete |
 | LANG-05 | Phase 5 | Complete |
 
