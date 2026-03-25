@@ -129,8 +129,8 @@ export function computeViabilityScore(
  * prior collaborations, links to prior work.
  */
 function computeEquipo(snapshot: ProjectDataSnapshot): ScoreCategory {
-  const producers = findTeamByRole(snapshot.team, 'Productor/a')
-  const directors = findTeamByRole(snapshot.team, 'Director/a')
+  const producers = findTeamByRole(snapshot.team, 'Productor')
+  const directors = findTeamByRole(snapshot.team, 'Director')
 
   const producerWithFilmography =
     producers.length > 0 &&
@@ -434,7 +434,7 @@ const SUGGESTION_RULES: SuggestionRule[] = [
     text: 'Agrega enlaces a la filmografia del director para mejorar el puntaje de direccion.',
     category: 'equipo',
     applies: (_cats, snap) => {
-      const directors = findTeamByRole(snap.team, 'Director/a')
+      const directors = findTeamByRole(snap.team, 'Director')
       return (
         directors.length > 0 &&
         directors.every(
