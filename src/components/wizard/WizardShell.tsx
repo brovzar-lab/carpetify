@@ -3,7 +3,6 @@ import { WizardSidebar } from '@/components/wizard/WizardSidebar'
 import { AutoSaveIndicator } from '@/components/common/AutoSaveIndicator'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useValidation } from '@/hooks/useValidation'
-import type { TrafficLightStatus } from '@/components/common/TrafficLight'
 import type { WizardScreen } from '@/stores/wizardStore'
 
 // Screen components
@@ -31,17 +30,8 @@ export function WizardShell() {
   // Auto-save hook for the current screen's metadata
   const { status: saveStatus } = useAutoSave(projectId, 'metadata')
 
-  // Validation report for sidebar traffic light (VALD-16 gap closure)
-  const { report: validationReport } = useValidation(projectId)
-
-  // Derive traffic light status from validation report
-  const validacionStatus: TrafficLightStatus = !validationReport
-    ? 'partial'
-    : validationReport.blockers.length > 0
-      ? 'error'
-      : validationReport.warnings.length > 0
-        ? 'partial'
-        : 'complete'
+  // Per-screen validation statuses for sidebar traffic lights (VALD-16)
+  const { screenStatuses } = useValidation(projectId)
 
   function renderScreen() {
     switch (activeScreen) {
@@ -73,7 +63,7 @@ export function WizardShell() {
   if (activeScreen === 'generacion' || activeScreen === 'validacion' || activeScreen === 'exportar') {
     return (
       <div className="flex h-screen">
-        <WizardSidebar screenStatuses={{ validacion: validacionStatus }} />
+        <WizardSidebar screenStatuses={screenStatuses} />
         <main className="flex-1 flex flex-col min-h-0">
           {renderScreen()}
         </main>
@@ -83,7 +73,7 @@ export function WizardShell() {
 
   return (
     <div className="flex h-screen">
-      <WizardSidebar screenStatuses={{ validacion: validacionStatus }} />
+      <WizardSidebar screenStatuses={screenStatuses} />
       <main className="flex-1 overflow-y-auto">
         <div
           className={`relative p-8 ${isFullWidth ? '' : 'mx-auto max-w-[800px]'}`}

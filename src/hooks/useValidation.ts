@@ -16,6 +16,8 @@ import type {
   ValidationReport,
   ValidationResult,
 } from '@/validation/types'
+import type { TrafficLightStatus } from '@/components/common/TrafficLight'
+import type { WizardScreen } from '@/stores/wizardStore'
 import { runInstantRules, runMediumRules } from '@/validation/engine'
 import {
   computeViabilityScore,
@@ -38,6 +40,7 @@ export interface UseValidationResult {
   viabilityScore: ScoreCategory[]
   improvements: ImprovementSuggestion[]
   loading: boolean
+  screenStatuses: Partial<Record<WizardScreen, TrafficLightStatus>>
 }
 
 // ---- Helper: merge instant + medium reports ----
@@ -78,6 +81,48 @@ function getMaxGeneratedTimestamp(docs: GeneratedDocClient[]): number {
     }
   }
   return max
+}
+
+// ---- Per-screen traffic light derivation ----
+
+/**
+ * Derive per-screen traffic light status from validation results.
+ * Groups results by navigateTo.screen, then:
+ *   - Any blocker fail -> 'error' (red)
+ *   - Any warning fail -> 'partial' (yellow)
+ *   - All pass/skip -> 'complete' (green)
+ */
+export function deriveScreenStatuses(
+  report: ValidationReport | null,
+): Partial<Record<WizardScreen, TrafficLightStatus>> {
+  if (!report) return {}
+
+  const screenResults = new Map<string, ValidationResult[]>()
+
+  for (const result of report.results) {
+    const screen = result.navigateTo?.screen ?? 'validacion'
+    const existing = screenResults.get(screen) ?? []
+    existing.push(result)
+    screenResults.set(screen, existing)
+  }
+
+  const statusMap: Partial<Record<WizardScreen, TrafficLightStatus>> = {}
+
+  for (const [screen, results] of screenResults) {
+    const hasBlockerFail = results.some(
+      (r) => r.severity === 'blocker' && r.status === 'fail',
+    )
+    const hasWarningFail = results.some(
+      (r) => r.severity === 'warning' && r.status === 'fail',
+    )
+    statusMap[screen as WizardScreen] = hasBlockerFail
+      ? 'error'
+      : hasWarningFail
+        ? 'partial'
+        : 'complete'
+  }
+
+  return statusMap
 }
 
 // ---- Hook ----
@@ -459,7 +504,14 @@ export function useValidation(projectId: string): UseValidationResult {
     }
   }, [])
 
-  return { report, viabilityScore, improvements, loading }
+  // ---- Per-screen traffic light statuses ----
+
+  const screenStatuses = useMemo(
+    () => deriveScreenStatuses(report),
+    [report],
+  )
+
+  return { report, viabilityScore, improvements, loading, screenStatuses }
 }
 
 // ---- Data extraction helpers ----
