@@ -9,7 +9,6 @@
  *
  * Portrait LETTER layout.
  */
-import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import '../fonts'
 import { pdfStyles } from '../styles'
@@ -103,7 +102,6 @@ export function buildSubmissionSteps(projectTitle: string): SubmissionStep[] {
 
 export function SubmissionGuide({
   projectTitle,
-  projectAbbrev,
   steps,
 }: SubmissionGuideProps) {
   // Group steps by section

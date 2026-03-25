@@ -7,7 +7,7 @@
  * Simple portrait LETTER layout with title, justified prose paragraphs,
  * automatic page breaks handled by @react-pdf/renderer.
  */
-import React from 'react'
+
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import '../fonts'
 import { pdfStyles } from '../styles'

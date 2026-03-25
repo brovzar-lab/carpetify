@@ -5,7 +5,6 @@
  * Falls back to prose rendering if no structured phases data.
  * Landscape LETTER layout.
  */
-import React from 'react'
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import { Table, TH, TR, TD } from '@ag-media/react-pdf-table'
 import '../fonts'
@@ -35,7 +34,7 @@ export function RutaCritica({
     : []
 
   // Column weights: phase name + N month columns
-  const colCount = allMonths.length + 1
+  const _colCount = allMonths.length + 1
   const phaseWeight = 0.25
   const monthWeight = (1 - phaseWeight) / Math.max(allMonths.length, 1)
   const weightings = [phaseWeight, ...Array(allMonths.length).fill(monthWeight)]

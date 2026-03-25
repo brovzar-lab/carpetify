@@ -4,7 +4,7 @@
  * Summary budget table with account number, concept name, and subtotal.
  * Total row at bottom with bold styling. Portrait LETTER layout.
  */
-import React from 'react'
+
 import { Document, Page, Text } from '@react-pdf/renderer'
 import { Table, TH, TR, TD } from '@ag-media/react-pdf-table'
 import '../fonts'

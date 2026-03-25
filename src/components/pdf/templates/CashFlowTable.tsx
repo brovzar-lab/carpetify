@@ -5,7 +5,7 @@
  * Landscape LETTER layout with 7-8pt font for dense data.
  * Alternating row colors for readability.
  */
-import React from 'react'
+
 import { Document, Page, Text } from '@react-pdf/renderer'
 import { Table, TH, TR, TD } from '@ag-media/react-pdf-table'
 import '../fonts'

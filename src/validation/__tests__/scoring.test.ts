@@ -6,10 +6,7 @@ import { describe, it, expect } from 'vitest'
 import {
   computeViabilityScore,
   generateImprovementSuggestions,
-  type ScoreCategory,
   type ScoreEstimate,
-  type ImprovementSuggestion,
-  type PersonaScore,
 } from '../scoring'
 import type { ProjectDataSnapshot } from '../types'
 

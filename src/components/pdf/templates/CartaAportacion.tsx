@@ -4,7 +4,7 @@
  * Formal letter with contribution amount table.
  * Portrait LETTER layout.
  */
-import React from 'react'
+
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import { Table, TH, TR, TD } from '@ag-media/react-pdf-table'
 import '../fonts'

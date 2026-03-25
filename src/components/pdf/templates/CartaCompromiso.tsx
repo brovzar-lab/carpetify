@@ -4,7 +4,7 @@
  * Formal letter format with title, body text, and signature line area.
  * Portrait LETTER layout.
  */
-import React from 'react'
+
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import '../fonts'
 import { pdfStyles } from '../styles'
