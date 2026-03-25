@@ -183,6 +183,12 @@ None yet.
 - [Research]: unpdf text extraction quality varies across screenplay formats -- may need pdfjs-dist fallback (test in Phase 2)
 - [Research]: Cloud Functions v2 has 540-second timeout -- full AI pipeline may exceed this (validate in Phase 2/3)
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260325-d29 | Fix pre-existing TypeScript errors and stale test assertion | 2026-03-25 | 72386f57 | [260325-d29-fix-pre-existing-typescript-errors-and-s](./quick/260325-d29-fix-pre-existing-typescript-errors-and-s/) |
+
 ## Session Continuity
 
 Last session: 2026-03-25T15:35:55.829Z
