@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: unknown
-stopped_at: Completed quick-260325-d29
+milestone: v2.0
+milestone_name: Multi-User & Extended Modalities
+status: defining_requirements
+stopped_at: Starting v2.0 milestone
 last_updated: "2026-03-25T16:03:20.019Z"
 progress:
   total_phases: 11
@@ -16,15 +16,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-21)
+See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 09 — validation-stub-completion
+**Current focus:** Milestone v2.0 — Defining requirements
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-25 — Milestone v2.0 started
 
 ## Performance Metrics
 

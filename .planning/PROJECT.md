@@ -4,7 +4,7 @@
 
 Carpetify is an internal web tool for Lemon Studios that takes a feature film screenplay (PDF) and project metadata, then systematically generates a complete EFICINE Article 189 submission dossier ("carpeta") — the ~30-document package required by IMCINE for the Mexican film tax incentive program. The user uploads a screenplay, enters project data through a guided wizard, and the app generates 21 documents using AI, validates them against 17 EFICINE compliance rules, and exports a ready-to-upload ZIP package with IMCINE file naming.
 
-Target user: A single producer at Lemon Studios submitting up to 3 projects per EFICINE registration period via the SHCP portal (estimulosfiscales.hacienda.gob.mx).
+Target users: A production team at Lemon Studios (producer, line producer, lawyer, director) collaborating on up to 3 projects per EFICINE registration period via the SHCP portal (estimulosfiscales.hacienda.gob.mx).
 
 ## Core Value
 
@@ -38,21 +38,41 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 - [x] Entire UI in Mexican Spanish with IMCINE/EFICINE terminology never translated *(v1.0 — all phases)*
 - [x] Amounts formatted as $X,XXX,XXX MXN; dates in Spanish format *(v1.0 — Phases 1, 6)*
 
+## Current Milestone: v2.0 Multi-User & Extended Modalities
+
+**Goal:** Transform Carpetify from a single-user tool into a collaborative platform with multi-user auth, role-based access, full co-production engine, AI pre-submission review, and support for EFICINE Postproducción and resubmission modalities.
+
+**Target features:**
+- Firebase Auth with Google login + role-based collaboration (producer, line producer, lawyer)
+- Full international co-production rules engine with multi-currency support
+- AI-powered pre-submission review simulating IMCINE evaluator perspective
+- Document version comparison and diff view
+- EFICINE Postproducción modality (different rubric, different FORMATO structures)
+- Previously-authorized project resubmission modality
+
 ### Active
 
-*(No active requirements — all v1 requirements shipped)*
+- [ ] Firebase Auth with Google login for Lemon Studios team
+- [ ] Section-based collaboration (multiple contributors per project)
+- [ ] Role-based access control (producer, line producer, lawyer, director)
+- [ ] Full co-production rules engine (territorial budget splits, exchange rates, IMCINE recognition)
+- [ ] Multi-currency support with exchange rate tracking
+- [ ] AI pre-submission review simulating evaluator perspective
+- [ ] Document version comparison and diff view
+- [ ] EFICINE Postproducción modality (different documents, 65-pt rubric, different FORMATOs)
+- [ ] Previously-authorized project resubmission modality
 
 ### Out of Scope
 
 | Feature | Reason | Still valid? |
 |---------|--------|-------------|
-| Authentication / user accounts | Internal tool for single user at Lemon Studios | ✓ Valid |
+| ~~Authentication / user accounts~~ | ~~Internal tool for single user~~ | Moved to Active for v2.0 |
 | Multi-user collaboration | Single user fills everything | ✓ Valid |
 | SaaS features (billing, onboarding) | Internal tool, not a product | ✓ Valid |
 | Mobile app | 30-document dossier requires desktop | ✓ Valid |
 | Document translation | All docs are in Spanish | ✓ Valid |
 | Direct SHCP portal integration | No API; scraping tax portal is legally risky | ✓ Valid |
-| EFICINE postproducción | Different program, different rules | ✓ Valid for now — could be v2+ |
+| ~~EFICINE postproducción~~ | ~~Different program, different rules~~ | Moved to Active for v2.0 |
 
 ## Context
 
@@ -104,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after v1.0 milestone completion — 9 phases, 31 plans, 49 requirements, all validated*
+*Last updated: 2026-03-25 — v2.0 milestone started: multi-user collaboration, co-production engine, AI review, extended modalities*
