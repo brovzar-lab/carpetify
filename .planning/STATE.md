@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-24T23:54:06.018Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-25T00:02:30.448Z"
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 26
-  completed_plans: 24
+  completed_plans: 25
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 06 (validation-data-wiring-fix) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Plan: 2 of 3
 | Phase 05 P03 | 9min | 2 tasks | 18 files |
 | Phase 05 P03 | 9min | 3 tasks | 18 files |
 | Phase 06 P01 | 4min | 2 tasks | 3 files |
+| Phase 06 P02 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,9 @@ Recent decisions affecting current work:
 - [Phase 05]: ExportCTAButton blocker state kept clickable (not DOM-disabled) so onClick fires to open blocker modal -- visual disabled styling via CSS only
 - [Phase 06]: Financial data subscription reads from projects/{id}/financials/data subcollection, matching auto-save write path
 - [Phase 06]: getRegistrationCloseDate uses PERIODOS_EFICINE constant lookup, falls back to current date for unknown periods
+- [Phase 06]: Team data (honorarios_centavos) used as contract fee source since contracts are generated from intake fees per D-15
+- [Phase 06]: Cash flow fees derived from budget_output (same pipeline) instead of parsing A9d generated document content separately
+- [Phase 06]: Budget subscription stores full document (Record) for fee extraction, with totalCentavos derived via useMemo
 
 ### Pending Todos
 
@@ -163,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T23:54:06.016Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-25T00:02:30.445Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
