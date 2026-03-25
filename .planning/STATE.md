@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-25T12:58:46.435Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-25T13:54:43.581Z"
 progress:
   total_phases: 11
-  completed_phases: 8
-  total_plans: 30
-  completed_plans: 30
+  completed_phases: 9
+  total_plans: 31
+  completed_plans: 31
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 08 — score-estimation-accuracy-fix
+**Current focus:** Phase 09 — validation-stub-completion
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
+Phase: 09 (validation-stub-completion) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Plan: Not started
 | Phase 07 P02 | 2min | 2 tasks | 1 files |
 | Phase 08 P02 | 2min | 2 tasks | 4 files |
 | Phase 08 P01 | 4min | 2 tasks | 3 files |
+| Phase 09 P01 | 7min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -169,6 +170,9 @@ Recent decisions affecting current work:
 - [Phase 08]: extractProse handles both string content and {prose} structured content for forward compatibility
 - [Phase 08]: Role names use CARGOS_EQUIPO values (Productor, Director) not gendered forms (Productor/a, Director/a)
 - [Phase 08]: A7/A10 document existence used as proxy for content-level scoring signals since AI prompts enforce required content
+- [Phase 09]: Use filmografia[].enlace (form-saved) not member.enlaces for VALD-12 link extraction
+- [Phase 09]: extractLinks always sets verified:false, accessible:false (engine is pure, no HTTP per D-12)
+- [Phase 09]: Pre-export outputFiles use sizeMB:0 since PDF sizes unknown; 0 < 40MB passes correctly
 
 ### Pending Todos
 
@@ -181,6 +185,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T12:54:52.283Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-25T13:54:43.563Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None

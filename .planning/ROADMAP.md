@@ -184,7 +184,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 09-01-PLAN.md — Wire outputFiles from EXPORT_FILE_MAP + generatedDocs in useValidation snapshot, rewrite extractLinks to extract filmografia[].enlace URLs from team members, add 8 new test cases
+- [x] 09-01-PLAN.md — Wire outputFiles from EXPORT_FILE_MAP + generatedDocs in useValidation snapshot, rewrite extractLinks to extract filmografia[].enlace URLs from team members, add 8 new test cases
 
 ## Progress
 
