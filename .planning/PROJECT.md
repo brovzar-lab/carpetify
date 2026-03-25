@@ -114,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after Phase 07 completion — document completeness & export gate fix. REQUIRED_DOCUMENTS namespace aligned with DocumentChecklist tipo values. hasExclusiveContribution wired from financial data. Export no longer permanently blocked by false missing-document errors.*
+*Last updated: 2026-03-25 after Phase 08 completion — score estimation accuracy fix. Role name matching corrected, 7 scoring signals populated, Cloud Function reads content from Firestore, ProjectCard shows dynamic completion percentage.*
