@@ -28,6 +28,7 @@ import type {
   ImprovementSuggestion,
 } from '@/validation/scoring'
 import { useGeneratedDocs } from '@/hooks/useGeneratedDocs'
+import { EXPORT_FILE_MAP, generateFilename } from '@/lib/export/fileNaming'
 import type { GeneratedDocClient } from '@/hooks/useGeneratedDocs'
 import type { TeamMember } from '@/schemas/team'
 import type { UploadedDocument } from '@/schemas/documents'
@@ -431,6 +432,21 @@ export function useValidation(projectId: string): UseValidationResult {
   const exhibitionHasFestivalStrategy = a10Exists
   const exhibitionHasTargetAudience = a10Exists
 
+  // ---- Compute outputFiles from EXPORT_FILE_MAP + generatedDocs ----
+
+  const outputFiles = useMemo((): Array<{ name: string; format: string; sizeMB: number }> => {
+    const title = (projectData?.metadata as Record<string, unknown> | undefined)?.titulo_proyecto as string ?? ''
+    if (!title || generatedDocs.length === 0) return []
+
+    return generatedDocs
+      .filter(d => d.docId in EXPORT_FILE_MAP)
+      .map(d => ({
+        name: generateFilename(EXPORT_FILE_MAP[d.docId].filenameTemplate, title) + '.pdf',
+        format: 'pdf',
+        sizeMB: 0, // Size unknown pre-export; filename validation is the critical check
+      }))
+  }, [generatedDocs, projectData])
+
   // ---- Assemble ProjectDataSnapshot ----
 
   const snapshot = useMemo((): ProjectDataSnapshot | null => {
@@ -493,6 +509,7 @@ export function useValidation(projectId: string): UseValidationResult {
       exhibitionHasSpectatorEstimate,
       exhibitionHasFestivalStrategy,
       exhibitionHasTargetAudience,
+      outputFiles,
     }
   }, [
     loading,
@@ -515,6 +532,7 @@ export function useValidation(projectId: string): UseValidationResult {
     exhibitionHasSpectatorEstimate,
     exhibitionHasFestivalStrategy,
     exhibitionHasTargetAudience,
+    outputFiles,
   ])
 
   // ---- Tiered validation execution ----

@@ -11,6 +11,7 @@ import {
   MEDIUM_RULE_IDS,
 } from '../engine'
 import type { ProjectDataSnapshot } from '../types'
+import { EXPORT_FILE_MAP, generateFilename } from '@/lib/export/fileNaming'
 
 /** Minimal empty snapshot where all rules should skip. */
 function emptySnapshot(): ProjectDataSnapshot {
@@ -326,7 +327,6 @@ describe('VALD-12 extractLinks wiring', () => {
     const snap = emptySnapshot()
     snap.team = [
       {
-        id: 'm1',
         nombre_completo: 'Maria Torres',
         cargo: 'Director',
         filmografia: [
@@ -334,8 +334,6 @@ describe('VALD-12 extractLinks wiring', () => {
           { titulo: 'Corto B', anio: 2022, cargo_en_obra: 'Director' },
         ],
         nacionalidad: 'Mexicana',
-        email: 'maria@test.com',
-        telefono: '5551111111',
         honorarios_centavos: 0,
         aportacion_especie_centavos: 0,
       },
@@ -351,28 +349,22 @@ describe('VALD-12 extractLinks wiring', () => {
     const snap = emptySnapshot()
     snap.team = [
       {
-        id: 'm1',
         nombre_completo: 'Ana Lopez',
         cargo: 'Productor',
         filmografia: [
           { titulo: 'Film X', anio: 2020, cargo_en_obra: 'Productor', enlace: 'https://imdb.com/film-x' },
         ],
         nacionalidad: 'Mexicana',
-        email: 'ana@test.com',
-        telefono: '5552222222',
         honorarios_centavos: 0,
         aportacion_especie_centavos: 0,
       },
       {
-        id: 'm2',
         nombre_completo: 'Carlos Garcia',
         cargo: 'Director',
         filmografia: [
           { titulo: 'Film Y', anio: 2019, cargo_en_obra: 'Director', enlace: 'http://youtube.com/filmy' },
         ],
         nacionalidad: 'Mexicana',
-        email: 'carlos@test.com',
-        telefono: '5553333333',
         honorarios_centavos: 0,
         aportacion_especie_centavos: 0,
       },
@@ -387,15 +379,12 @@ describe('VALD-12 extractLinks wiring', () => {
     const snap = emptySnapshot()
     snap.team = [
       {
-        id: 'm1',
         nombre_completo: 'Juan Perez',
         cargo: 'Productor',
         filmografia: [
           { titulo: 'Film Z', anio: 2018, cargo_en_obra: 'Productor' },
         ],
         nacionalidad: 'Mexicana',
-        email: 'juan@test.com',
-        telefono: '5554444444',
         honorarios_centavos: 0,
         aportacion_especie_centavos: 0,
       },
@@ -415,15 +404,12 @@ describe('VALD-12 extractLinks wiring', () => {
     const snap = emptySnapshot()
     snap.team = [
       {
-        id: 'm1',
         nombre_completo: 'Rosa Diaz',
         cargo: 'Guionista',
         filmografia: [
           { titulo: 'Film W', anio: 2021, cargo_en_obra: 'Guionista', enlace: 'not-a-url' },
         ],
         nacionalidad: 'Mexicana',
-        email: 'rosa@test.com',
-        telefono: '5555555555',
         honorarios_centavos: 0,
         aportacion_especie_centavos: 0,
       },
@@ -431,5 +417,67 @@ describe('VALD-12 extractLinks wiring', () => {
     const report = runInstantRules(snap)
     const vald12 = report.results.find((r) => r.ruleId === 'VALD-12')
     expect(vald12?.status).toBe('skip')
+  })
+})
+
+// ───────────────────────────────────────────
+// VALD-09 outputFiles wiring
+// ───────────────────────────────────────────
+describe('VALD-09 outputFiles wiring', () => {
+  it('snapshot with generatedDocs matching EXPORT_FILE_MAP keys + non-empty title -> VALD-09 passes', () => {
+    const snap = validSnapshot()
+    const title = 'Mi Pelicula'
+    // Build outputFiles from EXPORT_FILE_MAP entries matching some doc IDs
+    const docIds = ['A1', 'A2', 'A9b']
+    snap.generatedDocs = docIds.map((id) => ({
+      docId: id,
+      docName: `Doc ${id}`,
+      section: 'A',
+      passId: 'lineProducer',
+      contentType: 'prose',
+      generatedAt: new Date(),
+      manuallyEdited: false,
+      version: 1,
+    }))
+    snap.outputFiles = docIds
+      .filter((id) => id in EXPORT_FILE_MAP)
+      .map((id) => ({
+        name: generateFilename(EXPORT_FILE_MAP[id].filenameTemplate, title) + '.pdf',
+        format: 'pdf',
+        sizeMB: 0,
+      }))
+    const report = runInstantRules(snap)
+    const vald09 = report.results.find((r) => r.ruleId === 'VALD-09')
+    expect(vald09?.status).toBe('pass')
+  })
+
+  it('snapshot with empty generatedDocs -> VALD-09 skips', () => {
+    const snap = emptySnapshot()
+    // No outputFiles means VALD-09 skips
+    const report = runInstantRules(snap)
+    const vald09 = report.results.find((r) => r.ruleId === 'VALD-09')
+    expect(vald09?.status).toBe('skip')
+  })
+
+  it('snapshot with generatedDocs but empty titulo_proyecto -> VALD-09 skips (no outputFiles without title)', () => {
+    const snap = emptySnapshot()
+    snap.metadata.titulo_proyecto = ''
+    snap.generatedDocs = [
+      {
+        docId: 'A1',
+        docName: 'Resumen Ejecutivo',
+        section: 'A',
+        passId: 'lineProducer',
+        contentType: 'prose',
+        generatedAt: new Date(),
+        manuallyEdited: false,
+        version: 1,
+      },
+    ]
+    // Without title, outputFiles should be empty -> VALD-09 skips
+    snap.outputFiles = []
+    const report = runInstantRules(snap)
+    const vald09 = report.results.find((r) => r.ruleId === 'VALD-09')
+    expect(vald09?.status).toBe('skip')
   })
 })
