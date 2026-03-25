@@ -114,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after Phase 08 completion — score estimation accuracy fix. Role name matching corrected, 7 scoring signals populated, Cloud Function reads content from Firestore, ProjectCard shows dynamic completion percentage.*
+*Last updated: 2026-03-25 after Phase 09 completion — validation stub completion. All 17 validation rules now produce real results (no permanent skips). outputFiles wired for VALD-09, extractLinks wired for VALD-12. All 9 phases of v1.0 milestone complete.*
