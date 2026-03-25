@@ -296,7 +296,7 @@ export const estimateScore = onCall(
     secrets: [anthropicApiKey],
   },
   async (request) => {
-    const data = request.data as ScoreEstimationRequest;
+    const data = request.data as { projectId: string };
 
     if (!data.projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
@@ -308,7 +308,37 @@ export const estimateScore = onCall(
     }
 
     try {
-      return await handleScoreEstimation(data, apiKey);
+      // Read project metadata and generated document content from Firestore
+      const adminDb = getFirestore();
+      const projectRef = adminDb.doc(`projects/${data.projectId}`);
+      const [projectSnap, a3Snap, a4Snap, a5Snap] = await Promise.all([
+        projectRef.get(),
+        adminDb.doc(`projects/${data.projectId}/generated/A3`).get(),
+        adminDb.doc(`projects/${data.projectId}/generated/A4`).get(),
+        adminDb.doc(`projects/${data.projectId}/generated/A5`).get(),
+      ]);
+
+      const projectMeta = (projectSnap.data()?.metadata ?? {}) as Record<string, string>;
+
+      // Extract prose content from generated documents
+      const extractProse = (docData: FirebaseFirestore.DocumentData | undefined): string => {
+        if (!docData) return '';
+        const content = docData.content;
+        if (typeof content === 'string') return content;
+        if (content && typeof content === 'object' && typeof content.prose === 'string') return content.prose;
+        return '';
+      };
+
+      const enrichedRequest: ScoreEstimationRequest = {
+        projectId: data.projectId,
+        guionContent: extractProse(a3Snap.data()),
+        direccionContent: extractProse(a4Snap.data()),
+        materialVisualContent: extractProse(a5Snap.data()),
+        tituloProyecto: projectMeta.titulo_proyecto ?? '',
+        categoriaCinematografica: projectMeta.categoria_cinematografica ?? '',
+      };
+
+      return await handleScoreEstimation(enrichedRequest, apiKey);
     } catch (err) {
       if (err instanceof HttpsError) throw err;
       console.error('estimateScore error:', err);
