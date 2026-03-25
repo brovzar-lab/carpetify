@@ -12,6 +12,7 @@ import { handleCombinedPass } from './pipeline/passes/combined.js';
 import { loadProjectDataForGeneration } from './pipeline/orchestrator.js';
 import { initClaudeClient } from './claude/client.js';
 import { handleScoreEstimation } from './scoreHandler.js';
+import { handleV1Migration } from './migration/migrateV1Data.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
 
@@ -343,6 +344,39 @@ export const estimateScore = onCall(
       if (err instanceof HttpsError) throw err;
       console.error('estimateScore error:', err);
       throw new HttpsError('internal', 'No se pudo completar la evaluacion de puntaje.');
+    }
+  },
+);
+
+// ---- v2.0 Data Migration ----
+
+/**
+ * migrateV1Data: Callable Cloud Function.
+ * Migrates existing v1.0 projects (adds ownerId/orgId) and ERPI settings
+ * (copies from singleton to org-scoped path). Called once on first org creation.
+ * Idempotent: safe to call multiple times.
+ */
+export const migrateV1Data = onCall(
+  {
+    timeoutSeconds: 60,
+    memory: '256MiB',
+    region: 'us-central1',
+  },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError('unauthenticated', 'Autenticacion requerida.');
+    }
+
+    const { orgId } = request.data as { orgId: string };
+    if (!orgId) {
+      throw new HttpsError('invalid-argument', 'Se requiere orgId.');
+    }
+
+    try {
+      return await handleV1Migration(request.auth.uid, orgId);
+    } catch (err) {
+      console.error('migrateV1Data error:', err);
+      throw new HttpsError('internal', 'Error al migrar datos de v1.0.');
     }
   },
 );

@@ -720,6 +720,16 @@ export const es = {
     logoutButton: 'Cerrar sesion',
     loadingAuth: 'Verificando sesion...',
     userMenuLabel: 'Menu de usuario',
+    orgSetupTitle: 'Crear organizacion',
+    orgSetupDescription: 'Antes de continuar, crea tu organizacion. Todos los proyectos y configuraciones se guardaran bajo esta organizacion.',
+    orgSetupNameLabel: 'Nombre de la organizacion',
+    orgSetupNamePlaceholder: 'Ej. Lemon Studios',
+    orgSetupButton: 'Crear organizacion',
+    orgSetupCreating: 'Creando organizacion...',
+    orgSetupError: 'Error al crear la organizacion. Intenta de nuevo.',
+    migrationInProgress: 'Migrando datos existentes...',
+    migrationComplete: 'Datos migrados exitosamente.',
+    migrationError: 'Error al migrar datos. Contacta soporte.',
   },
 
   // -- Error States --
