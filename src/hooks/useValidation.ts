@@ -11,6 +11,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { doc, onSnapshot, collection, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { useAuth } from '@/contexts/AuthContext'
 import type {
   ProjectDataSnapshot,
   ValidationReport,
@@ -129,6 +130,7 @@ export function deriveScreenStatuses(
 // ---- Hook ----
 
 export function useValidation(projectId: string): UseValidationResult {
+  const { orgId } = useAuth()
   // -- Firestore data sources --
   const [projectData, setProjectData] = useState<Record<string, unknown> | null>(null)
   const [financialData, setFinancialData] = useState<Record<string, unknown> | null>(null)
@@ -245,17 +247,22 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
-  // 5. ERPI settings (singleton)
+  // 5. ERPI settings (organization-scoped)
   useEffect(() => {
+    if (!orgId) {
+      setErpiSettings(null)
+      setErpiLoading(false)
+      return
+    }
     return onSnapshot(
-      doc(db, 'erpi_settings', 'default'),
+      doc(db, 'organizations', orgId, 'erpi_settings', 'default'),
       (snap) => {
         setErpiSettings(snap.exists() ? (snap.data() as ERPISettings) : null)
         setErpiLoading(false)
       },
       () => setErpiLoading(false),
     )
-  }, [])
+  }, [orgId])
 
   // 6. Budget document from meta/budget_output (full doc for fee extraction)
   useEffect(() => {

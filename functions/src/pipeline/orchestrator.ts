@@ -119,8 +119,8 @@ export async function loadProjectDataForGeneration(
 ): Promise<ProjectDataForGeneration> {
   const db = getFirestore();
 
-  // Load all data in parallel
-  const [projectSnap, analysisSnap, screenplaySnap, teamSnap, erpiSnap] =
+  // Load project data first to get orgId for ERPI path
+  const [projectSnap, analysisSnap, screenplaySnap, teamSnap, financialsSnap] =
     await Promise.all([
       db.collection('projects').doc(projectId).get(),
       db
@@ -136,8 +136,12 @@ export async function loadProjectDataForGeneration(
         .doc('data')
         .get(),
       db.collection('projects').doc(projectId).collection('team').get(),
-      // ERPI settings are linked from project metadata
-      db.collection('erpi').limit(1).get(),
+      db
+        .collection('projects')
+        .doc(projectId)
+        .collection('financials')
+        .doc('data')
+        .get(),
     ]);
 
   // Validate project exists
@@ -157,26 +161,46 @@ export async function loadProjectDataForGeneration(
   }
 
   const projectData = projectSnap.data()!;
+
+  // Read ERPI from org-scoped path. Fall back to legacy singleton for pre-migration compatibility.
+  const projectOrgId = projectData.orgId as string | undefined;
+  let erpiSnap: FirebaseFirestore.DocumentSnapshot;
+  if (projectOrgId) {
+    erpiSnap = await db
+      .collection('organizations')
+      .doc(projectOrgId)
+      .collection('erpi_settings')
+      .doc('default')
+      .get();
+  } else {
+    // Legacy fallback: pre-migration projects without orgId
+    erpiSnap = await db.collection('erpi_settings').doc('default').get();
+  }
+  // Project metadata is nested under 'metadata' key
+  const metaSource = (projectData.metadata as Record<string, unknown>) ?? projectData;
   const analysisData = analysisSnap.data()!;
   const screenplayData = screenplaySnap.exists
     ? screenplaySnap.data()!
     : { num_escenas: 0, num_paginas: 0 };
-  const erpiData = erpiSnap.docs.length > 0
-    ? erpiSnap.docs[0].data()
-    : {};
+  const financialsData = financialsSnap.exists
+    ? financialsSnap.data()!
+    : {} as Record<string, unknown>;
+  const erpiData = erpiSnap.exists
+    ? erpiSnap.data()!
+    : {} as Record<string, unknown>;
 
   const metadata: ProjectMetadata = {
-    titulo_proyecto: projectData.titulo_proyecto ?? '',
-    categoria_cinematografica: projectData.categoria_cinematografica ?? 'ficcion',
-    categoria_director: projectData.categoria_director ?? '',
-    duracion_estimada_minutos: projectData.duracion_estimada_minutos ?? 90,
-    costo_total_proyecto_centavos: projectData.costo_total_proyecto_centavos ?? 0,
-    monto_solicitado_eficine_centavos: projectData.monto_solicitado_eficine_centavos ?? 0,
-    periodo_registro: projectData.periodo_registro ?? '',
-    es_coproduccion_internacional: projectData.es_coproduccion_internacional ?? false,
-    formato_filmacion: projectData.formato_filmacion ?? '',
-    relacion_aspecto: projectData.relacion_aspecto ?? '',
-    idiomas: projectData.idiomas ?? ['Espanol'],
+    titulo_proyecto: (metaSource.titulo_proyecto as string) ?? '',
+    categoria_cinematografica: (metaSource.categoria_cinematografica as string) ?? 'ficcion',
+    categoria_director: (metaSource.categoria_director as string) ?? '',
+    duracion_estimada_minutos: (metaSource.duracion_estimada_minutos as number) ?? 90,
+    costo_total_proyecto_centavos: (metaSource.costo_total_proyecto_centavos as number) ?? 0,
+    monto_solicitado_eficine_centavos: (metaSource.monto_solicitado_eficine_centavos as number) ?? 0,
+    periodo_registro: (metaSource.periodo_registro as string) ?? '',
+    es_coproduccion_internacional: (metaSource.es_coproduccion_internacional as boolean) ?? false,
+    formato_filmacion: (metaSource.formato_filmacion as string) ?? '',
+    relacion_aspecto: (metaSource.relacion_aspecto as string) ?? '',
+    idiomas: (metaSource.idiomas as string[]) ?? ['Espanol'],
   };
 
   const team: TeamMember[] = teamSnap.docs.map((doc) => {
@@ -191,12 +215,12 @@ export async function loadProjectDataForGeneration(
   });
 
   const financials: Financials = {
-    aportacion_erpi_efectivo_centavos: projectData.aportacion_erpi_efectivo_centavos ?? 0,
-    aportacion_erpi_especie_centavos: projectData.aportacion_erpi_especie_centavos ?? 0,
-    terceros: projectData.terceros ?? [],
-    monto_eficine_centavos: projectData.monto_eficine_centavos ?? 0,
-    tiene_gestor: projectData.tiene_gestor ?? false,
-    gestor_monto_centavos: projectData.gestor_monto_centavos ?? 0,
+    aportacion_erpi_efectivo_centavos: (financialsData.aportacion_erpi_efectivo_centavos as number) ?? 0,
+    aportacion_erpi_especie_centavos: (financialsData.aportacion_erpi_especie_centavos as number) ?? 0,
+    terceros: (financialsData.terceros as Financials['terceros']) ?? [],
+    monto_eficine_centavos: (financialsData.monto_eficine_centavos as number) ?? 0,
+    tiene_gestor: (financialsData.tiene_gestor as boolean) ?? false,
+    gestor_monto_centavos: (financialsData.gestor_monto_centavos as number) ?? 0,
   };
 
   const erpiSettings: ERPISettings = {

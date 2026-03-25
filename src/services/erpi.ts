@@ -2,27 +2,36 @@ import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firest
 import { db } from '@/lib/firebase'
 import type { ERPISettings } from '@/schemas/erpi'
 
-const erpiRef = doc(db, 'erpi_settings', 'default')
+/**
+ * Returns the Firestore document reference for ERPI settings
+ * scoped to the given organization.
+ * Per D-07: ERPI settings live at organizations/{orgId}/erpi_settings/default
+ */
+function erpiRef(orgId: string) {
+  return doc(db, 'organizations', orgId, 'erpi_settings', 'default')
+}
 
 /**
- * Reads shared ERPI settings.
+ * Reads organization-scoped ERPI settings.
  */
-export async function getERPISettings(): Promise<ERPISettings | null> {
-  const snap = await getDoc(erpiRef)
+export async function getERPISettings(orgId: string): Promise<ERPISettings | null> {
+  const snap = await getDoc(erpiRef(orgId))
   if (!snap.exists()) return null
   return snap.data() as ERPISettings
 }
 
 /**
- * Creates or updates shared ERPI settings.
+ * Creates or updates organization-scoped ERPI settings.
  */
 export async function updateERPISettings(
+  orgId: string,
   data: Partial<ERPISettings>,
 ): Promise<void> {
-  const snap = await getDoc(erpiRef)
+  const ref = erpiRef(orgId)
+  const snap = await getDoc(ref)
   if (snap.exists()) {
-    await updateDoc(erpiRef, { ...data, updatedAt: serverTimestamp() })
+    await updateDoc(ref, { ...data, updatedAt: serverTimestamp() })
   } else {
-    await setDoc(erpiRef, { ...data, updatedAt: serverTimestamp() })
+    await setDoc(ref, { ...data, updatedAt: serverTimestamp() })
   }
 }

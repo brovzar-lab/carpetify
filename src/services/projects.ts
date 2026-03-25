@@ -7,6 +7,7 @@ import {
   deleteDoc,
   getDocs,
   query,
+  where,
   orderBy,
   serverTimestamp,
 } from 'firebase/firestore'
@@ -16,9 +17,10 @@ import type { ProjectMetadata } from '@/schemas/project'
 const projectsCol = collection(db, 'projects')
 
 /**
- * Creates a new project with default metadata. Returns the project ID.
+ * Creates a new project with default metadata and ownership. Returns the project ID.
+ * Per D-08: all new projects get ownerId and orgId.
  */
-export async function createProject(): Promise<string> {
+export async function createProject(userId: string, orgId: string): Promise<string> {
   const ref = doc(projectsCol)
   await setDoc(ref, {
     metadata: {
@@ -34,6 +36,8 @@ export async function createProject(): Promise<string> {
       periodo_registro: '2026-P1',
       es_coproduccion_internacional: false,
     },
+    ownerId: userId,
+    orgId: orgId,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -63,7 +67,9 @@ export async function updateProjectMetadata(
   const ref = doc(db, 'projects', id)
   const updates: Record<string, unknown> = { updatedAt: serverTimestamp() }
   for (const [key, value] of Object.entries(data)) {
-    updates[`metadata.${key}`] = value
+    if (value !== undefined) {
+      updates[`metadata.${key}`] = value
+    }
   }
   await updateDoc(ref, updates)
 }
@@ -79,8 +85,9 @@ export async function deleteProject(id: string): Promise<void> {
 /**
  * Clones a project by reading all data and creating a new document.
  * Appends " (copia)" to the title per D-10.
+ * Per D-08: cloned project gets ownerId and orgId.
  */
-export async function cloneProject(id: string): Promise<string> {
+export async function cloneProject(id: string, userId: string, orgId: string): Promise<string> {
   const ref = doc(db, 'projects', id)
   const snap = await getDoc(ref)
   if (!snap.exists()) throw new Error('Proyecto no encontrado')
@@ -93,6 +100,8 @@ export async function cloneProject(id: string): Promise<string> {
       ...data.metadata,
       titulo_proyecto: `${data.metadata.titulo_proyecto} (copia)`,
     },
+    ownerId: userId,
+    orgId: orgId,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -100,12 +109,17 @@ export async function cloneProject(id: string): Promise<string> {
 }
 
 /**
- * Lists all projects sorted by creation date (newest first).
+ * Lists projects owned by the current user, sorted by creation date (newest first).
+ * Per Pitfall #8: includes where clause filtering by ownerId.
  */
-export async function listProjects(): Promise<
+export async function listProjects(userId: string): Promise<
   Array<{ id: string; metadata: ProjectMetadata; createdAt: Date }>
 > {
-  const q = query(projectsCol, orderBy('createdAt', 'desc'))
+  const q = query(
+    projectsCol,
+    where('ownerId', '==', userId),
+    orderBy('createdAt', 'desc'),
+  )
   const snap = await getDocs(q)
   return snap.docs.map((d) => {
     const data = d.data()

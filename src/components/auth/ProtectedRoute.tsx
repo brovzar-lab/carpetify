@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { es } from '@/locales/es'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, needsOrgSetup } = useAuth()
   const location = useLocation()
 
   // Block render until auth state is known (prevents flash -- Pitfall #7)
@@ -21,6 +21,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!user) {
     // Preserve intended destination for post-login redirect
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // Redirect to org setup if user has no organization yet
+  if (needsOrgSetup) {
+    return <Navigate to="/setup" replace />
   }
 
   return <>{children}</>

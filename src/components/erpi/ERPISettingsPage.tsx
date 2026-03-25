@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { getERPISettings, updateERPISettings } from '@/services/erpi'
+import { useAuth } from '@/contexts/AuthContext'
 import { es } from '@/locales/es'
 import { ERPICompanyForm } from './ERPICompanyForm'
 import { PriorProjectsList } from './PriorProjectsList'
@@ -13,19 +14,20 @@ import type { ProyectoPrevio } from '@/schemas/erpi'
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 /**
- * Auto-save hook for ERPI settings (global singleton, not per-project).
+ * Auto-save hook for ERPI settings (organization-scoped).
  * Mirrors the useAutoSave pattern with 1500ms debounce.
  */
-function useAutoSaveERPI() {
+function useAutoSaveERPI(orgId: string | null) {
   const [status, setStatus] = useState<SaveStatus>('idle')
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const retriesRef = useRef(0)
   const maxRetries = 3
 
   const doSave = useCallback(async (data: Partial<ERPISettings>) => {
+    if (!orgId) return
     setStatus('saving')
     try {
-      await updateERPISettings(data)
+      await updateERPISettings(orgId, data)
       setStatus('saved')
       retriesRef.current = 0
       setTimeout(() => setStatus((s) => (s === 'saved' ? 'idle' : s)), 3000)
@@ -39,7 +41,7 @@ function useAutoSaveERPI() {
         setStatus('error')
       }
     }
-  }, [])
+  }, [orgId])
 
   const save = useCallback(
     (data: Partial<ERPISettings>) => {
@@ -70,11 +72,13 @@ const EMPTY_DEFAULTS: ERPISettings = {
 
 export function ERPISettingsPage() {
   const queryClient = useQueryClient()
-  const { save, status } = useAutoSaveERPI()
+  const { orgId } = useAuth()
+  const { save, status } = useAutoSaveERPI(orgId)
 
   const { data: settings } = useQuery({
-    queryKey: ['erpi-settings'],
-    queryFn: getERPISettings,
+    queryKey: ['erpi-settings', orgId],
+    queryFn: () => getERPISettings(orgId!),
+    enabled: !!orgId,
   })
 
   const currentSettings = settings ?? EMPTY_DEFAULTS

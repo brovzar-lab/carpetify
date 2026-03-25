@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { createProject, deleteProject, cloneProject, listProjects } from '@/services/projects'
+import { useAuth } from '@/contexts/AuthContext'
 import { PERIODOS_EFICINE } from '@/lib/constants'
 import { es } from '@/locales/es'
 import { PeriodGroup } from './PeriodGroup'
@@ -45,17 +46,27 @@ function SkeletonCards() {
 export function DashboardPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { user, orgId } = useAuth()
 
   const { data: projects, isLoading } = useQuery({
-    queryKey: ['projects'],
-    queryFn: listProjects,
+    queryKey: ['projects', user?.uid],
+    queryFn: () => listProjects(user!.uid),
+    enabled: !!user,
   })
 
   const createMutation = useMutation({
-    mutationFn: createProject,
+    mutationFn: () => createProject(user!.uid, orgId!),
+    onMutate: () => {
+      toast.loading('Creando proyecto...', { id: 'create-project' })
+    },
     onSuccess: (newId) => {
+      toast.dismiss('create-project')
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       navigate(`/project/${newId}/datos`)
+    },
+    onError: () => {
+      toast.dismiss('create-project')
+      toast.error(es.errors.firestoreConnection)
     },
   })
 
@@ -64,13 +75,24 @@ export function DashboardPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
     },
+    onError: () => {
+      toast.error(es.errors.generic)
+    },
   })
 
   const cloneMutation = useMutation({
-    mutationFn: cloneProject,
+    mutationFn: (id: string) => cloneProject(id, user!.uid, orgId!),
+    onMutate: () => {
+      toast.loading('Duplicando proyecto...', { id: 'clone-project' })
+    },
     onSuccess: () => {
+      toast.dismiss('clone-project')
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       toast.success(es.dashboard.cloneToast)
+    },
+    onError: () => {
+      toast.dismiss('clone-project')
+      toast.error(es.errors.generic)
     },
   })
 
@@ -110,7 +132,7 @@ export function DashboardPage() {
                 onClick={handleCreate}
                 disabled={createMutation.isPending}
               >
-                {es.dashboard.newProject}
+                {createMutation.isPending ? 'Creando...' : es.dashboard.newProject}
               </Button>
             </div>
           </div>
