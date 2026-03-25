@@ -258,7 +258,7 @@ export function ScoreEstimationPanel({
                     className="px-0 h-auto text-destructive"
                     onClick={handleEvaluate}
                   >
-                    Reintentar evaluacion
+                    {es.scoring.retryEvaluation}
                   </Button>
                 </AlertDescription>
               </Alert>

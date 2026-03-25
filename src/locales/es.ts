@@ -609,6 +609,7 @@ export const es = {
       'La evaluacion de puntaje tardo demasiado. Intenta de nuevo.',
     rateLimitError:
       'Limite de solicitudes alcanzado. Espera unos minutos e intenta de nuevo.',
+    retryEvaluation: 'Reintentar evaluacion',
   },
 
   // -- Export Screen --

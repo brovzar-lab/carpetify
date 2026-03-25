@@ -53,6 +53,15 @@ export function ProjectCard({ id, metadata, onDelete, onClone }: ProjectCardProp
 
   const { report } = useValidation(id)
 
+  // Derive completion percentage from validation report pass rate
+  const completionPct = useMemo(() => {
+    if (!report) return 0
+    const evaluated = report.results.filter(r => r.status !== 'skip')
+    if (evaluated.length === 0) return 0
+    const passed = evaluated.filter(r => r.status === 'pass')
+    return Math.round((passed.length / evaluated.length) * 100)
+  }, [report])
+
   // Count documents that are critico (<=14 days) or vencido for the expiration banner
   const expiringDocs = useMemo(() => {
     if (!report) return 0
@@ -85,12 +94,15 @@ export function ProjectCard({ id, metadata, onDelete, onClone }: ProjectCardProp
           </div>
         </div>
 
-        {/* Completion placeholder */}
+        {/* Completion bar */}
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-            <div className="h-full w-0 bg-primary rounded-full" />
+            <div
+              className="h-full bg-primary rounded-full transition-all"
+              style={{ width: `${completionPct}%` }}
+            />
           </div>
-          <span className="text-xs text-muted-foreground">0%</span>
+          <span className="text-xs text-muted-foreground">{completionPct}%</span>
         </div>
 
         {/* Budget */}
