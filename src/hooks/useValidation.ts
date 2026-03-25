@@ -138,6 +138,7 @@ export function useValidation(projectId: string): UseValidationResult {
   const [cashFlowDoc, setCashFlowDoc] = useState<Record<string, unknown> | null>(null)
   const [esquemaDoc, setEsquemaDoc] = useState<Record<string, unknown> | null>(null)
   const [rutaCriticaDoc, setRutaCriticaDoc] = useState<Record<string, unknown> | null>(null)
+  const [screenplayData, setScreenplayData] = useState<Record<string, unknown> | null>(null)
 
   // -- Loading states --
   const [projectLoading, setProjectLoading] = useState(true)
@@ -149,6 +150,7 @@ export function useValidation(projectId: string): UseValidationResult {
   const [cashFlowLoading, setCashFlowLoading] = useState(true)
   const [esquemaLoading, setEsquemaLoading] = useState(true)
   const [rutaCriticaLoading, setRutaCriticaLoading] = useState(true)
+  const [screenplayLoading, setScreenplayLoading] = useState(true)
 
   // -- Generated docs (already real-time via existing hook) --
   const { docs: generatedDocs, loading: generatedLoading } = useGeneratedDocs(projectId)
@@ -322,6 +324,23 @@ export function useValidation(projectId: string): UseValidationResult {
     )
   }, [projectId])
 
+  // 10. Screenplay data for scoring signals (pages per day)
+  useEffect(() => {
+    if (!projectId) {
+      setScreenplayData(null)
+      setScreenplayLoading(false)
+      return
+    }
+    return onSnapshot(
+      doc(db, `projects/${projectId}/screenplay/data`),
+      (snap) => {
+        setScreenplayData(snap.exists() ? (snap.data() as Record<string, unknown>) : null)
+        setScreenplayLoading(false)
+      },
+      () => setScreenplayLoading(false),
+    )
+  }, [projectId])
+
   // ---- Derived loading state ----
 
   const loading =
@@ -334,7 +353,8 @@ export function useValidation(projectId: string): UseValidationResult {
     cashFlowLoading ||
     esquemaLoading ||
     generatedLoading ||
-    rutaCriticaLoading
+    rutaCriticaLoading ||
+    screenplayLoading
 
   // ---- Extract financial totals from Firestore documents ----
 
@@ -366,6 +386,50 @@ export function useValidation(projectId: string): UseValidationResult {
     if (!budgetDoc) return undefined
     return typeof budgetDoc.totalCentavos === 'number' ? budgetDoc.totalCentavos : undefined
   }, [budgetDoc])
+
+  // ---- Scoring signals derived from existing subscriptions ----
+
+  const screenplayPagesPerDay = useMemo((): number | undefined => {
+    if (!screenplayData) return undefined
+    const numPaginas = screenplayData.num_paginas as number | undefined
+    const diasRodaje = screenplayData.dias_rodaje_estimados as number | undefined
+    if (!numPaginas || !diasRodaje || diasRodaje <= 0) return undefined
+    return numPaginas / diasRodaje
+  }, [screenplayData])
+
+  const budgetHasImprevistos = useMemo((): boolean => {
+    if (!budgetDoc) return false
+    const cuentas = budgetDoc.cuentas as Array<{ numeroCuenta: number; subtotalCentavos: number }> | undefined
+    if (!cuentas) return false
+    const imprevistos = cuentas.find((c) => c.numeroCuenta === 1200)
+    return (imprevistos?.subtotalCentavos ?? 0) > 0
+  }, [budgetDoc])
+
+  const rutaCriticaHasMonthlyDetail = useMemo((): boolean => {
+    if (!rutaCriticaDoc) return false
+    const content = rutaCriticaDoc.content as unknown
+    const prose = typeof content === 'string'
+      ? content
+      : typeof (content as Record<string, unknown>)?.prose === 'string'
+        ? (content as Record<string, unknown>).prose as string
+        : ''
+    if (!prose) return false
+    const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+    const lower = prose.toLowerCase()
+    const monthCount = monthNames.filter(m => lower.includes(m)).length
+    return monthCount >= 3
+  }, [rutaCriticaDoc])
+
+  // AI prompts enforce safe workplace / spectator / festival / audience content.
+  // Document existence = signal present (same pattern as scoring.ts fallback).
+  const a7Exists = generatedDocs.some(d => d.docId === 'A7')
+  const a10Exists = generatedDocs.some(d => d.docId === 'A10')
+
+  const productionHasSafeWorkplace = a7Exists
+  const exhibitionHasSpectatorEstimate = a10Exists
+  const exhibitionHasFestivalStrategy = a10Exists
+  const exhibitionHasTargetAudience = a10Exists
 
   // ---- Assemble ProjectDataSnapshot ----
 
@@ -421,6 +485,14 @@ export function useValidation(projectId: string): UseValidationResult {
       cashFlowLineItems: extractCashFlowLineItems(cashFlowDoc),
       rutaCriticaDocContent: rutaCriticaDoc?.content ?? undefined,
       cashFlowDocContent: cashFlowDoc?.content ?? undefined,
+      // Scoring signals
+      screenplayPagesPerDay,
+      budgetHasImprevistos,
+      rutaCriticaHasMonthlyDetail,
+      productionHasSafeWorkplace,
+      exhibitionHasSpectatorEstimate,
+      exhibitionHasFestivalStrategy,
+      exhibitionHasTargetAudience,
     }
   }, [
     loading,
@@ -436,6 +508,13 @@ export function useValidation(projectId: string): UseValidationResult {
     esquemaTotalCentavos,
     cashFlowDoc,
     rutaCriticaDoc,
+    screenplayPagesPerDay,
+    budgetHasImprevistos,
+    rutaCriticaHasMonthlyDetail,
+    productionHasSafeWorkplace,
+    exhibitionHasSpectatorEstimate,
+    exhibitionHasFestivalStrategy,
+    exhibitionHasTargetAudience,
   ])
 
   // ---- Tiered validation execution ----
