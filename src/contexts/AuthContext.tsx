@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, type User } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+import { useAppStore } from '@/stores/appStore'
 
 interface AuthContextType {
   user: User | null
@@ -22,6 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     return unsubscribe
   }, [])
+
+  // Sync Firebase user UID to appStore for cache isolation
+  useEffect(() => {
+    useAppStore.getState().setCurrentUserId(user?.uid ?? null)
+  }, [user])
 
   const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider()
