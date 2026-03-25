@@ -114,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after Phase 06 completion — validation data wiring fix (gap closure). All validation rules now receive correct Firestore data. Traffic lights reflect real validation state. Fee extractors, ERPI submission tracking, and regional bonus fields wired end-to-end.*
+*Last updated: 2026-03-25 after Phase 07 completion — document completeness & export gate fix. REQUIRED_DOCUMENTS namespace aligned with DocumentChecklist tipo values. hasExclusiveContribution wired from financial data. Export no longer permanently blocked by false missing-document errors.*
