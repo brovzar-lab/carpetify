@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-03-25T12:53:35.958Z"
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-25T12:54:52.302Z"
 progress:
   total_phases: 11
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 30
-  completed_plans: 29
+  completed_plans: 30
 ---
 
 # Project State
@@ -76,6 +76,7 @@ Plan: 2 of 2
 | Phase 07 P01 | 3min | 2 tasks | 3 files |
 | Phase 07 P02 | 2min | 2 tasks | 1 files |
 | Phase 08 P02 | 2min | 2 tasks | 4 files |
+| Phase 08 P01 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,8 @@ Recent decisions affecting current work:
 - [Phase 07]: cv_productor placed after poder_notarial to group Section B personal documents logically
 - [Phase 08]: Cloud Function wrapper enriches request from Firestore rather than relying on frontend to send document content
 - [Phase 08]: extractProse handles both string content and {prose} structured content for forward compatibility
+- [Phase 08]: Role names use CARGOS_EQUIPO values (Productor, Director) not gendered forms (Productor/a, Director/a)
+- [Phase 08]: A7/A10 document existence used as proxy for content-level scoring signals since AI prompts enforce required content
 
 ### Pending Todos
 
@@ -178,6 +181,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T12:53:35.949Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-03-25T12:54:52.283Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None

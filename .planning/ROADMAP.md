@@ -168,7 +168,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Fix role name mismatch in scoring.ts (Productor/Director not Productor/a/Director/a), update test fixtures, populate all scoring signals in useValidation.ts from Firestore subscriptions
+- [x] 08-01-PLAN.md — Fix role name mismatch in scoring.ts (Productor/Director not Productor/a/Director/a), update test fixtures, populate all scoring signals in useValidation.ts from Firestore subscriptions
 - [x] 08-02-PLAN.md — Fix estimateScore Cloud Function to self-read A3/A4/A5 content from Firestore, replace hardcoded 0% in ProjectCard with validation pass rate, fix hardcoded Spanish string in ScoreEstimationPanel
 
 ### Phase 9: Validation Stub Completion
