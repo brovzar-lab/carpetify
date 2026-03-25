@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-25T05:11:16.310Z"
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-03-25T12:53:35.958Z"
 progress:
   total_phases: 11
   completed_phases: 7
-  total_plans: 28
-  completed_plans: 28
+  total_plans: 30
+  completed_plans: 29
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 07 — document-completeness-export-gate-fix
+**Current focus:** Phase 08 — score-estimation-accuracy-fix
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
+Phase: 08 (score-estimation-accuracy-fix) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Plan: Not started
 | Phase 06 P03 | 4min | 2 tasks | 4 files |
 | Phase 07 P01 | 3min | 2 tasks | 3 files |
 | Phase 07 P02 | 2min | 2 tasks | 1 files |
+| Phase 08 P02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,8 @@ Recent decisions affecting current work:
 - [Phase 07]: Removed A3/A5 from REQUIRED_DOCUMENTS (no matching source in either generated doc registry or upload tipo list)
 - [Phase 07]: C3b label changed to Carta PICS to match generated document registry naming
 - [Phase 07]: cv_productor placed after poder_notarial to group Section B personal documents logically
+- [Phase 08]: Cloud Function wrapper enriches request from Firestore rather than relying on frontend to send document content
+- [Phase 08]: extractProse handles both string content and {prose} structured content for forward compatibility
 
 ### Pending Todos
 
@@ -175,6 +178,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T05:05:42.978Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-03-25T12:53:35.949Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
