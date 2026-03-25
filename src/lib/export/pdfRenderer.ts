@@ -190,7 +190,7 @@ export async function renderDocumentToPdf(input: RenderDocInput): Promise<Blob> 
     }
   }
 
-  return pdf(element).toBlob()
+  return pdf(element as React.ReactElement<import('@react-pdf/renderer').DocumentProps>).toBlob()
 }
 
 export interface RenderMetaInput {
@@ -244,5 +244,5 @@ export async function renderMetaDocument(input: RenderMetaInput): Promise<Blob> 
     }
   }
 
-  return pdf(element).toBlob()
+  return pdf(element as React.ReactElement<import('@react-pdf/renderer').DocumentProps>).toBlob()
 }

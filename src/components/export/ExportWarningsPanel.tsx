@@ -39,14 +39,12 @@ export function ExportWarningsPanel({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <div className="flex items-center gap-2 cursor-pointer py-2">
-          <AlertTriangle className="size-4 text-[hsl(38_92%_50%)]" />
-          <h3 className="text-sm font-semibold">{es.export.warningsPanelHeading}</h3>
-          <Badge variant="secondary" className="text-xs">
-            {visibleWarnings.length}
-          </Badge>
-        </div>
+      <CollapsibleTrigger className="flex items-center gap-2 cursor-pointer py-2 w-full text-left">
+        <AlertTriangle className="size-4 text-[hsl(38_92%_50%)]" />
+        <h3 className="text-sm font-semibold">{es.export.warningsPanelHeading}</h3>
+        <Badge variant="secondary" className="text-xs">
+          {visibleWarnings.length}
+        </Badge>
       </CollapsibleTrigger>
 
       <CollapsibleContent>

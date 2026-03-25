@@ -80,13 +80,13 @@ describe('analyzeScreenplayWithClaude', () => {
     mockCreate = mock.create;
   });
 
-  it('calls Anthropic messages.create with model "claude-sonnet-4-20250514"', async () => {
+  it('calls Anthropic messages.create with model "claude-haiku-4-5-20251001"', async () => {
     mockCreate.mockResolvedValueOnce(makeTextResponse(VALID_ANALYSIS));
 
     await analyzeScreenplayWithClaude('screenplay text', 'Mi Pelicula', 'Ficcion', 'test-key', mockClient);
 
     expect(mockCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ model: 'claude-sonnet-4-20250514' }),
+      expect.objectContaining({ model: 'claude-haiku-4-5-20251001' }),
     );
   });
 

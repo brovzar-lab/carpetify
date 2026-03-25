@@ -14,7 +14,6 @@ import { functions } from '@/lib/firebase'
 import { es } from '@/locales/es'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -148,17 +147,23 @@ export function ScoreEstimationPanel({
 
       {/* Total score display with progress bar */}
       <div className="space-y-2">
-        <Progress value={totalPercentage}>
-          <ProgressLabel className="text-sm font-semibold">
+        <div className="flex flex-wrap gap-3">
+          <span className="text-sm font-semibold">
             {es.scoring.totalEstimated(
               Math.round(totalEstimated),
               bonusPoints,
             )}
-          </ProgressLabel>
-          <ProgressValue className="font-mono text-sm font-semibold">
+          </span>
+          <span className="ml-auto font-mono text-sm font-semibold tabular-nums">
             {Math.round(totalEstimated)}/100
-          </ProgressValue>
-        </Progress>
+          </span>
+          <div className="relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${totalPercentage}%` }}
+            />
+          </div>
+        </div>
 
         {/* Threshold indicator */}
         <p

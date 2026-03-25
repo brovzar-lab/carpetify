@@ -34,7 +34,6 @@ export function RutaCritica({
     : []
 
   // Column weights: phase name + N month columns
-  const _colCount = allMonths.length + 1
   const phaseWeight = 0.25
   const monthWeight = (1 - phaseWeight) / Math.max(allMonths.length, 1)
   const weightings = [phaseWeight, ...Array(allMonths.length).fill(monthWeight)]

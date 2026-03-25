@@ -3,7 +3,6 @@
  * Shows category name, progress bar, and numeric score in font-mono.
  * Deterministic -- always reflects current project data.
  */
-import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress'
 import type { ScoreCategory } from '@/validation/scoring'
 
 interface ViabilityScoreCardProps {
@@ -18,14 +17,18 @@ export function ViabilityScoreCard({ category }: ViabilityScoreCardProps) {
 
   return (
     <div className="space-y-1.5">
-      <Progress value={percentage}>
-        <ProgressLabel className="text-sm font-semibold">
-          {category.name}
-        </ProgressLabel>
-        <ProgressValue className="font-mono text-sm font-semibold">
+      <div className="flex flex-wrap gap-3">
+        <span className="text-sm font-semibold">{category.name}</span>
+        <span className="ml-auto font-mono text-sm font-semibold tabular-nums">
           {category.estimatedPoints}/{category.maxPoints}
-        </ProgressValue>
-      </Progress>
+        </span>
+        <div className="relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted">
+          <div
+            className="h-full bg-primary transition-all"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

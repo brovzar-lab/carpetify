@@ -4,7 +4,6 @@
  * Includes manual override capability via inline number input.
  */
 import { useState } from 'react'
-import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress'
 import { PersonaScoreRow } from './PersonaScoreRow'
 import type { ScoreCategory, PersonaScore } from '@/validation/scoring'
 
@@ -56,11 +55,9 @@ export function ArtisticScoreCard({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <Progress value={percentage} className="flex-1">
-          <ProgressLabel className="text-sm font-semibold">
-            {category.name}
-          </ProgressLabel>
-          <ProgressValue className="font-mono text-sm font-semibold">
+        <div className="flex flex-wrap gap-3 flex-1">
+          <span className="text-sm font-semibold">{category.name}</span>
+          <span className="ml-auto font-mono text-sm font-semibold tabular-nums">
             {editing ? (
               <input
                 type="number"
@@ -79,8 +76,14 @@ export function ArtisticScoreCard({
                 {displayScore}/{category.maxPoints}
               </span>
             )}
-          </ProgressValue>
-        </Progress>
+          </span>
+          <div className="relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+        </div>
 
         {!editing && onOverride && (
           <button

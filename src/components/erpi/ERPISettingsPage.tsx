@@ -18,7 +18,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
  */
 function useAutoSaveERPI() {
   const [status, setStatus] = useState<SaveStatus>('idle')
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const retriesRef = useRef(0)
   const maxRetries = 3
 
@@ -64,6 +64,8 @@ const EMPTY_DEFAULTS: ERPISettings = {
   representante_legal: '',
   domicilio_fiscal: '',
   proyectos_previos_eficine: [],
+  solicitudes_periodo_actual: 0,
+  domicilio_fuera_zmcm: false,
 }
 
 export function ERPISettingsPage() {
@@ -145,6 +147,8 @@ export function ERPISettingsPage() {
             rfc: currentSettings.rfc ?? '',
             representante_legal: currentSettings.representante_legal ?? '',
             domicilio_fiscal: currentSettings.domicilio_fiscal ?? '',
+            solicitudes_periodo_actual: currentSettings.solicitudes_periodo_actual ?? 0,
+            domicilio_fuera_zmcm: currentSettings.domicilio_fuera_zmcm ?? false,
           }}
           onSave={handleCompanySave}
         />

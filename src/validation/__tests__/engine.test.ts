@@ -75,7 +75,7 @@ function validSnapshot(): ProjectDataSnapshot {
         email: 'carlos@test.com',
         telefono: '5559876543',
       },
-    ] as ProjectDataSnapshot['team'],
+    ] as unknown as ProjectDataSnapshot['team'],
     financials: {
       erpiCashCentavos: 300000000,
       erpiInkindCentavos: 0,
@@ -127,7 +127,7 @@ describe('Rule tier constants', () => {
   })
 
   it('no overlap between instant and medium sets', () => {
-    const instantSet = new Set(INSTANT_RULE_IDS)
+    const instantSet = new Set<string>(INSTANT_RULE_IDS)
     for (const id of MEDIUM_RULE_IDS) {
       expect(instantSet.has(id)).toBe(false)
     }

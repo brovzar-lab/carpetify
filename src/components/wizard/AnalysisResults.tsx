@@ -6,7 +6,7 @@ import type { Screenplay } from '@/schemas/screenplay'
 interface AnalysisResultsProps {
   complejidad: Screenplay['complejidad']
   diasRodaje?: number
-  lastAnalyzed?: Date | null
+  lastAnalyzed?: unknown
   estimacion?: {
     baja: number
     media: number
@@ -95,13 +95,21 @@ export function AnalysisResults({
       )}
 
       {/* Last analyzed timestamp */}
-      {lastAnalyzed && (
-        <p className="text-xs text-muted-foreground">
-          {t.lastAnalyzedLabel}: {formatDateES(lastAnalyzed)},{' '}
-          {String(lastAnalyzed.getHours()).padStart(2, '0')}:
-          {String(lastAnalyzed.getMinutes()).padStart(2, '0')}
-        </p>
-      )}
+      {(() => {
+        if (!lastAnalyzed) return null
+        const d = lastAnalyzed instanceof Date ? lastAnalyzed
+          : lastAnalyzed && typeof lastAnalyzed === 'object' && 'toDate' in lastAnalyzed ? (lastAnalyzed as { toDate: () => Date }).toDate()
+          : typeof lastAnalyzed === 'string' ? new Date(lastAnalyzed)
+          : null
+        if (!d || isNaN(d.getTime())) return null
+        return (
+          <p className="text-xs text-muted-foreground">
+            {t.lastAnalyzedLabel}: {formatDateES(d)},{' '}
+            {String(d.getHours()).padStart(2, '0')}:
+            {String(d.getMinutes()).padStart(2, '0')}
+          </p>
+        )
+      })()}
     </div>
   )
 }

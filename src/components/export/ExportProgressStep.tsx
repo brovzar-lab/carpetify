@@ -77,7 +77,7 @@ export function ExportProgressStep({
         {/* Indeterminate progress for active without total */}
         {state === 'active' && (!progress || progress.total === 0) && (
           <div className="mt-1.5">
-            <Progress className="h-1.5" />
+            <Progress value={0} className="h-1.5" />
           </div>
         )}
       </div>
