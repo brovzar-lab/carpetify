@@ -149,10 +149,11 @@ Plans:
   3. hasExclusiveContribution is derived from financial data instead of hardcoded false
   4. Export proceeds when all required documents are genuinely uploaded (no false blockers)
   5. Traffic lights no longer show false-red on datos/documentos screens due to namespace mismatch
-**Plans:** 1 plan
+**Plans:** 2 plans
 
 Plans:
 - [x] 07-01-PLAN.md — Align REQUIRED_DOCUMENTS keys with DocumentChecklist tipo values, add missing required upload entries, wire hasExclusiveContribution from ERPI in-kind data, update tests
+- [ ] 07-02-PLAN.md — Gap closure: add cv_productor upload entry to DocumentChecklist REQUIRED_UPLOADS, verify complete namespace alignment
 
 ### Phase 8: Score Estimation & Accuracy Fix
 **Goal**: Viability scoring produces accurate results using correct role matching and populated scoring signals, and artistic score estimation is accessible from the UI
@@ -197,6 +198,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 4. Validation Engine + Dashboard | 8/8 | Complete | 2026-03-24 |
 | 5. Export Manager | 3/3 | Complete | 2026-03-24 |
 | 6. Validation Data Wiring Fix | 3/3 | Complete | 2026-03-25 |
-| 7. Document Completeness & Export Gate Fix | 0/1 | Not started | - |
+| 7. Document Completeness & Export Gate Fix | 1/2 | In Progress | - |
 | 8. Score Estimation & Accuracy Fix | 0/TBD | Not started | - |
 | 9. Validation Stub Completion | 0/TBD | Not started | - |
