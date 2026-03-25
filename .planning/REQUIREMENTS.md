@@ -44,7 +44,7 @@
 
 ### Extended Modalities
 
-- **MODAL-01**: EFICINE Postproducción modality — different document requirements, different scoring rubric (65 pts filmed material vs 40 pts screenplay), different FORMATO structures
+- **MODAL-01**: EFICINE Postproduccion modality — different document requirements, different scoring rubric (65 pts filmed material vs 40 pts screenplay), different FORMATO structures
 - **MODAL-02**: Previously-authorized project resubmission modality — updated documentation for re-approval
 
 ## Out of Scope
@@ -63,33 +63,33 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| AUTH-04 | TBD | Pending |
-| AUTH-05 | TBD | Pending |
-| AUTH-06 | TBD | Pending |
-| AUTH-07 | TBD | Pending |
-| AUTH-08 | TBD | Pending |
-| AUTH-09 | TBD | Pending |
-| COLLAB-01 | TBD | Pending |
-| COLLAB-02 | TBD | Pending |
-| COLLAB-03 | TBD | Pending |
-| COLLAB-04 | TBD | Pending |
-| COLLAB-05 | TBD | Pending |
-| COLLAB-06 | TBD | Pending |
-| COLLAB-07 | TBD | Pending |
-| AIGEN-V2-01 | TBD | Pending |
-| AIGEN-V2-02 | TBD | Pending |
-| AIGEN-V2-03 | TBD | Pending |
-| AIGEN-V2-04 | TBD | Pending |
-| AIGEN-V2-05 | TBD | Pending |
+| AUTH-01 | Phase 10 | Pending |
+| AUTH-02 | Phase 10 | Pending |
+| AUTH-03 | Phase 10 | Pending |
+| AUTH-04 | Phase 11 | Pending |
+| AUTH-05 | Phase 11 | Pending |
+| AUTH-06 | Phase 11 | Pending |
+| AUTH-07 | Phase 10 | Pending |
+| AUTH-08 | Phase 10 | Pending |
+| AUTH-09 | Phase 10 | Pending |
+| COLLAB-01 | Phase 12 | Pending |
+| COLLAB-02 | Phase 12 | Pending |
+| COLLAB-03 | Phase 12 | Pending |
+| COLLAB-04 | Phase 13 | Pending |
+| COLLAB-05 | Phase 12 | Pending |
+| COLLAB-06 | Phase 13 | Pending |
+| COLLAB-07 | Phase 12 | Pending |
+| AIGEN-V2-01 | Phase 15 | Pending |
+| AIGEN-V2-02 | Phase 15 | Pending |
+| AIGEN-V2-03 | Phase 14 | Pending |
+| AIGEN-V2-04 | Phase 14 | Pending |
+| AIGEN-V2-05 | Phase 14 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initial definition*
+*Last updated: 2026-03-25 after roadmap creation*
