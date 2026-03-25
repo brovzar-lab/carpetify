@@ -114,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after Phase 05 completion — milestone v1.0 complete. All 5 phases verified. Export manager with 15 PDF templates, ZIP compilation, language check.*
+*Last updated: 2026-03-25 after Phase 06 completion — validation data wiring fix (gap closure). All validation rules now receive correct Firestore data. Traffic lights reflect real validation state. Fee extractors, ERPI submission tracking, and regional bonus fields wired end-to-end.*
