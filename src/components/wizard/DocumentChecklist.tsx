@@ -65,6 +65,7 @@ function computeExpirationStatus(
 const REQUIRED_UPLOADS = [
   { tipo: 'acta_constitutiva', label: 'Acta Constitutiva', required: true, hasExpiry: false },
   { tipo: 'poder_notarial', label: 'Poder Notarial del Representante Legal', required: true, hasExpiry: false },
+  { tipo: 'cv_productor', label: 'CV del Productor', required: true, hasExpiry: false },
   { tipo: 'identificacion_rep_legal', label: 'Identificacion del Representante Legal', required: true, hasExpiry: false },
   { tipo: 'constancia_fiscal', label: 'Constancia de Situacion Fiscal', required: true, hasExpiry: true },
   { tipo: 'indautor_guion', label: 'Certificado INDAUTOR (Guion)', required: true, hasExpiry: false },
