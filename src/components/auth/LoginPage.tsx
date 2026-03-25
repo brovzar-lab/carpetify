@@ -16,7 +16,7 @@ function getInitialDark(): boolean {
 }
 
 export function LoginPage() {
-  const { signInWithGoogle, user } = useAuth()
+  const { signInWithGoogle, devBypassLogin, user } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [dark, setDark] = useState(false)
@@ -103,6 +103,28 @@ export function LoginPage() {
             es.auth.loginButton
           )}
         </Button>
+
+        {/* Dev-only bypass — anonymous auth for quick testing */}
+        {import.meta.env.DEV && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-xs text-muted-foreground"
+            onClick={async () => {
+              setLoading(true)
+              try {
+                await devBypassLogin()
+              } catch {
+                toast.error('Dev bypass failed')
+              } finally {
+                setLoading(false)
+              }
+            }}
+            disabled={loading}
+          >
+            Acceso sin Google (solo desarrollo)
+          </Button>
+        )}
       </div>
     </div>
   )

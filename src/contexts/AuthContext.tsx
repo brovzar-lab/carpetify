@@ -10,6 +10,7 @@ interface AuthContextType {
   orgId: string | null
   needsOrgSetup: boolean
   signInWithGoogle: () => Promise<void>
+  devBypassLogin: () => Promise<void>
   signOut: () => Promise<void>
   setOrgComplete: (orgId: string) => void
 }
@@ -78,6 +79,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithPopup(auth, provider)
   }, [])
 
+  const devBypassLogin = useCallback(async () => {
+    if (!import.meta.env.DEV) return
+    // Mock user object — skips Firebase Auth entirely for dev testing
+    const mockUser = {
+      uid: 'dev-user-001',
+      email: 'dev@lemonstudios.mx',
+      displayName: 'Dev User',
+      photoURL: null,
+      emailVerified: true,
+      isAnonymous: false,
+      metadata: {},
+      providerData: [],
+      refreshToken: '',
+      tenantId: null,
+      phoneNumber: null,
+      providerId: 'google.com',
+      delete: async () => {},
+      getIdToken: async () => 'dev-token',
+      getIdTokenResult: async () => ({ token: 'dev-token', claims: {}, authTime: '', expirationTime: '', issuedAtTime: '', signInProvider: null, signInSecondFactor: null }),
+      reload: async () => {},
+      toJSON: () => ({}),
+    } as unknown as User
+    setUser(mockUser)
+    setLoading(false)
+  }, [])
+
   const signOut = useCallback(async () => {
     await firebaseSignOut(auth)
   }, [])
@@ -92,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isLoading = loading || orgLoading
 
   return (
-    <AuthContext.Provider value={{ user, loading: isLoading, orgId, needsOrgSetup, signInWithGoogle, signOut, setOrgComplete }}>
+    <AuthContext.Provider value={{ user, loading: isLoading, orgId, needsOrgSetup, signInWithGoogle, devBypassLogin, signOut, setOrgComplete }}>
       {children}
     </AuthContext.Provider>
   )
