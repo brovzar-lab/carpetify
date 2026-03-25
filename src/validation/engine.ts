@@ -125,9 +125,7 @@ function buildDocConditions(data: ProjectDataSnapshot): Record<string, boolean> 
  * Maps team and metadata fields to the flat boolean/number interface.
  *
  * Categories (a), (b), and (d) are wired from team data.
- * Category (c) regional fields remain at defaults -- the current data model
- * does not capture origin location or shooting location percentages.
- * Regional fields will be wired when location data is captured in a future phase.
+ * Category (c) regional bonus fields from project metadata + ERPI settings.
  */
 function buildBonusInput(data: ProjectDataSnapshot): BonusCheckInput {
   // Find director(s) in team array
@@ -176,13 +174,19 @@ function buildBonusInput(data: ProjectDataSnapshot): BonusCheckInput {
     cartaAutoadscripcionUploaded: data.uploadedDocs.some(
       (d) => d.tipo === 'carta_autoadscripcion',
     ),
-    // Regional fields remain false/0 -- no location data in current schema
-    directorOrigenFueraZMCM: false,
-    productorOrigenFueraZMCM: false,
-    porcentajeRodajeFueraZMCM: 0,
-    porcentajePersonalCreativoLocal: 0,
-    porcentajePersonalTecnicoLocal: 0,
-    erpiDomicilioFueraZMCM: false,
+    // Regional bonus fields (category c) from project metadata + ERPI settings
+    directorOrigenFueraZMCM:
+      ((data.metadata as Record<string, unknown>).director_origen_fuera_zmcm as boolean) ?? false,
+    productorOrigenFueraZMCM:
+      ((data.metadata as Record<string, unknown>).productor_origen_fuera_zmcm as boolean) ?? false,
+    porcentajeRodajeFueraZMCM:
+      ((data.metadata as Record<string, unknown>).porcentaje_rodaje_fuera_zmcm as number) ?? 0,
+    porcentajePersonalCreativoLocal:
+      ((data.metadata as Record<string, unknown>).porcentaje_personal_creativo_local as number) ?? 0,
+    porcentajePersonalTecnicoLocal:
+      ((data.metadata as Record<string, unknown>).porcentaje_personal_tecnico_local as number) ?? 0,
+    erpiDomicilioFueraZMCM:
+      ((data.erpiSettings as Record<string, unknown> | null)?.domicilio_fuera_zmcm as boolean) ?? false,
     allCreativeTeamQualify,
     noCodireccionConNoQualifying,
   }

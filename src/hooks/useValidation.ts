@@ -372,9 +372,12 @@ export function useValidation(projectId: string): UseValidationResult {
   const snapshot = useMemo((): ProjectDataSnapshot | null => {
     if (loading || !projectData) return null
 
-    // Extract metadata fields from project document's nested metadata field
+    // Extract metadata fields from project document's nested metadata field.
+    // Spread all metadata first (includes regional bonus fields), then override
+    // with typed defaults for the core fields used by ProjectDataSnapshot.metadata.
     const meta = projectData.metadata as Record<string, unknown> | undefined
     const metadata = {
+      ...(meta ?? {}), // Spread all metadata (includes regional bonus fields for engine)
       titulo_proyecto: (meta?.titulo_proyecto as string) ?? '',
       categoria_cinematografica:
         (meta?.categoria_cinematografica as string) ?? '',
@@ -385,7 +388,7 @@ export function useValidation(projectId: string): UseValidationResult {
         (meta?.costo_total_proyecto_centavos as number) ?? 0,
       monto_solicitado_eficine_centavos:
         (meta?.monto_solicitado_eficine_centavos as number) ?? 0,
-    }
+    } as ProjectDataSnapshot['metadata']
 
     // Extract financial structure fields from financials subcollection
     const financials = {
