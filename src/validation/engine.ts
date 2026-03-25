@@ -197,10 +197,22 @@ function buildBonusInput(data: ProjectDataSnapshot): BonusCheckInput {
  * In the current data model, links come from team filmography URLs.
  * Returns empty array if no links are present.
  */
-function extractLinks(_data: ProjectDataSnapshot): LinkCheckInput[] {
-  // Links will be wired from team member URLs and document URLs
-  // when the hyperlink verification UI is implemented.
-  return []
+function extractLinks(data: ProjectDataSnapshot): LinkCheckInput[] {
+  const links: LinkCheckInput[] = []
+  for (const member of data.team) {
+    if (!member.filmografia) continue
+    for (const entry of member.filmografia) {
+      if (entry.enlace && entry.enlace.startsWith('http')) {
+        links.push({
+          url: entry.enlace,
+          label: `${member.nombre_completo} - ${entry.titulo}`,
+          verified: false,
+          accessible: false,
+        })
+      }
+    }
+  }
+  return links
 }
 
 /** Map of Spanish month names to 1-based month numbers */

@@ -317,3 +317,119 @@ describe('runAllRules', () => {
     expect(report.canExport).toBe(false)
   })
 })
+
+// ───────────────────────────────────────────
+// VALD-12 extractLinks wiring
+// ───────────────────────────────────────────
+describe('VALD-12 extractLinks wiring', () => {
+  it('team with 1 member having 2 filmography entries (1 with enlace URL, 1 without) -> VALD-12 fails with warning, 1 unverified link', () => {
+    const snap = emptySnapshot()
+    snap.team = [
+      {
+        id: 'm1',
+        nombre_completo: 'Maria Torres',
+        cargo: 'Director',
+        filmografia: [
+          { titulo: 'Documental A', anio: 2021, cargo_en_obra: 'Director', enlace: 'https://vimeo.com/123' },
+          { titulo: 'Corto B', anio: 2022, cargo_en_obra: 'Director' },
+        ],
+        nacionalidad: 'Mexicana',
+        email: 'maria@test.com',
+        telefono: '5551111111',
+        honorarios_centavos: 0,
+        aportacion_especie_centavos: 0,
+      },
+    ] as ProjectDataSnapshot['team']
+    const report = runInstantRules(snap)
+    const vald12 = report.results.find((r) => r.ruleId === 'VALD-12')
+    expect(vald12?.status).toBe('fail')
+    expect(vald12?.severity).toBe('warning')
+    expect(vald12?.details).toHaveLength(1)
+  })
+
+  it('team with 2 members, each having 1 filmography entry with enlace URL -> VALD-12 reports 2 unverified links', () => {
+    const snap = emptySnapshot()
+    snap.team = [
+      {
+        id: 'm1',
+        nombre_completo: 'Ana Lopez',
+        cargo: 'Productor',
+        filmografia: [
+          { titulo: 'Film X', anio: 2020, cargo_en_obra: 'Productor', enlace: 'https://imdb.com/film-x' },
+        ],
+        nacionalidad: 'Mexicana',
+        email: 'ana@test.com',
+        telefono: '5552222222',
+        honorarios_centavos: 0,
+        aportacion_especie_centavos: 0,
+      },
+      {
+        id: 'm2',
+        nombre_completo: 'Carlos Garcia',
+        cargo: 'Director',
+        filmografia: [
+          { titulo: 'Film Y', anio: 2019, cargo_en_obra: 'Director', enlace: 'http://youtube.com/filmy' },
+        ],
+        nacionalidad: 'Mexicana',
+        email: 'carlos@test.com',
+        telefono: '5553333333',
+        honorarios_centavos: 0,
+        aportacion_especie_centavos: 0,
+      },
+    ] as ProjectDataSnapshot['team']
+    const report = runInstantRules(snap)
+    const vald12 = report.results.find((r) => r.ruleId === 'VALD-12')
+    expect(vald12?.status).toBe('fail')
+    expect(vald12?.details).toHaveLength(2)
+  })
+
+  it('team with members but no filmography enlace URLs -> VALD-12 status is skip', () => {
+    const snap = emptySnapshot()
+    snap.team = [
+      {
+        id: 'm1',
+        nombre_completo: 'Juan Perez',
+        cargo: 'Productor',
+        filmografia: [
+          { titulo: 'Film Z', anio: 2018, cargo_en_obra: 'Productor' },
+        ],
+        nacionalidad: 'Mexicana',
+        email: 'juan@test.com',
+        telefono: '5554444444',
+        honorarios_centavos: 0,
+        aportacion_especie_centavos: 0,
+      },
+    ] as ProjectDataSnapshot['team']
+    const report = runInstantRules(snap)
+    const vald12 = report.results.find((r) => r.ruleId === 'VALD-12')
+    expect(vald12?.status).toBe('skip')
+  })
+
+  it('empty team (emptySnapshot) -> VALD-12 status is skip', () => {
+    const report = runInstantRules(emptySnapshot())
+    const vald12 = report.results.find((r) => r.ruleId === 'VALD-12')
+    expect(vald12?.status).toBe('skip')
+  })
+
+  it('enlace value without http prefix is excluded from link extraction', () => {
+    const snap = emptySnapshot()
+    snap.team = [
+      {
+        id: 'm1',
+        nombre_completo: 'Rosa Diaz',
+        cargo: 'Guionista',
+        filmografia: [
+          { titulo: 'Film W', anio: 2021, cargo_en_obra: 'Guionista', enlace: 'not-a-url' },
+        ],
+        nacionalidad: 'Mexicana',
+        email: 'rosa@test.com',
+        telefono: '5555555555',
+        honorarios_centavos: 0,
+        aportacion_especie_centavos: 0,
+      },
+    ] as ProjectDataSnapshot['team']
+    const report = runInstantRules(snap)
+    const vald12 = report.results.find((r) => r.ruleId === 'VALD-12')
+    expect(vald12?.status).toBe('skip')
+  })
+})
