@@ -709,6 +709,19 @@ export const es = {
     uploadErrorFetchFailed: (tipo: string) => `${tipo}: No se pudo descargar el archivo.`,
   },
 
+  // -- Auth --
+  auth: {
+    loginTitle: 'Carpetify',
+    loginSubtitle: 'Generador de Carpetas EFICINE',
+    loginDescription: 'Herramienta interna de Lemon Studios para generar el expediente completo de solicitud EFICINE Art. 189.',
+    loginButton: 'Iniciar sesion con Google',
+    loginLoading: 'Iniciando sesion...',
+    loginError: 'Error al iniciar sesion. Intenta de nuevo.',
+    logoutButton: 'Cerrar sesion',
+    loadingAuth: 'Verificando sesion...',
+    userMenuLabel: 'Menu de usuario',
+  },
+
   // -- Error States --
   errors: {
     firestoreConnection:

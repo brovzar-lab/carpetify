@@ -1,243 +1,225 @@
 # CARPETIFY
 
-## What This Is
+Internal web tool for Lemon Studios that takes a feature film screenplay (PDF) and project metadata, then generates a complete EFICINE Article 189 submission dossier ("carpeta") — the ~30-document package required by IMCINE for the Mexican film tax incentive. Single producer, up to 3 projects per registration period. This is a legal compliance tool — financial calculations and document rules must match the 2026 Lineamientos exactly.
 
-Carpetify is a React + Firebase web app that takes a feature film screenplay and generates a complete EFICINE Article 189 submission dossier ("carpeta") for the Mexican government film tax incentive program. Users upload a screenplay, enter project data, and the app generates ~30 documents in Spanish using AI, validates them against EFICINE's rules, and exports a ready-to-upload package.
+## Critical Rules
 
-**Target user:** Mexican film producers submitting to IMCINE via the SHCP portal (estimulosfiscales.hacienda.gob.mx).
+1. **All UI is Mexican Spanish.** Every label, button, error, tooltip — Spanish. English ONLY for code (component names, functions, git). Read `directives/politica_idioma.md` before touching any UI.
+2. **EFICINE terms never translated.** "ERPI", "presupuesto desglosado", "flujo de efectivo", "esquema financiero", "cesion de derechos", "ruta critica" — Spanish even in code comments.
+3. **All UI strings come from `src/locales/es.ts`.** Never hardcode Spanish text in components.
+4. **Money is integer centavos.** Store and compute as centavos. Format only at display via `formatMXN()` from `src/lib/format.ts`. Display: `$X,XXX,XXX MXN`.
+5. **Dates in Spanish.** Use `formatDateES()` / `formatMonthYearES()` from `src/lib/format.ts`.
+6. **AI prompts are pre-written.** Files in `prompts/` are exact system prompts — inject data into `{{variable}}` placeholders, don't rewrite.
 
-**Stack:** React + Tailwind + shadcn/ui, Firebase (Auth, Firestore, Storage, Functions), Anthropic API (Claude) for document generation, PDF parsing + generation.
+## Stack
 
----
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Framework | React | 19.2 |
+| Bundler | Vite | 8.0 |
+| Language | TypeScript (strict) | 5.9 |
+| Styling | Tailwind CSS v4 + shadcn/ui (base-nova style) | 4.2 |
+| State | Zustand (client) + React Query (server) | 5.0 / 5.94 |
+| Forms | React Hook Form + Zod | 7.71 / 4.3 |
+| Routing | React Router | 7.13 |
+| Backend | Firebase (Firestore, Storage, Functions v2, Hosting) | 12.11 |
+| AI | Anthropic SDK in Cloud Functions | 0.80 |
+| PDF input | pdf-parse (server), pdfjs-dist via react-pdf (client) | 2.4 / 10.4 |
+| Unit tests | Vitest + Testing Library + jsdom | 4.1 |
+| E2E tests | Playwright | 1.58 |
+| Icons | Lucide React | 0.577 |
+| Toasts | Sonner | 2.0 |
 
-## Critical Rules (Always Apply)
+## Project Structure
 
-1. **LANGUAGE:** The entire user-facing app is in Mexican Spanish. ALL generated documents are in Spanish. Read `directives/politica_idioma.md` before building any UI component or AI prompt integration. English is ONLY for code infrastructure (component names, function names, git).
-
-2. **TERMINOLOGY:** EFICINE/IMCINE terms are NEVER translated. "ERPI", "presupuesto desglosado", "flujo de efectivo", "esquema financiero", "cesión de derechos", "ruta crítica" — these stay in Spanish even in code comments that reference them. See the protected terms list in `directives/politica_idioma.md`.
-
-3. **AMOUNTS:** Always `$X,XXX,XXX MXN` — comma thousands separator, no decimals, peso sign, MXN suffix.
-
-4. **DATES:** Always Spanish format: "15 de julio de 2026" or "Agosto 2026".
-
----
-
-## Where Things Live
-
-| Need | Read This |
-|------|-----------|
-| Full app architecture, workflow, document map, EFICINE rules | `directives/app_spec.md` |
-| Language policy, UI text rules, protected terms, prose guidelines | `directives/politica_idioma.md` |
-| Current build phase and progress | `directives/phase_tracker.md` |
-| Data model schemas (Firestore structure) | `schemas/*.json` |
-| AI generation prompts (Spanish, for runtime) | `prompts/*.md` |
-| Scoring rubric (how EFICINE evaluates projects) | `references/scoring_rubric.md` |
-| Cross-module validation rules (13 checks) | `references/validation_rules.md` |
-
----
-
-## Build Phases
-
-### Phase 1 — Scaffold + Data Model + Intake Wizard
-Read: `directives/app_spec.md` (sections: Data Model, Key UX Principles, Phase 1 Intake screens)
-Read: `schemas/modulo_a.json`, `schemas/modulo_b.json` (for form field structure)
-Read: `directives/politica_idioma.md` (for all UI text)
-Build: React project, Firebase config, Firestore schema, 5-screen intake wizard (Spanish UI), basic auth.
-
-### Phase 2 — Screenplay Parser
-Read: `directives/app_spec.md` (section: Screenplay Analysis Engine)
-Read: `prompts/analisis_guion.md` (the prompt that parses screenplays)
-Build: PDF upload + text extraction, Claude API integration for screenplay analysis, parsed data stored in Firestore.
-
-### Phase 3 — Validation Engine
-Read: `references/validation_rules.md` (all 13 cross-module rules)
-Read: `schemas/*.json` (for field-level validation)
-Build: Real-time validation on intake forms, traffic light dashboard, blocker vs warning classification.
-
-### Phase 4 — AI Document Generation
-Read: `prompts/*.md` (ALL prompt files, in execution order per `prompts/README.md`)
-Read: `directives/politica_idioma.md` (language guardrails appended to every prompt)
-Read: `references/scoring_rubric.md` (for self-scoring engine)
-Build: Document generation pipeline — screenplay analysis → line producer docs → financial docs → legal docs → combined docs. Each doc stored in Firestore, viewable in UI.
-
-### Phase 5 — Export Manager
-Read: `directives/app_spec.md` (section: Output Package, File Naming Convention)
-Read: `schemas/export_manager.json` (file rules, naming, size limits)
-Build: PDF generation from stored documents, file naming sanitization, ZIP compilation, completeness checklist.
-
----
-
-## How to Work
-
-1. Before starting any phase, read the files listed under that phase.
-2. Don't read everything at once — load what's needed for the current phase.
-3. After completing each phase, update `directives/phase_tracker.md` with what was built and any decisions made.
-4. All UI text hardcoded in Spanish — use a locales file or constants, never English placeholders.
-5. Test each phase before moving to the next.
-6. When building AI generation (Phase 4), the prompts in `prompts/` are the EXACT system prompts to use. Don't rewrite them — inject project data into the `{{variable}}` placeholders.
-
-<!-- GSD:project-start source:PROJECT.md -->
-## Project
-
-**Carpetify**
-
-Carpetify is an internal web tool for Lemon Studios that takes a feature film screenplay (PDF) and project metadata, then systematically generates a complete EFICINE Article 189 submission dossier ("carpeta") — the ~30-document package required by IMCINE for the Mexican film tax incentive program. The user uploads a screenplay, enters project data through a guided wizard, and the app generates documents using AI, validates them against EFICINE rules, and exports a ready-to-upload package.
-
-Target user: A single producer at Lemon Studios submitting up to 3 projects per EFICINE registration period via the SHCP portal (estimulosfiscales.hacienda.gob.mx).
-
-**Core Value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents — eliminating the cross-document inconsistencies that get applications rejected.
-
-### Constraints
-
-- **Language**: Entire UI and all generated documents must be in Mexican Spanish. Protected EFICINE/IMCINE terminology is never translated. See `directives/politica_idioma.md`.
-- **Tech stack**: React + Tailwind + shadcn/ui, Firebase, Anthropic Claude API — already decided, not negotiable.
-- **EFICINE rules**: All financial calculations, document requirements, and validation rules must match the 2026 Lineamientos exactly. This is a legal compliance tool.
-- **File naming**: Output files must follow IMCINE convention — max 15 characters, no accents/ñ/commas/&/symbols.
-- **File size**: All PDFs must be ≤ 40 MB per the SHCP upload system.
-- **AI prompts**: Runtime prompts are pre-written in `prompts/` folder in Spanish. Use them as-is with `{{variable}}` substitution — do not rewrite.
-<!-- GSD:project-end -->
-
-<!-- GSD:stack-start source:codebase/STACK.md -->
-## Technology Stack
-
-## Project Status
-## Planned Stack (per `directives/app_spec.md`)
-### Frontend
-- **Framework:** React
-- **Styling:** Tailwind CSS + shadcn/ui component library
-- **Language:** TypeScript (implied by React + modern tooling)
-- **UI Language:** 100% Mexican Spanish — no English in user-facing text
-### Backend / Infrastructure
-- **Platform:** Firebase
-- **Hosting:** Firebase Hosting (implied)
-### AI / Document Generation
-- **Provider:** Anthropic API (Claude)
-- **Prompt Architecture:** 7 sequential Spanish system prompts in `prompts/` folder
-- **Execution Order:**
-### PDF Processing
-- **Parsing (input):** pdf-parse or pdf.js — extract screenplay text from uploaded PDFs
-- **Generation (output):** @react-pdf/renderer or jsPDF — produce final submission PDFs
-### Data Model (Firestore)
-## Configuration Files Present
-- `.env` — environment variables (exists, contents not inspected for security)
-- `.gitignore` — git ignore rules
-- No `package.json`, `tsconfig.json`, or build configuration exists yet
-## Key Constraints
-- All currency amounts: `$X,XXX,XXX MXN` format (comma thousands, no decimals, peso sign, MXN suffix)
-- All dates: Spanish format (`15 de julio de 2026` or `Agosto 2026`)
-- Domain model field names in Spanish (matching EFICINE/IMCINE terminology)
-- Code infrastructure names in English (component names, functions, git)
-- AI prompts 100% Spanish with `{{variable}}` placeholder injection
-<!-- GSD:stack-end -->
-
-<!-- GSD:conventions-start source:CONVENTIONS.md -->
-## Conventions
-
-## Project Status
-## Language Architecture (Three Layers)
-| Layer | Language | Scope |
-|-------|----------|-------|
-| Code infrastructure | English | React components, Firebase functions, utility code, git, technical comments |
-| Domain model | Spanish | Schema field names, enum values, data labels, validation messages, EFICINE/IMCINE terms |
-| UI + Generated docs | Spanish | 100% Mexican Spanish — labels, buttons, errors, tooltips, AI prompts, PDF output |
-### Protected Terminology
-### Formatting Rules
-- **Currency:** `$X,XXX,XXX MXN` (comma thousands, no decimals, peso sign, MXN suffix)
-- **Dates:** `15 de julio de 2026` or `Agosto 2026` (never ISO, never English months)
-- **Percentages:** `20%` with explicit context (`el 20% del presupuesto total`)
-## Schema Conventions
-### JSON Schema Files (`schemas/`)
-- **Standard:** JSON Schema draft-07
-- **Field naming:** Spanish, matching EFICINE document terminology
-- **Descriptions:** Bilingual — technical context in English for developers, user-facing text in Spanish
-- **Enums:** Spanish EFICINE terms exactly as published in Lineamientos
-- **Validation:** Embedded in schema via `minimum`, `maximum`, `maxLength`, `enum`, `pattern`
-- **Cross-references:** Documented via `description` fields pointing to related schemas/rules
-### Schema Organization
-- One file per EFICINE section (A through E) + one for export rules
-- Nested objects mirror EFICINE document hierarchy (e.g., `a9_presupuesto.a9a_resumen`)
-- Required fields specified at each level
-- Validation rules embedded where possible, cross-module rules in `references/validation_rules.md`
-## AI Prompt Conventions (`prompts/`)
-- **Language:** 100% Spanish (system prompt, user data, format instructions, output)
-- **Variable injection:** `{{variable}}` placeholders replaced at runtime by app code
-- **Mandatory suffix:** Every prompt appends the language guardrail block from `politica_idioma.md`
-- **Structure:** Each prompt follows a 7-part pattern:
-- **Execution order:** Sequential — each prompt depends on outputs from prior passes
-## Planned Code Conventions
-### Component Naming (React)
-- English PascalCase for components: `BudgetSummary`, `ScreenplayParser`, `ValidationEngine`
-- English camelCase for functions: `calculatePercentage`, `validateDateRange`
-### Error Handling
-- User-facing errors in Spanish with context: `"El monto de EFICINE no puede exceder el 80% del costo total"`
-- Validation errors classified as BLOCKER (stops export) or WARNING (flagged but exportable)
-- Traffic light UI: 🟢 complete, 🟡 needs attention, 🔴 missing/blocking
-### Data Flow
-- Firestore as single source of truth
-- Real-time validation on data entry (not just at export)
-- One-click regeneration when upstream data changes
-- Document versioning via timestamps in `generated/{docId}`
-## Git Conventions
-- **Commits:** English
-- **Branch naming:** TBD (not yet established)
-- **PR descriptions:** English
-<!-- GSD:conventions-end -->
-
-<!-- GSD:architecture-start source:ARCHITECTURE.md -->
-## Architecture
-
-## Project Status
-## Planned Architecture Pattern
-## Application Layers
-### 1. Presentation Layer (React + Tailwind + shadcn/ui)
-- **Wizard Flow:** 5-screen intake process guiding users step by step
-- **Dashboard:** Traffic light system (🟢🟡🔴) for document status and validation checks
-- **Document Viewer:** Preview AI-generated documents before export
-- **Language:** 100% Mexican Spanish UI (hardcoded, not i18n-translated)
-### 2. Data Layer (Cloud Firestore)
-- **Primary Collection:** `projects/{projectId}` with subcollections
-- **Schema Source of Truth:** 6 JSON schema files in `schemas/`:
-### 3. AI Processing Layer (Anthropic API via Cloud Functions)
-- **Three AI Personas:**
-- **Sequential Pipeline:** 7 prompt passes where each builds on prior outputs
-- **Prompt Storage:** `prompts/*.md` files with `{{variable}}` placeholders
-### 4. Validation Engine
-- **13 cross-module validation rules** defined in `references/validation_rules.md`
-- **Blocker vs Warning classification** — blockers prevent export, warnings are flagged
-- **Real-time validation** — runs as data is entered, not just at export
-- **Key checks:** Financial reconciliation, title consistency, fee cross-matching, date compliance, experience thresholds, ERPI eligibility, document completeness
-### 5. Export Layer
-- **PDF Generation:** From Firestore data to submission-ready PDFs
-- **File Naming:** `{SECTION}{NUM}_{ABBREV}_{PROJ}` pattern, max 15 chars, ASCII only
-- **ZIP Compilation:** Organized folder structure matching SHCP upload requirements
-- **Output:** `carpeta_[PROJECT]/` with subdirectories `00_ERPI/`, `A_PROPUESTA/`, `B_PERSONAL/`, `C_ERPI/`, `D_COTIZ/`, `E_FINANZAS/`
-## Data Flow
 ```
+├── src/                      # Frontend React app
+│   ├── main.tsx              # Entry: QueryClientProvider + Toaster wrapping App
+│   ├── App.tsx               # BrowserRouter with 4 routes
+│   ├── index.css             # Tailwind v4 config, shadcn theme vars, status colors
+│   ├── components/
+│   │   ├── ui/               # shadcn primitives — DO NOT edit manually, use `npx shadcn add`
+│   │   ├── wizard/           # 5-screen intake wizard (WizardShell, ProjectSetup, ScreenplayUpload, CreativeTeam, FinancialStructure, DocumentChecklist)
+│   │   ├── dashboard/        # DashboardPage, ProjectCard, PeriodGroup, EmptyState
+│   │   ├── erpi/             # ERPISettingsPage, ERPICompanyForm, PriorProjectsList
+│   │   ├── layout/           # AppHeader (dark mode toggle)
+│   │   └── common/           # MXNInput, TrafficLight, CompliancePanel, AutoSaveIndicator
+│   ├── schemas/              # Zod runtime validation (project, team, financials, screenplay, erpi, documents)
+│   ├── services/             # Firestore CRUD: projects.ts, erpi.ts, storage.ts
+│   ├── stores/               # Zustand: appStore (activeProjectId), wizardStore (activeScreen, sidebarOpen)
+│   ├── hooks/                # useAutoSave (1500ms debounce + retry), useCompliance (EFICINE rules), use-mobile
+│   ├── lib/
+│   │   ├── firebase.ts       # Firebase init (Firestore, Storage, Functions, Auth)
+│   │   ├── format.ts         # formatMXN, parseMXNInput, formatDateES, formatMonthYearES
+│   │   ├── constants.ts      # EFICINE thresholds, periodos, categorias, cargos
+│   │   └── utils.ts          # cn() helper
+│   ├── locales/es.ts         # ALL Spanish UI strings — single source of truth
+│   ├── parsers/              # Client-side screenplay parser (pdfjs-dist)
+│   └── types/index.ts        # Re-exports from schemas + Project interface
+├── functions/                # Cloud Functions — SEPARATE npm project, Node 22
+│   ├── src/
+│   │   ├── index.ts          # 6 callables: extractScreenplay, analyzeScreenplay, runLineProducerPass, runFinanceAdvisorPass, runLegalPass, runCombinedPass
+│   │   ├── screenplay/       # extractWithClaude, analyzeHandler, analyzeWithClaude, validateAnalysis, types
+│   │   ├── pipeline/         # orchestrator, passes/ (lineProducer, financeAdvisor, legal, combined)
+│   │   └── claude/           # client.ts (shared Claude client init)
+│   ├── package.json          # firebase-functions v2, @anthropic-ai/sdk, pdf-parse
+│   └── tsconfig.json         # nodenext, es2022, outDir: lib
+├── e2e/                      # Playwright tests (es-MX locale, baseURL localhost:5174)
+├── directives/               # Read-only spec documents
+│   ├── app_spec.md           # Full architecture + EFICINE rules
+│   └── politica_idioma.md    # Language policy + protected terms
+├── prompts/                  # 11 Spanish AI prompts with {{variable}} placeholders
+├── schemas/                  # JSON Schema reference specs (modulo_a-e, export_manager) — NOT runtime code
+├── references/               # scoring_rubric.md, validation_rules.md
+├── .planning/                # GSD state, roadmap, requirements, phase plans
+└── public/                   # favicon
 ```
-## Key Abstractions
-### Project Modality Router
-- `produccion_nuevo` — default, most complete (all A-E sections)
-- `postproduccion` — filming complete, replaces screenplay with first cut
-- `previamente_autorizado` — prior EFICINE approval, requires comparative budgets
-- `previamente_evaluado` — prior evaluation, different doc requirements
-- `coproduccion_internacional` — adds IMCINE recognition, FX conversion, territorial split
-### Document Generation Pipeline
-### Self-Scoring Engine
-## Entry Points
-- **User-facing:** React SPA (no source code yet)
-- **API:** Firebase Cloud Functions (no source code yet)
-- **Build phases defined in `CLAUDE.md`:** 5 phases from scaffold through export manager
-<!-- GSD:architecture-end -->
+
+## Routes
+
+| Path | Component | Purpose |
+|------|-----------|---------|
+| `/` | `DashboardPage` | Project list grouped by EFICINE period |
+| `/project/:projectId` | `WizardShell` | 5-screen wizard (defaults to "datos") |
+| `/project/:projectId/:screen` | `WizardShell` | Specific wizard screen |
+| `/erpi` | `ERPISettingsPage` | Shared ERPI company settings |
+
+## Development
+
+### Setup
+```bash
+npm install                          # Frontend dependencies
+cd functions && npm install && cd .. # Cloud Functions dependencies
+cp .env.example .env                 # Then fill in Firebase config values
+```
+
+### Environment Variables
+`.env` (frontend — Vite exposes these to the browser):
+```
+VITE_FIREBASE_API_KEY=               # Firebase Console > Project Settings
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+Cloud Functions use `ANTHROPIC_API_KEY` via Firebase Secret Manager (not in `.env`).
+
+### Commands
+```bash
+npm run dev          # Vite dev server (port 5173 default)
+npm run build        # tsc -b && vite build → dist/
+npm run lint         # ESLint
+npm run preview      # Preview production build
+
+# Tests
+npx vitest           # Unit tests (watch mode, jsdom, globals: true)
+npx vitest run       # Single run
+npx playwright test  # E2E (requires dev server running on localhost:5174)
+
+# Cloud Functions (from functions/ directory)
+npm run build        # tsc → lib/
+npm run serve        # Build + Firebase emulator
+npm run deploy       # Deploy to Firebase
+```
+
+### Firebase
+- Project ID: `carpetify-mx`
+- Hosting: serves `dist/`, SPA rewrite to `index.html`
+- Functions runtime: Node 22, region: `us-central1`
+- Functions predeploy: copies `prompts/` into `functions/prompts/` for runtime access
+- Auth: Firebase Auth with Google sign-in (added in v2.0)
+
+## Key Patterns
+
+### Authentication
+Firebase Auth with Google sign-in. `AuthProvider` in `src/contexts/AuthContext.tsx` wraps the app and exposes `useAuth()` hook with `user`, `loading`, `signInWithGoogle()`, `signOut()`. `ProtectedRoute` redirects unauthenticated users to `/login`. All Cloud Functions check `request.auth` before executing. Firestore security rules enforce owner-based access.
+
+### Two Separate TypeScript Projects
+Root is the Vite frontend (`@/` alias → `./src/`). `functions/` is the Cloud Functions project (nodenext modules). Separate `package.json`, `tsconfig.json`, `node_modules`. Never import across the boundary.
+
+### Financial Calculations
+All money in centavos (integer arithmetic). EFICINE thresholds in `src/lib/constants.ts`. Compliance engine in `src/hooks/useCompliance.ts` — checks 7 rules (ERPI min 20%, EFICINE max 80%, cap $25M, federal max 80%, screenwriter min 3%, in-kind max 10%, gestor cap 4-5%). Violations classified as `blocker` or `warning`.
+
+### Auto-Save
+`useAutoSave` hook: 1500ms debounce, 3 retries with exponential backoff, flush on unmount. Writes to `projects/{projectId}/{path}/data` in Firestore with merge.
+
+### Forms
+React Hook Form with `onTouched` validation mode (errors appear after field blur). Zod schemas in `src/schemas/` provide runtime validation. Each team member form has its own independent useForm instance.
+
+### Screenplay Pipeline
+1. Upload PDF → Firebase Storage via `services/storage.ts`
+2. `extractScreenplay` Cloud Function: downloads from Storage, extracts text with pdf-parse, sends text to Claude (claude-haiku-4-5) for structured scene/character/location extraction via tool_use, stores breakdown in `projects/{projectId}/screenplay/data`
+3. User-triggered `analyzeScreenplay` Cloud Function: reads parsed data, calls Claude (claude-haiku-4-5) with `prompts/analisis_guion.md`, validates response, stores analysis
+4. Client-side parser (`src/parsers/screenplayParser.ts`) uses pdfjs-dist for local preview
+
+### Wizard Screens
+5 screens identified by slug: `datos`, `guion`, `equipo`, `financiera`, `documentos`. State managed in `wizardStore`. URL-synced via `/project/:projectId/:screen`.
+
+## Do / Don't
+
+### Always
+- Use `src/locales/es.ts` for all UI strings
+- Use centavos for money, `formatMXN()` for display only
+- Use Zod schemas from `src/schemas/` for validation
+- Run `npm run build` to verify TypeScript before claiming done
+- Test financial calculations — wrong thresholds get applications rejected
+- Keep Cloud Functions in `functions/src/`, frontend in `src/`
+- Validate user authentication before any Firestore or Cloud Function operation
+
+### Never
+- Hardcode Spanish strings directly in components
+- Use floating-point for monetary values
+- Manually edit files in `src/components/ui/` (shadcn-managed)
+- Translate EFICINE/IMCINE terminology
+- Rewrite prompts in `prompts/` — use as-is with variable injection
+- Import between `src/` and `functions/src/`
+
+## Fragile Areas
+
+- **Compliance thresholds** (`src/lib/constants.ts`, `src/hooks/useCompliance.ts`): These mirror EFICINE legal requirements. Wrong values = rejected application.
+- **Currency formatting** (`src/lib/format.ts`): Must produce `$X,XXX,XXX MXN` exactly. `toLocaleString('es-MX')` handles comma separators.
+- **Prompt variable injection**: AI prompts in `prompts/` use `{{variable}}` syntax. Missing variables produce broken documents.
+- **Cloud Function timeouts**: `analyzeScreenplay` uses 540s (Firebase max for callable). Long screenplays may approach this limit.
+- **Zod schemas for Claude tool_use**: Schemas passed to `z.toJSONSchema()` for Claude tool definitions must NOT use `.transform()` — Zod v4 cannot serialize transforms to JSON Schema. Apply normalization post-parse instead.
+- **Screenplay token limits**: `extractWithClaude.ts` sends extracted text (not raw PDF) to Claude. Raw PDF as base64 can exceed the 200K token limit for long screenplays. Text is truncated at 300K chars as a safety valve.
+
+## Reference Documents
+
+| Need | File |
+|------|------|
+| Full app spec, EFICINE rules, document map | `directives/app_spec.md` |
+| Language policy, protected terms | `directives/politica_idioma.md` |
+| AI prompt execution order | `prompts/README.md` |
+| EFICINE scoring rubric (100pts + 5 bonus) | `references/scoring_rubric.md` |
+| Cross-module validation rules | `references/validation_rules.md` |
+| JSON Schema specs (sections A-E + export) | `schemas/README.md` |
+| Project status and roadmap | `.planning/STATE.md`, `.planning/ROADMAP.md` |
+| Full requirements | `.planning/REQUIREMENTS.md` |
+
+## Current Status (2026-03-23)
+
+**Phase 1 — Scaffold + Intake Wizard:** Complete. Dashboard with period-grouped cards, 5-screen wizard, ERPI settings, auto-save, compliance panel, dark mode, MXN formatting.
+
+**Phase 2 — Screenplay Processing:** Complete. PDF upload to Storage, Cloud Function text extraction (pdf-parse), regex structure parsing, Claude analysis via Cloud Function, results display with stale detection.
+
+**Phase 3 — AI Document Generation Pipeline:** Next up. 6 plans written (not yet executed). 4-pass generation: Line Producer → Finance Advisor → Legal → Combined. ~20 documents with staleness tracking and one-click regeneration.
+
+**Phase 4 — Validation Engine + Dashboard:** Not started. 17 compliance rules, traffic light dashboard, score estimation.
+
+**Phase 5 — Export Manager:** Not started. PDF generation, IMCINE file naming, ZIP packaging.
+
+**Phase 10 — Authentication & Identity:** In progress. Firebase Auth with Google sign-in, route protection, data migration.
 
 <!-- GSD:workflow-start source:GSD defaults -->
-## GSD Workflow Enforcement
+## GSD Workflow
 
-Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
-
-Use these entry points:
-- `/gsd:quick` for small fixes, doc updates, and ad-hoc tasks
-- `/gsd:debug` for investigation and bug fixing
-- `/gsd:execute-phase` for planned phase work
+Before making code changes, use a GSD command so planning artifacts stay in sync:
+- `/gsd:quick` — small fixes, doc updates
+- `/gsd:debug` — investigation and bug fixing
+- `/gsd:execute-phase` — planned phase work
+- `/gsd:progress` — check current state and next action
 
 Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
 <!-- GSD:workflow-end -->
