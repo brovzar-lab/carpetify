@@ -165,10 +165,11 @@ Plans:
   2. Scoring signals (screenplayPagesPerDay, budgetHasImprevistos, exhibitionHasSpectatorEstimate, etc.) populated in useValidation snapshot
   3. ScoreEstimationPanel triggers the estimateScore Cloud Function for artistic scoring
   4. Dashboard ProjectCard shows completion/readiness percentage instead of hardcoded 0%
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md — Fix role name mismatch in scoring.ts (Productor/Director not Productor/a/Director/a), update test fixtures, populate all scoring signals in useValidation.ts from Firestore subscriptions
+- [ ] 08-02-PLAN.md — Fix estimateScore Cloud Function to self-read A3/A4/A5 content from Firestore, replace hardcoded 0% in ProjectCard with validation pass rate, fix hardcoded Spanish string in ScoreEstimationPanel
 
 ### Phase 9: Validation Stub Completion
 **Goal**: VALD-09 file format compliance and VALD-12 hyperlink accessibility rules produce real results instead of permanently skipping
@@ -198,6 +199,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 4. Validation Engine + Dashboard | 8/8 | Complete | 2026-03-24 |
 | 5. Export Manager | 3/3 | Complete | 2026-03-24 |
 | 6. Validation Data Wiring Fix | 3/3 | Complete | 2026-03-25 |
-| 7. Document Completeness & Export Gate Fix | 1/2 | In Progress | - |
-| 8. Score Estimation & Accuracy Fix | 0/TBD | Not started | - |
+| 7. Document Completeness & Export Gate Fix | 2/2 | Complete | 2026-03-25 |
+| 8. Score Estimation & Accuracy Fix | 0/2 | Not started | - |
 | 9. Validation Stub Completion | 0/TBD | Not started | - |
