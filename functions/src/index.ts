@@ -13,6 +13,7 @@ import { loadProjectDataForGeneration } from './pipeline/orchestrator.js';
 import { initClaudeClient } from './claude/client.js';
 import { handleScoreEstimation } from './scoreHandler.js';
 import { handleV1Migration } from './migration/migrateV1Data.js';
+import { requireAuth, requireProjectAccess } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
 
@@ -38,11 +39,14 @@ export const extractScreenplay = onCall(
     secrets: [anthropicApiKey],
   },
   async (request): Promise<ExtractResponse> => {
+    const uid = requireAuth(request);
     const { projectId, storagePath } = request.data as ExtractRequest;
 
     if (!projectId || !storagePath) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId y storagePath.');
     }
+
+    await requireProjectAccess(uid, projectId);
 
     try {
       // 1. Download PDF from Storage
@@ -116,11 +120,14 @@ export const analyzeScreenplay = onCall(
     secrets: [anthropicApiKey],
   },
   async (request): Promise<AnalyzeResponse> => {
+    const uid = requireAuth(request);
     const { projectId } = request.data as AnalyzeRequest;
 
     if (!projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
     }
+
+    await requireProjectAccess(uid, projectId);
 
     const apiKey = anthropicApiKey.value();
     if (!apiKey) {
@@ -153,10 +160,13 @@ export const runLineProducerPass = onCall(
     secrets: [anthropicApiKey],
   },
   async (request, response) => {
+    const uid = requireAuth(request);
     const { projectId } = request.data as { projectId: string };
     if (!projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
     }
+
+    await requireProjectAccess(uid, projectId);
 
     initClaudeClient(anthropicApiKey.value());
     const project = await loadProjectDataForGeneration(projectId);
@@ -189,10 +199,13 @@ export const runFinanceAdvisorPass = onCall(
     secrets: [anthropicApiKey],
   },
   async (request, response) => {
+    const uid = requireAuth(request);
     const { projectId } = request.data as { projectId: string };
     if (!projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
     }
+
+    await requireProjectAccess(uid, projectId);
 
     initClaudeClient(anthropicApiKey.value());
     const project = await loadProjectDataForGeneration(projectId);
@@ -225,10 +238,13 @@ export const runLegalPass = onCall(
     secrets: [anthropicApiKey],
   },
   async (request, response) => {
+    const uid = requireAuth(request);
     const { projectId } = request.data as { projectId: string };
     if (!projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
     }
+
+    await requireProjectAccess(uid, projectId);
 
     initClaudeClient(anthropicApiKey.value());
     const project = await loadProjectDataForGeneration(projectId);
@@ -261,10 +277,13 @@ export const runCombinedPass = onCall(
     secrets: [anthropicApiKey],
   },
   async (request, response) => {
+    const uid = requireAuth(request);
     const { projectId } = request.data as { projectId: string };
     if (!projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
     }
+
+    await requireProjectAccess(uid, projectId);
 
     initClaudeClient(anthropicApiKey.value());
     const project = await loadProjectDataForGeneration(projectId);
@@ -297,11 +316,14 @@ export const estimateScore = onCall(
     secrets: [anthropicApiKey],
   },
   async (request) => {
+    const uid = requireAuth(request);
     const data = request.data as { projectId: string };
 
     if (!data.projectId) {
       throw new HttpsError('invalid-argument', 'Se requiere projectId.');
     }
+
+    await requireProjectAccess(uid, data.projectId);
 
     const apiKey = anthropicApiKey.value();
     if (!apiKey) {
@@ -363,9 +385,7 @@ export const migrateV1Data = onCall(
     region: 'us-central1',
   },
   async (request) => {
-    if (!request.auth?.uid) {
-      throw new HttpsError('unauthenticated', 'Autenticacion requerida.');
-    }
+    const uid = requireAuth(request);
 
     const { orgId } = request.data as { orgId: string };
     if (!orgId) {
@@ -373,7 +393,7 @@ export const migrateV1Data = onCall(
     }
 
     try {
-      return await handleV1Migration(request.auth.uid, orgId);
+      return await handleV1Migration(uid, orgId);
     } catch (err) {
       console.error('migrateV1Data error:', err);
       throw new HttpsError('internal', 'Error al migrar datos de v1.0.');
