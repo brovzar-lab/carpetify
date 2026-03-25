@@ -153,7 +153,7 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md — Align REQUIRED_DOCUMENTS keys with DocumentChecklist tipo values, add missing required upload entries, wire hasExclusiveContribution from ERPI in-kind data, update tests
-- [ ] 07-02-PLAN.md — Gap closure: add cv_productor upload entry to DocumentChecklist REQUIRED_UPLOADS, verify complete namespace alignment
+- [x] 07-02-PLAN.md — Gap closure: add cv_productor upload entry to DocumentChecklist REQUIRED_UPLOADS, verify complete namespace alignment
 
 ### Phase 8: Score Estimation & Accuracy Fix
 **Goal**: Viability scoring produces accurate results using correct role matching and populated scoring signals, and artistic score estimation is accessible from the UI
