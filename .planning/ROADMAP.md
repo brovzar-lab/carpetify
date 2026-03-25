@@ -181,10 +181,10 @@ Plans:
   2. VALD-09 validates filenames (≤15 chars, ASCII) and sizes (≤40MB) against IMCINE rules
   3. extractLinks() extracts team member portfolio URLs and document URLs
   4. VALD-12 checks extracted links for accessibility (warning, not blocker)
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 09-01-PLAN.md — Wire outputFiles from EXPORT_FILE_MAP + generatedDocs in useValidation snapshot, rewrite extractLinks to extract filmografia[].enlace URLs from team members, add 8 new test cases
 
 ## Progress
 
@@ -201,4 +201,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 | 6. Validation Data Wiring Fix | 3/3 | Complete | 2026-03-25 |
 | 7. Document Completeness & Export Gate Fix | 2/2 | Complete | 2026-03-25 |
 | 8. Score Estimation & Accuracy Fix | 0/2 | Not started | - |
-| 9. Validation Stub Completion | 0/TBD | Not started | - |
+| 9. Validation Stub Completion | 0/1 | Not started | - |
