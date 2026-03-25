@@ -58,6 +58,14 @@ const projectFormSchema = z
       .positive('El monto EFICINE debe ser mayor a $0')
       .max(2500000000, 'El monto maximo EFICINE es $25,000,000 MXN'),
     es_coproduccion_internacional: z.boolean(),
+    // Submission tracking
+    intentos_proyecto: z.coerce.number().int().min(0).default(0),
+    // Regional bonus fields (VALD-13)
+    director_origen_fuera_zmcm: z.boolean().default(false),
+    productor_origen_fuera_zmcm: z.boolean().default(false),
+    porcentaje_rodaje_fuera_zmcm: z.coerce.number().int().min(0).max(100).default(0),
+    porcentaje_personal_creativo_local: z.coerce.number().int().min(0).max(100).default(0),
+    porcentaje_personal_tecnico_local: z.coerce.number().int().min(0).max(100).default(0),
     // Co-production conditional fields
     tipo_cambio_fx: z.coerce.number().positive().optional(),
     fecha_tipo_cambio: z.string().optional(),
@@ -139,6 +147,12 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
             costo_total_proyecto_centavos: formValues.costo_total_proyecto_centavos,
             monto_solicitado_eficine_centavos: formValues.monto_solicitado_eficine_centavos,
             es_coproduccion_internacional: formValues.es_coproduccion_internacional,
+            intentos_proyecto: formValues.intentos_proyecto,
+            director_origen_fuera_zmcm: formValues.director_origen_fuera_zmcm,
+            productor_origen_fuera_zmcm: formValues.productor_origen_fuera_zmcm,
+            porcentaje_rodaje_fuera_zmcm: formValues.porcentaje_rodaje_fuera_zmcm,
+            porcentaje_personal_creativo_local: formValues.porcentaje_personal_creativo_local,
+            porcentaje_personal_tecnico_local: formValues.porcentaje_personal_tecnico_local,
             tipo_cambio_fx: formValues.tipo_cambio_fx,
             fecha_tipo_cambio: formValues.fecha_tipo_cambio,
           })
@@ -175,6 +189,12 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
       costo_total_proyecto_centavos: 0,
       monto_solicitado_eficine_centavos: 0,
       es_coproduccion_internacional: false,
+      intentos_proyecto: 0,
+      director_origen_fuera_zmcm: false,
+      productor_origen_fuera_zmcm: false,
+      porcentaje_rodaje_fuera_zmcm: 0,
+      porcentaje_personal_creativo_local: 0,
+      porcentaje_personal_tecnico_local: 0,
       tipo_cambio_fx: undefined,
       fecha_tipo_cambio: '',
       desglose_nacional_pct: undefined,
@@ -206,6 +226,12 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
         costo_total_proyecto_centavos: m.costo_total_proyecto_centavos ?? 0,
         monto_solicitado_eficine_centavos: m.monto_solicitado_eficine_centavos ?? 0,
         es_coproduccion_internacional: m.es_coproduccion_internacional ?? false,
+        intentos_proyecto: m.intentos_proyecto ?? 0,
+        director_origen_fuera_zmcm: m.director_origen_fuera_zmcm ?? false,
+        productor_origen_fuera_zmcm: m.productor_origen_fuera_zmcm ?? false,
+        porcentaje_rodaje_fuera_zmcm: m.porcentaje_rodaje_fuera_zmcm ?? 0,
+        porcentaje_personal_creativo_local: m.porcentaje_personal_creativo_local ?? 0,
+        porcentaje_personal_tecnico_local: m.porcentaje_personal_tecnico_local ?? 0,
         tipo_cambio_fx: m.tipo_cambio_fx,
         fecha_tipo_cambio: m.fecha_tipo_cambio ?? '',
         desglose_nacional_pct: undefined,
@@ -563,6 +589,91 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
             </div>
           </div>
         )}
+      </div>
+
+      <Separator className="my-4" />
+
+      {/* 12. Regional bonus & submission tracking */}
+      <div className="space-y-4">
+        <h3 className="text-[16px] font-semibold">
+          {es.screen1.sectionRegionalBonus}
+        </h3>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="intentos_proyecto">
+            {es.screen1.intentos_proyecto}
+          </Label>
+          <Input
+            id="intentos_proyecto"
+            type="number"
+            min={0}
+            max={3}
+            {...register('intentos_proyecto', { valueAsNumber: true })}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            id="director_origen_fuera_zmcm"
+            type="checkbox"
+            {...register('director_origen_fuera_zmcm')}
+            className="h-4 w-4"
+          />
+          <Label htmlFor="director_origen_fuera_zmcm">
+            {es.screen1.director_origen_fuera_zmcm}
+          </Label>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            id="productor_origen_fuera_zmcm"
+            type="checkbox"
+            {...register('productor_origen_fuera_zmcm')}
+            className="h-4 w-4"
+          />
+          <Label htmlFor="productor_origen_fuera_zmcm">
+            {es.screen1.productor_origen_fuera_zmcm}
+          </Label>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="porcentaje_rodaje_fuera_zmcm">
+            {es.screen1.porcentaje_rodaje_fuera_zmcm}
+          </Label>
+          <Input
+            id="porcentaje_rodaje_fuera_zmcm"
+            type="number"
+            min={0}
+            max={100}
+            {...register('porcentaje_rodaje_fuera_zmcm', { valueAsNumber: true })}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="porcentaje_personal_creativo_local">
+            {es.screen1.porcentaje_personal_creativo_local}
+          </Label>
+          <Input
+            id="porcentaje_personal_creativo_local"
+            type="number"
+            min={0}
+            max={100}
+            {...register('porcentaje_personal_creativo_local', { valueAsNumber: true })}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="porcentaje_personal_tecnico_local">
+            {es.screen1.porcentaje_personal_tecnico_local}
+          </Label>
+          <Input
+            id="porcentaje_personal_tecnico_local"
+            type="number"
+            min={0}
+            max={100}
+            {...register('porcentaje_personal_tecnico_local', { valueAsNumber: true })}
+          />
+        </div>
       </div>
     </div>
   )

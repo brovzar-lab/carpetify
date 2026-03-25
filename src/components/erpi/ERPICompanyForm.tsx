@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,6 +10,8 @@ const companyFormSchema = z.object({
   rfc: z.string(),
   representante_legal: z.string(),
   domicilio_fiscal: z.string(),
+  solicitudes_periodo_actual: z.coerce.number().int().min(0).default(0),
+  domicilio_fuera_zmcm: z.boolean().default(false),
 })
 
 type CompanyFormData = z.infer<typeof companyFormSchema>
@@ -21,8 +22,7 @@ interface ERPICompanyFormProps {
 }
 
 export function ERPICompanyForm({ defaultValues, onSave }: ERPICompanyFormProps) {
-  const { register, watch, reset } = useForm<CompanyFormData>({
-    resolver: zodResolver(companyFormSchema),
+  const { register, watch, reset, formState: { isDirty } } = useForm<CompanyFormData>({
     defaultValues,
   })
 
@@ -31,13 +31,14 @@ export function ERPICompanyForm({ defaultValues, onSave }: ERPICompanyFormProps)
     reset(defaultValues)
   }, [defaultValues, reset])
 
-  // Watch all fields for auto-save
+  // Watch for changes and auto-save — only after user edits (isDirty)
   useEffect(() => {
+    if (!isDirty) return
     const subscription = watch((value) => {
       onSave(value as Partial<CompanyFormData>)
     })
     return () => subscription.unsubscribe()
-  }, [watch, onSave])
+  }, [watch, onSave, isDirty])
 
   return (
     <section className="space-y-4">
@@ -89,6 +90,31 @@ export function ERPICompanyForm({ defaultValues, onSave }: ERPICompanyFormProps)
             className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-[14px] ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="Calle, numero, colonia, alcaldia/municipio, estado, C.P."
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="solicitudes_periodo_actual" className="text-[14px] font-semibold">
+            {es.erpi.solicitudes_periodo_actual}
+          </Label>
+          <Input
+            id="solicitudes_periodo_actual"
+            type="number"
+            min={0}
+            max={3}
+            {...register('solicitudes_periodo_actual', { valueAsNumber: true })}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            id="domicilio_fuera_zmcm"
+            type="checkbox"
+            {...register('domicilio_fuera_zmcm')}
+            className="h-4 w-4"
+          />
+          <Label htmlFor="domicilio_fuera_zmcm" className="text-[14px] font-semibold">
+            {es.erpi.domicilio_fuera_zmcm}
+          </Label>
         </div>
       </div>
     </section>
