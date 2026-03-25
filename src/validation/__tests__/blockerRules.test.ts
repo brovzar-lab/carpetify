@@ -251,6 +251,24 @@ describe('VALD-05: EFICINE Compliance', () => {
 // ---- VALD-06: Document Completeness ----
 
 describe('VALD-06: Document Completeness', () => {
+  // Generated docs (from FRONTEND_DOC_REGISTRY docIds)
+  const generatedDocIds = [
+    'A1', 'A2', 'A4', 'A6', 'A7', 'A8a', 'A8b',
+    'A9a', 'A9b', 'A9d', 'A10',
+    'B3-prod', 'B3-dir',
+    'C2b', 'C3a', 'C3b', 'C4',
+    'E1',
+  ]
+
+  // Uploaded docs (from DocumentChecklist REQUIRED_UPLOADS tipo values)
+  const uploadedDocTypes = [
+    'acta_constitutiva', 'poder_notarial', 'cv_productor',
+    'identificacion_rep_legal', 'constancia_fiscal',
+    'indautor_guion', 'estado_cuenta',
+    'cotizacion_seguro', 'cotizacion_contador',
+    'contrato_productor', 'contrato_director', 'contrato_guionista',
+  ]
+
   it('should fail when no docs at all', () => {
     const result = validateDocumentCompleteness([], [], {})
     expect(result.status).toBe('fail')
@@ -259,53 +277,56 @@ describe('VALD-06: Document Completeness', () => {
   })
 
   it('should pass when all required documents are present', () => {
-    const generatedDocIds = [
-      'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8a', 'A8b',
-      'A9a', 'A9b', 'A9d', 'A10',
-      'B1_producer', 'B1_director', 'B2_all_ids', 'B3-prod', 'B3-dir',
-      'C2a', 'C2b', 'C3a', 'C3b', 'C4',
-      'D1_seguro', 'D1_contador',
-      'E1',
-    ]
     const result = validateDocumentCompleteness(
       generatedDocIds,
-      [],
+      uploadedDocTypes,
       {},
     )
     expect(result.status).toBe('pass')
   })
 
   it('should fail when specific docs are missing', () => {
-    const generatedDocIds = [
-      'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8a', 'A8b',
-      'A9a', 'A9b', 'A9d', 'A10',
-      'B1_producer', 'B1_director', 'B2_all_ids',
-      // Missing B3-prod and B3-dir
-      'C2a', 'C2b', 'C3a', 'C3b', 'C4',
-      'D1_seguro', 'D1_contador',
-      'E1',
-    ]
-    const result = validateDocumentCompleteness(generatedDocIds, [], {})
+    // Remove B3-prod and B3-dir from generated
+    const withoutContracts = generatedDocIds.filter(
+      (id) => id !== 'B3-prod' && id !== 'B3-dir',
+    )
+    const result = validateDocumentCompleteness(withoutContracts, uploadedDocTypes, {})
     expect(result.status).toBe('fail')
     expect(result.details!.some((d) => d.includes('B3-prod'))).toBe(true)
     expect(result.details!.some((d) => d.includes('B3-dir'))).toBe(true)
   })
 
   it('should require conditional E docs when conditions are met', () => {
-    const generatedDocIds = [
-      'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8a', 'A8b',
-      'A9a', 'A9b', 'A9d', 'A10',
-      'B1_producer', 'B1_director', 'B2_all_ids', 'B3-prod', 'B3-dir',
-      'C2a', 'C2b', 'C3a', 'C3b', 'C4',
-      'D1_seguro', 'D1_contador',
-      'E1',
-      // Missing E3 even though we have third party contribution
-    ]
-    const result = validateDocumentCompleteness(generatedDocIds, [], {
+    const result = validateDocumentCompleteness(generatedDocIds, uploadedDocTypes, {
       hasThirdPartyContribution: true,
     })
+    // E3 is missing from both arrays, so expect fail
     expect(result.status).toBe('fail')
     expect(result.details!.some((d) => d.includes('E3'))).toBe(true)
+  })
+
+  it('should fail when uploaded doc tipo is missing', () => {
+    // Remove cv_productor from uploaded tipos
+    const withoutCV = uploadedDocTypes.filter((t) => t !== 'cv_productor')
+    const result = validateDocumentCompleteness(generatedDocIds, withoutCV, {})
+    expect(result.status).toBe('fail')
+    expect(result.details!.some((d) => d.includes('cv_productor'))).toBe(true)
+  })
+
+  it('should require E2 when hasExclusiveContribution is true', () => {
+    // E2 is not in generatedDocIds or uploadedDocTypes
+    const result = validateDocumentCompleteness(generatedDocIds, uploadedDocTypes, {
+      hasExclusiveContribution: true,
+    })
+    expect(result.status).toBe('fail')
+    expect(result.details!.some((d) => d.includes('E2'))).toBe(true)
+  })
+
+  it('should skip E2 when hasExclusiveContribution is false', () => {
+    const result = validateDocumentCompleteness(generatedDocIds, uploadedDocTypes, {
+      hasExclusiveContribution: false,
+    })
+    expect(result.status).toBe('pass')
   })
 
   it('should have navigateTo pointing to documentos screen', () => {
