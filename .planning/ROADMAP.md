@@ -133,7 +133,7 @@ Plans:
 Plans:
 - [x] 06-01-PLAN.md — Fix Firestore path wiring: metadata subpath, financials subscription, ERPI snake_case path, DocumentUpload periodo fix, VALD-04 date mapping
 - [x] 06-02-PLAN.md — Fee cross-match extractors from budget_output, ERPI submission tracking schema/UI, regional bonus schema fields and UI inputs
-- [ ] 06-03-PLAN.md — Per-screen traffic light derivation from validation results, regional bonus engine wiring, full verification
+- [x] 06-03-PLAN.md — Per-screen traffic light derivation from validation results, regional bonus engine wiring, full verification
 
 ## Progress
 
