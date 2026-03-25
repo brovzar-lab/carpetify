@@ -113,7 +113,7 @@ function extractPriorProjects(
  */
 function buildDocConditions(data: ProjectDataSnapshot): Record<string, boolean> {
   return {
-    hasExclusiveContribution: false, // TODO: wire from financial data when available
+    hasExclusiveContribution: (data.financials.erpiInkindCentavos ?? 0) > 0,
     hasThirdPartyContribution: (data.financials.thirdPartyCentavos ?? 0) > 0,
     hasInternationalCoproduction:
       data.metadata.es_coproduccion_internacional ?? false,

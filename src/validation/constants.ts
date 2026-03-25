@@ -11,17 +11,18 @@ export interface RequiredDocEntry {
 }
 
 /**
- * Every required EFICINE document, keyed by doc ID.
+ * Every required EFICINE document, keyed by either:
+ * - docId (for AI-generated documents, matching FRONTEND_DOC_REGISTRY)
+ * - tipo (for user-uploaded documents, matching DocumentChecklist REQUIRED_UPLOADS)
+ *
  * Conditional docs (E2, E3, E4) are only required when corresponding
  * financial sources exist in the project.
  */
 export const REQUIRED_DOCUMENTS: Record<string, RequiredDocEntry> = {
-  // Section A - Propuesta Artistica
+  // Section A - Propuesta Artistica (generated docs, keys = docId)
   A1: { section: 'A', label: 'Resumen Ejecutivo' },
   A2: { section: 'A', label: 'Sinopsis' },
-  A3: { section: 'A', label: 'Guion' },
   A4: { section: 'A', label: 'Propuesta de Direccion' },
-  A5: { section: 'A', label: 'Material Visual' },
   A6: { section: 'A', label: 'Formato 2 - Equipo Creativo' },
   A7: { section: 'A', label: 'Propuesta de Produccion' },
   A8a: { section: 'A', label: 'Plan de Rodaje' },
@@ -31,26 +32,32 @@ export const REQUIRED_DOCUMENTS: Record<string, RequiredDocEntry> = {
   A9d: { section: 'A', label: 'Flujo de Efectivo' },
   A10: { section: 'A', label: 'Propuesta de Exhibicion' },
 
-  // Section B - Personal
-  B1_producer: { section: 'B', label: 'CV Productor' },
-  B1_director: { section: 'B', label: 'CV Director' },
-  B2_all_ids: { section: 'B', label: 'Identificaciones' },
+  // Section B - Personal (mix of generated + uploaded)
+  acta_constitutiva: { section: 'B', label: 'Acta Constitutiva' },
+  poder_notarial: { section: 'B', label: 'Poder Notarial' },
+  cv_productor: { section: 'B', label: 'CV Productor' },
+  identificacion_rep_legal: { section: 'B', label: 'Identificaciones' },
   'B3-prod': { section: 'B', label: 'Contrato Productor' },
   'B3-dir': { section: 'B', label: 'Contrato Director' },
+  contrato_productor: { section: 'B', label: 'Contrato Firmado Productor' },
+  contrato_director: { section: 'B', label: 'Contrato Firmado Director' },
+  contrato_guionista: { section: 'B', label: 'Contrato Firmado Guionista' },
 
-  // Section C - ERPI
-  C2a: { section: 'C', label: 'Certificado INDAUTOR' },
+  // Section C - ERPI (mix of generated + uploaded)
+  constancia_fiscal: { section: 'C', label: 'Constancia de Situacion Fiscal' },
+  indautor_guion: { section: 'C', label: 'Certificado INDAUTOR' },
   C2b: { section: 'C', label: 'Cesion de Derechos' },
   C3a: { section: 'C', label: 'Carta Buenas Practicas' },
-  C3b: { section: 'C', label: 'Fotos Produccion' },
+  C3b: { section: 'C', label: 'Carta PICS' },
   C4: { section: 'C', label: 'Ficha Tecnica' },
 
-  // Section D - Cotizaciones
-  D1_seguro: { section: 'D', label: 'Cotizacion Seguro' },
-  D1_contador: { section: 'D', label: 'Cotizacion Contador' },
+  // Section D - Cotizaciones (uploaded docs, keys = tipo)
+  cotizacion_seguro: { section: 'D', label: 'Cotizacion Seguro' },
+  cotizacion_contador: { section: 'D', label: 'Cotizacion Contador' },
 
-  // Section E - Finanzas
+  // Section E - Finanzas (mix of generated + uploaded)
   E1: { section: 'E', label: 'Esquema Financiero' },
+  estado_cuenta: { section: 'E', label: 'Estado de Cuenta Bancario' },
   E2: {
     section: 'E',
     label: 'Carta de Aportacion Exclusiva',
