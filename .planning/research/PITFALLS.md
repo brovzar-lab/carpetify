@@ -1,388 +1,491 @@
-# Domain Pitfalls
+# Domain Pitfalls: v2.0 Migration
 
-**Domain:** EFICINE Article 189 submission dossier generator (Mexican government film tax incentive)
-**Researched:** 2026-03-21
+**Domain:** Adding multi-user auth, collaboration, co-production engine, and modality routing to an existing single-user EFICINE dossier generator
+**Researched:** 2026-03-25
+**Overall confidence:** HIGH (based on direct codebase analysis + Firebase documentation + EFICINE rules)
+
+**Prior research (v1.0):** This file replaces the original PITFALLS.md which covered financial rounding, AI hallucination, and document consistency pitfalls. Those pitfalls remain valid and are not repeated here. This version focuses exclusively on pitfalls introduced by the v2.0 migration scope.
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause application rejection, data corruption, or full rewrites.
+Mistakes that cause data loss, security breaches, broken existing functionality, or require full rewrites.
 
 ---
 
-### Pitfall 1: Financial Rounding Cascades Break the Golden Equation
+### Pitfall 1: Deploying Security Rules Before Migrating Existing Data Locks Everyone Out
 
-**What goes wrong:** The four totals that MUST be identical (presupuesto resumen, presupuesto desglose, flujo de efectivo, esquema financiero) drift apart because rounding is applied at different stages of calculation. AI generates a budget with line items that round independently; when those line items flow into the flujo de efectivo or esquema financiero, subtotals diverge by $1-$100 MXN. EFICINE rejects applications where these numbers differ by even $1.
+**What goes wrong:** You write proper Firestore security rules requiring `request.auth != null` and owner-based access (`request.auth.uid == resource.data.ownerId`), deploy them, and immediately every existing project becomes inaccessible. All v1.0 documents in `projects/` have no `ownerId` field. All data in `erpi_settings/default` has no user association. The production app is bricked.
 
-**Why it happens:** JavaScript floating-point arithmetic (`0.1 + 0.2 !== 0.3`), rounding at line-item level vs. subtotal level, AI generating approximate numbers, and multiple code paths computing the same total independently.
+**Why it happens:** The current `firestore.rules` file is:
+```
+match /{document=**} {
+  allow read, write: if true;
+}
+```
+And the `storage.rules` file is identical. There is zero security on any data path. Every document in Firestore was created without any user association -- no `ownerId`, no `createdBy`, no `teamMembers` array. The ERPI settings use a hardcoded singleton path (`erpi_settings/default`) with no user scoping.
 
-**Consequences:** Validation Rule #1 (BLOCKER) fires. Application rejected without evaluation.
+**Consequences:** Existing projects become unreadable. Auto-save writes fail silently (the retry logic in `useAutoSave` fires 3 times then shows `error` status). Cloud Functions using `firebase-admin` bypass rules but the frontend is completely blocked. Users see an empty dashboard with no projects.
 
 **Prevention:**
-- Use integer arithmetic in centavos (multiply all MXN amounts by 100, compute in integers, divide only for display). Or use a decimal library like `decimal.js`.
-- Establish a SINGLE source of truth for every financial number. Budget line items are the canonical source; all other documents (flujo, esquema, contracts) DERIVE from them, never compute independently.
-- Round only at the final display step, never at intermediate calculation steps.
-- Build the golden equation assertion as an invariant that runs on every save, not just at export time.
+1. Run a data migration script BEFORE deploying rules. Use `firebase-admin` in a Cloud Function or script to add `ownerId` and `teamMembers` fields to every existing project document.
+2. Deploy rules in phases: first `allow read, write: if request.auth != null` (any authenticated user -- safe because this is an internal team tool), then tighten to owner/team-based rules after migration is verified.
+3. Add a `migrationVersion` field to documents. Security rules can check: `if resource.data.ownerId != null` for new rules, falling back to `request.auth != null` for unmigrated docs.
+4. Test rules in the Firebase Emulator against a snapshot of production data BEFORE deployment.
 
-**Detection:** Run the 4-way equality check after every financial data change, not just at validation time. If it fails during development, the architecture is wrong.
+**Detection:** After migration, query for documents where `ownerId` does not exist. If any remain, rules deployment is premature.
 
-**Phase:** Phase 3 (Validation Engine) must enforce this, but the architecture decision belongs in Phase 1 (Data Model). The financial data model must be designed so independent computation of the same total is structurally impossible.
+**Phase:** Must be the FIRST thing addressed in the Auth phase. Rules deployment is the final step, not the first.
+
+**Confidence:** HIGH -- verified against the actual `firestore.rules` and `storage.rules` files in the repo.
 
 ---
 
-### Pitfall 2: AI-Generated Numbers Are Hallucinated, Not Calculated
+### Pitfall 2: The `erpi_settings/default` Singleton Breaks Multi-User
 
-**What goes wrong:** Claude generates budget line items, crew rates, or fee amounts that look plausible but are invented. A "line producer persona" prompt asks for a budget breakdown, and the LLM outputs numbers that don't sum correctly, use stale crew rates, or contradict the financial structure the user entered. Worse: the AI might generate a budget total of $18,500,000 when the user entered $19,200,000 as their estimated total.
+**What goes wrong:** ERPI settings (company name, RFC, legal representative, fiscal address) are stored at `erpi_settings/default` -- a single global document. The `erpi.ts` service hardcodes this path: `const erpiRef = doc(db, 'erpi_settings', 'default')`. The orchestrator in Cloud Functions also hardcodes it: `db.collection('erpi_settings').doc('default').get()`. When multiple users exist, they all share the same ERPI settings, which is wrong -- different producers may use different ERPIs, or the same ERPI may need different legal representatives per project.
 
-**Why it happens:** LLMs are text generators, not calculators. They pattern-match numbers from training data. Even with explicit instructions to "make sure numbers add up," outputs routinely contain arithmetic errors. Stanford/MIT research (2025) found 60%+ of LLM outputs over 3,000 words contain internal contradictions.
+**Why it happens:** v1.0 was designed for a single user at Lemon Studios. The ERPI singleton was correct for that use case. But EFICINE rules allow different ERPIs per project (one ERPI can submit up to 3 projects per period, but a user might work with multiple ERPIs). Even within Lemon Studios, different projects might use different subsidiary entities.
 
-**Consequences:** Every downstream document inherits wrong numbers. The fee cross-matching rules (#3) fail. The financial reconciliation (#1) fails. The 3% screenwriter rule (#1.3) may be violated. Entire regeneration cascade needed.
+**Consequences:** User A's ERPI settings overwrite User B's. Generated documents (contracts, cartas de aportacion, esquema financiero) contain the wrong company information. This is an application-rejection-level error -- the ERPI name must match across B3 contracts, E1 esquema financiero, E2 carta de aportacion, and the SHCP registration.
 
 **Prevention:**
-- NEVER trust AI-generated numbers as final values. Use AI for structure and prose only; all financial figures must come from deterministic code.
-- Build a calculation engine that takes user-input totals and percentage rules, then generates exact line items. AI fills in the prose around those numbers.
-- Use `{{variable}}` injection for every monetary value in AI prompts. The prompt templates already support this pattern -- enforce it rigorously.
-- Post-process every AI output: extract all `$X,XXX,XXX MXN` patterns and validate each against the canonical financial model.
+- Move ERPI settings from a global singleton to per-project storage: `projects/{projectId}/erpi/data`. Each project owns its ERPI configuration.
+- Or create a user-scoped ERPI collection: `users/{userId}/erpi_settings/{erpiId}` with a reference from the project.
+- Update BOTH the frontend service (`src/services/erpi.ts`) AND the Cloud Function orchestrator (`functions/src/pipeline/orchestrator.ts` line 146) simultaneously. If you update one without the other, generated documents will use stale/wrong ERPI data.
+- Migrate existing `erpi_settings/default` data into the first user's per-project ERPI docs during the data migration phase.
 
-**Detection:** Automated test: generate a document, extract all monetary figures with regex, compare against the financial model. Any mismatch = pipeline bug.
+**Detection:** After migration, the path `erpi_settings/default` should be empty or deleted. Any code referencing this path is a bug.
 
-**Phase:** Phase 4 (AI Document Generation) is where this hits hardest. The prompt architecture in `prompts/` already uses `{{variable}}` placeholders -- the implementation must ensure ALL numbers come via injection, never from AI completion.
+**Phase:** Must be addressed in the Auth/data-model phase, before any document generation occurs under the new system.
+
+**Confidence:** HIGH -- verified against `src/services/erpi.ts` (line 5) and `functions/src/pipeline/orchestrator.ts` (line 146).
 
 ---
 
-### Pitfall 3: Title Inconsistency Across 12+ Documents
+### Pitfall 3: Auto-Save Concurrent Writes Cause Silent Data Loss
 
-**What goes wrong:** The project title appears in 12+ documents (see Validation Rule #2). A single character difference -- an accent missing, a subtitle dropped, a different capitalization -- triggers rejection. AI-generated documents may subtly alter the title ("El Godin de los Cielos" vs "El Godín de los Cielos" vs "EL GODIN DE LOS CIELOS").
+**What goes wrong:** Two team members (e.g., producer and line producer) both have the same project open. Producer edits `datos` screen, line producer edits `financiera` screen. Both trigger `useAutoSave`, which calls `setDoc` with `{ merge: true }` to `projects/{projectId}/{path}/data`. If they happen to edit overlapping fields (e.g., both screens touch `costo_total_proyecto_centavos`), the last write wins silently. Neither user sees a conflict warning. The producer's carefully entered budget total is overwritten by the line producer's stale value.
 
-**Why it happens:** Title is entered once but rendered in many contexts. AI may "normalize" or "improve" the title. PDF generation may strip diacritics. File naming convention (no accents, max 15 chars) creates a sanitized version that could leak into document content. Copy-paste across prompts introduces variation.
+**Why it happens:** The current `useAutoSave` hook uses `setDoc` with merge, which is a non-transactional last-write-wins operation. There is no conflict detection, no version tracking, no optimistic locking. This was fine for single-user (you can't conflict with yourself on different screens), but is dangerous for collaboration.
 
-**Consequences:** Validation Rule #2 (BLOCKER). Application rejected.
+The specific code in `src/hooks/useAutoSave.ts`:
+```typescript
+const ref = doc(db, `projects/${projectId}/${path}/data`)
+await setDoc(ref, { ...data, updatedAt: serverTimestamp() }, { merge: true })
+```
+
+**Consequences:** Data silently reverts. Financial figures change without the user knowing. The compliance engine re-evaluates on the wrong numbers. Generated documents become stale but the staleness tracker might not fire if the overwritten field isn't one that triggers staleness detection.
 
 **Prevention:**
-- Store the canonical title ONCE in Firestore. Every document generation pulls from this single field -- never from user re-entry or AI completion.
-- The AI prompts must inject the title as a literal string that the model is instructed to reproduce exactly, with explicit guardrails: "Do NOT modify, abbreviate, capitalize differently, or remove accents from the project title."
-- Build a title-consistency checker that extracts the title from every generated document and does character-by-character comparison against the canonical version.
-- File naming sanitization (no accents, 15 chars) is a SEPARATE field from the display title. Never confuse the two.
+1. **Section-level locking (recommended):** Each wizard screen writes to its own subcollection path (already the case: `team/data`, `financials/data`, etc.). Assign sections to roles -- the producer owns `datos` and `financiera`, the line producer owns budget review, the lawyer owns legal docs. Only the assigned user can auto-save to that section.
+2. **Optimistic locking:** Add a `version` field. Before writing, read current `version`. If it changed since last read, show a conflict UI. This is complex but correct.
+3. **Field-level writes:** Instead of sending the entire form data, send only changed fields. Firestore merge handles this, but you must change from "send entire form state" to "send dirty fields only."
+4. **Real-time listeners:** Use `onSnapshot` so both users see live updates. If User B's screen shows data changing under their cursor, they know someone else is editing.
 
-**Detection:** Post-generation scan: regex-extract title occurrences from all generated documents, assert exact match against canonical title.
+**Detection:** Open the same project in two browser tabs. Edit the same field in both. Check if the first edit survives. In v1.0 it does not (last write wins). This must be resolved before shipping collaboration.
 
-**Phase:** Phase 1 (Data Model) must establish the single-source title. Phase 4 (AI Generation) must inject it literally. Phase 3 (Validation) must verify it across all outputs.
+**Phase:** Core to the collaboration feature. Must be designed in the Auth/collaboration phase, not bolted on later.
+
+**Confidence:** HIGH -- verified against the actual `useAutoSave` implementation.
 
 ---
 
-### Pitfall 4: Fee Cross-Matching Failures Between Contracts and Budget
+### Pitfall 4: Cloud Functions Don't Validate Caller Identity (request.auth is Null)
 
-**What goes wrong:** The producer's fee in contract B3 says $500,000 but the budget line A9b says $450,000. The screenwriter's fee in the cesion de derechos (C2b) doesn't match the budget. The director's fee in the contract doesn't match the flujo de efectivo. These triple- and quadruple-matches (Validation Rules #3.1-3.4) are the second most common rejection trigger after financial reconciliation.
+**What goes wrong:** All 7 Cloud Functions (`extractScreenplay`, `analyzeScreenplay`, `runLineProducerPass`, `runFinanceAdvisorPass`, `runLegalPass`, `runCombinedPass`, `estimateScore`) accept a `projectId` from the client and trust it blindly. None check `request.auth`. After adding auth, if you forget to add auth checks to functions, any authenticated user can run expensive AI operations on any project by guessing/knowing a projectId. Worse: if the client sends `request.auth` but the function doesn't validate it, the security model has a hole.
 
-**Why it happens:** Fees are entered or generated in multiple places: the creative team form (Screen 3), the budget generator (AI Pass 1), the contract generator (AI Pass 3). If these are generated independently, they WILL diverge. A user might update a fee in the intake wizard without triggering contract regeneration.
+**Why it happens:** v1.0 functions were designed for no-auth. The `onCall` handler destructures `request.data` but never touches `request.auth`. Example from `functions/src/index.ts`:
+```typescript
+const { projectId } = request.data as { projectId: string };
+if (!projectId) throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+// No auth check anywhere
+```
 
-**Consequences:** Validation Rule #3 (BLOCKER). Multiple documents must be regenerated, potentially cascading to flujo and esquema.
+In Firebase v2 onCall, `request.auth` is automatically populated when the client is authenticated. But it is `null` when no auth is present, and the function still runs. Known Firebase bug/behavior: in some SDK version combinations, `request.auth` can also be `undefined` instead of `null`, requiring defensive checks.
+
+**Consequences:** Unauthorized users can trigger Claude API calls (each costing money). They can read/overwrite any project's generated documents. They can run the score estimation on someone else's project.
 
 **Prevention:**
-- Each person's fee is stored ONCE in the data model. The budget, contracts, and flujo all read from this single source.
-- Implement reactive regeneration: when a fee changes, flag all documents that reference it as stale. The "one-click regeneration" requirement in PROJECT.md is specifically for this.
-- Never allow AI to invent fees. Fees come from user input, period.
+1. Add an auth guard at the top of every Cloud Function:
+   ```typescript
+   if (!request.auth?.uid) {
+     throw new HttpsError('unauthenticated', 'Autenticacion requerida.');
+   }
+   ```
+2. After auth check, verify the caller has access to the requested project:
+   ```typescript
+   const projectDoc = await db.doc(`projects/${projectId}`).get();
+   const teamMembers = projectDoc.data()?.teamMembers ?? [];
+   if (!teamMembers.includes(request.auth.uid)) {
+     throw new HttpsError('permission-denied', 'No tienes acceso a este proyecto.');
+   }
+   ```
+3. Create a shared middleware/helper function for auth + project-access validation. Apply it to all 7 functions. Do NOT copy-paste the check into each function independently (leads to one being missed).
 
-**Detection:** Validation Rule #3 should run continuously, not just at export. Show a real-time warning the moment any fee diverges.
+**Detection:** Unit test: call each function with `request.auth = null`. It should throw `unauthenticated`. Call with a valid auth but wrong projectId. It should throw `permission-denied`.
 
-**Phase:** Phase 1 (Data Model) -- fees as single-source fields. Phase 3 (Validation) -- continuous cross-matching. Phase 4 (AI Generation) -- inject fees, never generate them.
+**Phase:** Must be addressed in the same phase as frontend auth. Deploying frontend auth without backend auth creates a false sense of security.
+
+**Confidence:** HIGH -- verified against all 7 Cloud Function definitions in `functions/src/index.ts`.
 
 ---
 
-### Pitfall 5: Screenplay PDF Parsing Produces Garbage
+### Pitfall 5: Co-Production Exchange Rate Stored as Snapshot But Used as Live Value
 
-**What goes wrong:** The uploaded screenplay PDF uses non-standard formatting, is a scan rather than digital text, uses unusual fonts, or was exported from software that creates PDFs with mangled text layers. The parser extracts garbled scene headings, miscounts scenes, merges characters, or misidentifies INT/EXT/DAY/NIGHT. All downstream AI generation (budget, schedule, propuesta de produccion) is based on this parse, so garbage in = garbage everywhere.
+**What goes wrong:** The project schema has `tipo_cambio_fx` and `fecha_tipo_cambio` as optional fields for international co-productions. In v1.0, these are entered once by the user. But EFICINE requires the exchange rate to be the official rate on the DATE OF REGISTRATION (not the date it was entered). If the user enters the rate in January but submits in February, the rate is stale and the budget in MXN is wrong. Furthermore, the rate is stored as a single float, but co-productions may involve multiple currencies (e.g., a Mexico-France-Spain co-production needs EUR/MXN and potentially USD/MXN).
 
-**Why it happens:** Screenplays come in wildly varying formats. Industry-standard software (Final Draft, WriterSolo, Fade In, Highland, Celtx) each produce different PDF structures. Mexican screenwriters also use Word, Google Docs, or LaTeX. 2025 benchmarks show PDF parsers scoring 75% on text extraction but only 13% on structure recovery. Scanned PDFs from older scripts have no text layer at all.
+**Why it happens:** v1.0's co-production support is minimal -- just a boolean flag `es_coproduccion_internacional` and a single exchange rate field. The schema from `src/schemas/project.ts`:
+```typescript
+tipo_cambio_fx: z.number().positive().optional(),
+fecha_tipo_cambio: z.string().optional(),
+```
 
-**Consequences:** Wrong scene count leads to wrong budget (wrong number of shooting days). Wrong location list leads to wrong propuesta de produccion. Wrong character list leads to incomplete ficha tecnica. User loses trust in the tool when obvious errors appear.
+This assumes one currency pair, one rate, one date. Real co-productions need multiple currencies, each with their own rate and date, and the ability to refresh rates near the registration deadline.
+
+**Consequences:** Budget amounts in foreign currency convert to wrong MXN values. The golden equation breaks because the presupuesto uses one rate but the esquema financiero uses another. EFICINE evaluators catch this because they independently verify exchange rates against Banco de Mexico published rates.
 
 **Prevention:**
-- Build the parser to handle the 80% case (Final Draft / Fountain format PDFs with clean text layers) and provide a manual correction UI for the 20%.
-- Screen 2 (Screenplay Upload) already specifies "user confirms/corrects breakdown data" -- this MUST be a real editing interface, not just a confirmation button.
-- Use `pdf-parse` or `pdf.js` for text extraction, then apply screenplay-specific regex patterns for scene headings (`INT.`, `EXT.`, `INT./EXT.`), character names (ALL CAPS lines before dialogue), and transitions.
-- For scanned PDFs: detect the absence of a text layer and prompt the user to upload a digital version rather than attempting OCR.
-- Validate parse output against heuristics: a feature screenplay should have 60-150 scenes, 5-40 speaking characters, and scene headings should contain location + time-of-day.
+1. Model exchange rates as an array of `{ currency: string, rate: number, date: string, source: string }` objects, not a single scalar.
+2. Add a "refresh exchange rate" action that pulls from Banco de Mexico's API (or allows manual entry with the official rate).
+3. Add a validation rule: if `fecha_tipo_cambio` is more than 30 days before `periodo_registro` close date, show a WARNING.
+4. Store the Banco de Mexico source URL as provenance for audit purposes.
+5. When exchange rates change, all MXN-equivalent amounts in the budget must cascade-recalculate. This means the budget computation engine needs a currency layer.
 
-**Detection:** If the parser returns fewer than 30 scenes or more than 200, or zero INT/EXT markers, flag it as likely failed. Show the user a preview of parsed data BEFORE proceeding to generation.
+**Detection:** Validation rule VALD-XX: for co-productions, check that `fecha_tipo_cambio` is within the registration period or within 30 days before it.
 
-**Phase:** Phase 2 (Screenplay Parser). This is a standalone phase specifically because it's hard and must be reliable before any AI generation depends on it.
+**Phase:** Co-production engine phase. Must be designed before budget generation is extended for multi-currency.
+
+**Confidence:** HIGH for the data model gap (verified in schema). MEDIUM for the Banco de Mexico API availability (not verified).
 
 ---
 
-### Pitfall 6: AI Generates English or Neutral Spanish Instead of Mexican Spanish
+### Pitfall 6: Modality Routing Creates a Parallel Universe of Documents, Prompts, and Validation
 
-**What goes wrong:** Claude's default behavior generates text that sounds like translation from English, uses Peninsular Spanish conventions ("vosotros", "ordenador"), or inserts English terms ("el shooting schedule", "el budget"). Generated documents read as corporate-generic rather than as a professional Mexican film producer would write. Evaluators at IMCINE read hundreds of carpetas and immediately spot AI-generated boilerplate.
+**What goes wrong:** You add a `modalidad` field to the project (`"produccion" | "postproduccion" | "reautorizacion"`) and think you just need a few `if` statements. In reality, each modality has a DIFFERENT set of required documents, a DIFFERENT scoring rubric, DIFFERENT FORMATO structures, and DIFFERENT validation rules. A naive implementation scatters `if (modalidad === 'postproduccion')` checks across dozens of files, creating an unmaintainable mess.
 
-**Why it happens:** Claude's training data is predominantly English. Even with Spanish system prompts, the model can code-switch, especially for technical/financial terms. The `politica_idioma.md` explicitly lists dozens of terms that must NEVER be translated, but the AI may still default to anglicisms.
+**Why it happens:** The current codebase is built entirely for Produccion modality:
+- The scoring rubric (`references/scoring_rubric.md`) has Produccion at 62+38=100 points vs. Postproduccion at 65+35=100 points with DIFFERENT categories.
+- Produccion requires A3 (guion), A4 (propuesta direccion), A5 (material visual) as separate scored documents. Postproduccion replaces these with a 65-point "material filmado" (first cut video link) plus "escrito libre de postproduccion" (15 points).
+- The required documents list changes: Postproduccion does NOT need A7 (propuesta de produccion) or A8a (plan de rodaje) in their Produccion form. Instead it needs post-production-specific ruta critica and budget.
+- All 11 prompts in `prompts/` are written for Produccion. Postproduccion needs different prompts (or no prompts) for many documents.
+- The validation rules change: Postproduccion doesn't validate shooting schedule feasibility but DOES validate that the first-cut video link has an "EFICINE PRODUCCION" watermark not exceeding 1/4 of the visible image.
+- The 4-pass generation pipeline (Line Producer -> Finance Advisor -> Legal -> Combined) assumes Produccion workflow. Postproduccion has a different dependency graph.
 
-**Consequences:** Documents feel inauthentic. Evaluators penalize vague, generic prose (the politica_idioma examples show exactly what bad vs. good looks like). In extreme cases, English text in a submitted document is a rejection trigger (Gotcha #11).
-
-**Prevention:**
-- The prompts in `prompts/` already include a mandatory language instruction block. This MUST be appended to every prompt, not just some.
-- Post-generation validation: scan all generated text for common anglicisms (`budget`, `schedule`, `cast`, `location`, `shooting`, `deadline`, `timeline`). Flag any occurrences.
-- Use the tone examples from `politica_idioma.md` as few-shot examples in prompts. The difference between "La pelicula sera filmada en diversas locaciones" (bad) and the specific, concrete alternative is what separates a 70-point score from a 95-point score.
-- Include a `GUARDARRAILES_IDIOMA` constant that is programmatically appended to every AI call. Never rely on developers remembering to add it manually.
-
-**Detection:** Automated anglicism detector: maintain a blocklist of English words that should never appear in generated documents. Run it post-generation.
-
-**Phase:** Phase 4 (AI Document Generation). The language guardrails must be built into the generation pipeline infrastructure, not added per-prompt.
-
----
-
-### Pitfall 7: Document Expiration Dates Not Tracked
-
-**What goes wrong:** The user uploads an insurance quote dated November 2025 for a Period 1 submission (closes February 13, 2026). That's 3+ months old at close date -- rejected. The user doesn't realize the document expired because the app didn't warn them. This applies to insurance quotes, CPA quotes, bank statements, bank letters, third-party support letters, and in-kind quotes.
-
-**Why it happens:** Document uploads are treated as static files rather than time-sensitive artifacts. The app stores the file but doesn't extract or track the issue date. The 3-month window is easy to miss because the registration period is known in advance but documents are gathered over weeks/months.
-
-**Consequences:** Validation Rule #4 (BLOCKER). Documents must be re-obtained, which may take days or weeks (insurance companies, CPAs, banks all have their own timelines).
+**Consequences:** If you scatter modality checks throughout the codebase, every new feature requires updating every check. Miss one check and a Postproduccion project generates Produccion-specific documents, or the validation engine applies wrong rules.
 
 **Prevention:**
-- When a user uploads a dated document (insurance, CPA, bank), require them to enter the issue date as metadata.
-- Calculate and display the expiration date based on the selected registration period's close date.
-- Show countdown warnings: "This document expires in X days for Period 1" or "This document is already expired for Period 1."
-- On the dashboard, flag any document that will expire before the registration period closes.
+1. **Strategy pattern:** Create a `ModalityConfig` that defines, per modality: required documents, scoring rubric, prompt file mappings, validation rules, generation pipeline order, and FORMATO templates. All modality-dependent code reads from this config, never from inline `if` checks.
+2. **Prompt versioning:** Instead of modifying existing prompts, create parallel prompt directories: `prompts/produccion/`, `prompts/postproduccion/`. The config maps modality to prompt directory.
+3. **Validation rule registry:** Each validation rule declares which modalities it applies to. The validation engine filters rules by the project's modality before evaluation.
+4. **Pipeline factory:** Instead of one fixed 4-pass pipeline, create a pipeline builder that returns the correct pass sequence for the modality.
+5. **Start with Produccion as default.** All existing code continues to work unchanged. Postproduccion and Reautorizacion are additive, never modifying existing Produccion logic.
 
-**Detection:** Traffic light dashboard: any dated document within 2 weeks of expiration = yellow. Already expired = red.
+**Detection:** Grep for hardcoded modality assumptions: any reference to "A7", "A8a", "plan de rodaje" that doesn't check modality first is a potential bug for Postproduccion.
 
-**Phase:** Phase 1 (Data Model -- date fields on uploaded documents), Phase 3 (Validation -- date compliance checks), Phase 5 (Export -- final expiration check before ZIP).
+**Phase:** Modality routing should be its own dedicated phase, NOT mixed into the auth phase. The data model needs the `modalidad` field early, but the routing logic is a separate concern.
+
+**Confidence:** HIGH -- verified against `references/scoring_rubric.md` (lines 49-64) and `references/validation_rules.md`.
 
 ---
 
 ## Moderate Pitfalls
 
----
-
-### Pitfall 8: AI Generation Pipeline Ordering Creates Stale Dependencies
-
-**What goes wrong:** The 4-pass AI pipeline (Line Producer -> Finance -> Legal -> Combined) creates a dependency chain. If the user changes data after Pass 1 runs but before Pass 4, the combined documents reference stale data from Pass 1. Worse: if the user regenerates Pass 1, Passes 2-4 are now stale but the app doesn't invalidate them.
-
-**Why it happens:** Document generation is treated as a one-shot process rather than a reactive dependency graph. Each pass's output feeds the next, but there's no mechanism to track which outputs depend on which inputs.
-
-**Prevention:**
-- Model document dependencies as a DAG (directed acyclic graph). Each generated document tracks which input data and which prior documents it depends on.
-- When any input changes, mark all downstream documents as "stale" and show this visually on the dashboard.
-- Implement the "one-click regeneration" as a cascade: changing the budget triggers re-generation of flujo, esquema, contracts, and all combined docs.
-- Store a hash of the inputs used for each generation. Compare current inputs against stored hash to detect staleness.
-
-**Detection:** Visual indicator on each document: "Generated with current data" (green) vs. "Data has changed since generation" (amber).
-
-**Phase:** Phase 4 (AI Document Generation) -- dependency tracking must be built into the pipeline architecture from the start.
+Mistakes that cause significant rework, poor UX, or bugs that are hard to track down.
 
 ---
 
-### Pitfall 9: EFICINE Prohibited Expenditure Items Leak Into Budget
+### Pitfall 7: Firebase Auth Init Creates a Loading Flash on Every Page
 
-**What goes wrong:** The AI-generated budget includes line items that EFICINE funds cannot legally pay for: pre-production expenses before receiving the stimulus, distribution costs, carpeta preparation, completion bonds, mark-ups on production services, or fixed asset purchases. The flujo de efectivo then shows EFICINE money flowing to these items.
+**What goes wrong:** You add `getAuth()` to `src/lib/firebase.ts` and wrap the app in an auth state observer. On every page load, `onAuthStateChanged` fires asynchronously. Until it resolves, `user` is `null`. If your route guards redirect unauthenticated users to login, every page load shows a brief flash of the login screen before the auth state resolves and the user is recognized as logged in.
 
-**Why it happens:** The AI generates a "realistic" film budget that includes items any production would need, but doesn't know which funding SOURCE each item is assigned to. The mapping of expenditure categories to funding sources is a business logic problem, not a prose generation problem.
-
-**Consequences:** Validation Rule #7 (BLOCKER). Requires restructuring the entire flujo de efectivo.
+**Why it happens:** Firebase Auth's `onAuthStateChanged` is async. The current `App.tsx` has no loading state:
+```typescript
+function App() {
+  return (
+    <BrowserRouter>
+      <AppHeader>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          ...
+        </Routes>
+      </AppHeader>
+    </BrowserRouter>
+  )
+}
+```
+There is no auth context, no loading spinner, no route protection. Adding auth requires wrapping everything in an auth provider that blocks rendering until the auth state is known.
 
 **Prevention:**
-- Maintain a hardcoded list of prohibited EFICINE expenditure categories (from Validation Rule #7 and app_spec). This is deterministic business logic, not AI territory.
-- When generating the flujo de efectivo, the code (not AI) assigns funding sources to line items. EFICINE funds are automatically excluded from prohibited categories.
-- Post-generation scan: check every line item where `source == "EFICINE"` against the prohibited list.
+1. Create an `AuthProvider` component that wraps the app and holds `user`, `loading`, `error` state.
+2. While `loading` is true, render a full-screen spinner (not the login page, not the app).
+3. Only after `loading` is false, decide: if `user` is null, redirect to login. If `user` exists, render the app.
+4. Use `getAuth(app)` in `firebase.ts` alongside the existing exports. Initialize it once.
+5. Store the auth instance as a module-level export, same pattern as `db`, `storage`, `functions`.
 
-**Detection:** Automated validation rule that fires on every flujo save, not just at export.
+**Detection:** Rapid page refresh. If you see a login flash before the dashboard appears, the auth state resolution is leaking into the UI.
 
-**Phase:** Phase 3 (Validation) for the check, Phase 4 (AI Generation) for ensuring the flujo generation respects the prohibited list.
+**Phase:** Auth phase, first task after Firebase Auth is initialized.
+
+**Confidence:** HIGH -- standard Firebase Auth pattern, verified against current App.tsx structure.
 
 ---
 
-### Pitfall 10: Screenwriter 3% Rule Miscalculated
+### Pitfall 8: `listProjects` Returns ALL Projects, Not the User's Projects
 
-**What goes wrong:** The screenwriter fee appears to meet the 3% threshold, but the calculation is wrong because: (a) IVA (16% tax) was not included when it should have been, (b) adaptation rights, script doctor fees, or consultant payments were incorrectly counted toward the 3%, or (c) the 3% was calculated against the wrong base (EFICINE amount instead of total budget).
+**What goes wrong:** The `DashboardPage` calls `listProjects()`, which queries `projectsCol` ordered by `createdAt` with no filter. After adding auth, this returns every project in the database, not just the current user's projects. With security rules, this query will either fail entirely (if rules require owner match) or return only documents the user can access (if rules use `request.auth.uid` matching), but the client-side query doesn't include a `where` clause, so Firestore may reject it with a "Missing or insufficient permissions" error.
 
-**Why it happens:** The 3% rule has specific exclusions (Validation Rule #1.3): only FINAL SCREENPLAY AUTHORSHIP counts. Adaptation rights, script doctors, consultants, translations, and readings are explicitly excluded. Additionally, the fee must be calculated "con IVA" (with tax), which changes the math.
+**Why it happens:** Firestore security rules evaluate at the query level, not the result level. If your rules say "users can only read their own projects" but the query says "give me all projects ordered by date," Firestore rejects the QUERY (not the individual results). The client must include a `where` clause that matches the security rule's condition.
 
-**Consequences:** Validation Rule #1.3 (BLOCKER). Screenwriter underpayment = rejected (Gotcha #8).
+Current code from `src/services/projects.ts`:
+```typescript
+const q = query(projectsCol, orderBy('createdAt', 'desc'))
+const snap = await getDocs(q)
+```
 
 **Prevention:**
-- Separate "screenwriter final authorship fee" from "other writing-related payments" in the data model. Only the authorship fee counts toward 3%.
-- Always calculate with IVA included (multiply by 1.16 for standard IVA rate).
-- Show the user the exact calculation: `$AMOUNT x 1.16 = $AMOUNT_CON_IVA >= 3% of $TOTAL_BUDGET`.
-- If the fee is below 3%, make it a hard blocker that prevents export, with a clear message explaining exactly how much more is needed.
+1. Add `where('ownerId', '==', currentUserId)` or `where('teamMembers', 'array-contains', currentUserId)` to the query.
+2. Ensure the security rule matches the query structure. If the rule checks `resource.data.teamMembers` but the query filters on `ownerId`, they won't align and the query fails.
+3. Update `createProject()` to include `ownerId` and `teamMembers` fields when creating a new project.
+4. Do NOT rely on security rules to filter results. Always include the matching `where` clause in the client query.
 
-**Detection:** Real-time calculation on the financial structure screen. Warn as soon as the entered screenwriter fee is below threshold.
+**Detection:** After adding auth + rules, load the dashboard. If it shows "Firestore connection error" (the existing toast from `onError`), the query is being rejected by security rules.
 
-**Phase:** Phase 1 (Data Model -- separate fee fields), Phase 3 (Validation -- 3% check with correct calculation), Phase 4 (AI Generation -- cesion de derechos contract must reflect the exact fee).
+**Phase:** Auth phase, immediately after data migration adds ownership fields.
+
+**Confidence:** HIGH -- this is one of the most common Firebase Auth migration mistakes, and verified against the actual `projects.ts` code.
 
 ---
 
-### Pitfall 11: PDF Export Mangles Accents and Special Characters in File Names
+### Pitfall 9: Co-Production Territorial Budget Split Requires Duplicate Budget Lines
 
-**What goes wrong:** Generated PDF files are named with accents ("A1_Resumen_Ejecutivo_Pelicula.pdf"), tildes ("A7_PP_Ninos.pdf"), or exceed 15 characters. The SHCP upload system silently rejects or corrupts these files. Alternatively, the sanitization strips accents from file names but accidentally strips them from file CONTENT too, producing documents where "produccion" appears instead of "produccion" -- wait, or "produccion" instead of "produccion" with accent.
+**What goes wrong:** You add co-production support by adding a `pais` field to each budget line item. But EFICINE requires a TERRITORIAL split: every line in the presupuesto desglose must show "Gasto en territorio nacional" vs. "Gasto en el extranjero" separately. This is not just a filter -- it's a structural requirement where the same budget account (e.g., "300 - Equipo Tecnico") may have BOTH national and foreign spend, and the evaluator needs to see both columns side by side.
 
-**Why it happens:** File naming sanitization and document content generation share code paths or the sanitization function is applied too broadly. JavaScript's `normalize('NFD').replace(/[\u0300-\u036f]/g, '')` strips accents perfectly for file names but is catastrophic for document content.
+**Why it happens:** The current budget generation in the Line Producer pass creates a flat list of accounts (100-1200). For domestic-only productions, this is correct. For co-productions, EFICINE requires a dual-column or dual-section format showing territorial allocation. The existing prompt `a9_presupuesto.md` has no mention of territorial splits.
 
-**Consequences:** Validation Rule #9 (BLOCKER) if file names are wrong. Document quality degradation if content accents are stripped. Both are rejection triggers.
+**Consequences:** The budget document is structurally wrong for co-productions. The evaluator cannot verify that the Mexican participation is genuine (a key evaluation criterion worth points in the "propuesta de produccion" category). The esquema financiero and flujo de efectivo must also reflect the territorial split, cascading the structural change through 3+ documents.
 
 **Prevention:**
-- File name sanitization is a COMPLETELY SEPARATE function from document content handling. Never share string-processing utilities between the two.
-- Build the file naming function to: (1) strip accents, (2) remove all non-alphanumeric except underscore, (3) truncate to 15 chars, (4) ensure `.pdf` extension. Test it with the worst-case project title: "Los Ninos de la Montana: Una Historia de Amor y Revolucion."
-- The export_manager.json schema already defines naming rules -- implement them as a dedicated utility with comprehensive tests.
+1. Add `territorio: 'nacional' | 'extranjero'` to each budget line item in the data model.
+2. For co-productions, the budget summary must show two sub-totals per account: national and foreign.
+3. The flujo de efectivo must also split by territory.
+4. Create co-production-specific prompt variants: `a9_presupuesto_coprod.md` that instructs Claude to generate the dual-column format.
+5. The financial reconciliation golden equation must now hold for: total = national + foreign (per account AND per source).
 
-**Detection:** Unit tests for file naming with edge cases: accents, enes, long titles, special characters. Integration test: generate a full package, check every file name matches the regex `^[A-Za-z0-9_]{1,15}\.pdf$`.
+**Detection:** Generate a budget for a co-production project. If it looks identical to a domestic budget (no territorial columns), the co-production engine is incomplete.
 
-**Phase:** Phase 5 (Export Manager). But the file naming utility should be built and tested early, potentially in Phase 1, since it's a deterministic function.
+**Phase:** Co-production engine phase. Must be coordinated with budget generation changes.
+
+**Confidence:** HIGH -- verified against `references/validation_rules.md` rule #12.
 
 ---
 
-### Pitfall 12: In-Kind Contribution Double-Counting
+### Pitfall 10: Role-Based Access + Firestore Security Rules = 10 Read Limit
 
-**What goes wrong:** An in-kind contribution (crew member donating part of their fee) is counted toward the budget total AND counted as a separate contribution, inflating the total budget and changing all percentage calculations. Or: in-kind is counted correctly in the budget but the 10% cap check uses the wrong denominator.
+**What goes wrong:** You implement role-based access by storing roles in a `users/{userId}` document and writing a `getUserRole()` helper function in security rules. Each rule invocation calls `get(/databases/$(database)/documents/users/$(request.auth.uid))` to check the role. Firestore allows a maximum of 10 document access calls per rule evaluation. If your rules check the user's role (1 read), then check the project's team members (1 read), then check a subcollection permission (1 read), you consume 3 reads per rule. Complex nested paths (e.g., `projects/{pid}/team/{tid}`) can hit the 10-read limit, causing ALL operations on that path to fail with "maximum call stack depth exceeded."
 
-**Why it happens:** In-kind contributions occupy a confusing space: they're both an EXPENSE (the person's full fee appears in the budget) and a SOURCE (the donated portion appears in the esquema financiero). The validation rules (#1.4) require: total in-kind via honorarios <= 10% of total budget, AND each person's in-kind <= 50% of their total fee.
+**Why it happens:** Firestore security rules are evaluated server-side for every read and write. Each `get()` or `exists()` call in rules counts against the 10-call limit. Team-based access patterns are read-heavy because you need to verify membership on every operation.
 
-**Consequences:** Validation Rules #1.4 (BLOCKER). Budget appears inflated, percentage calculations are wrong, EFICINE compliance thresholds shift.
+**Consequences:** Write operations fail intermittently. The auto-save hook enters its retry loop, burns through 3 retries, and shows a persistent error state. Users think the app is broken.
 
 **Prevention:**
-- Model in-kind contributions explicitly: each team member has `total_fee` and `inkind_portion`. The budget always shows `total_fee`. The esquema financiero shows `inkind_portion` as a funding source.
-- The total budget is the sum of all expenses (not the sum of funding sources). In-kind doesn't change the budget total; it changes how the budget is FUNDED.
-- Build percentage calculations that clearly distinguish "% of budget" from "% of funding."
+1. **Use Firebase custom claims** instead of Firestore document reads for role checking. Custom claims are embedded in the auth token and cost zero rule reads: `request.auth.token.role == 'producer'`.
+2. Store the `teamMembers` array directly on the project document (not in a subcollection). This way, checking team membership is one `get()` call on the document being accessed, which is free (it's the `resource.data` of the document itself).
+3. For subcollections under projects, use a wildcard rule that inherits the parent project's team check: read the project doc once, cache the result for nested paths.
+4. Keep rules as flat as possible. Avoid helper functions that chain multiple `get()` calls.
 
-**Detection:** Assert: sum of all funding sources (cash + in-kind from all parties) == total budget. If these diverge, in-kind is being double-counted.
+**Detection:** Monitor the Firebase Console's "Rules" tab for "exceeded maximum get calls" errors. In development, the Emulator logs these clearly.
 
-**Phase:** Phase 1 (Data Model -- explicit in-kind modeling), Phase 3 (Validation -- cap checks).
+**Phase:** Auth phase, rules design. This architectural decision must be made upfront, not after rules are already written with document-read patterns.
+
+**Confidence:** HIGH -- this is a well-documented Firebase limitation (10 document access calls per rule evaluation).
 
 ---
 
-### Pitfall 13: Gestor de Recursos Fee Cap Miscalculated
+### Pitfall 11: The CLAUDE.md "Never" Rule Says "Never Add Firebase Auth"
 
-**What goes wrong:** The gestor (resource manager / fundraiser) fee exceeds the allowed cap: 5% of EFICINE amount for requests up to $10M, or 4% for requests over $10M. Additionally, the gestor fee must come from ERPI's own contribution, NOT from EFICINE funds.
+**What goes wrong:** The current `CLAUDE.md` explicitly says under "Never": "Add Firebase Auth (single-user by design)." An AI assistant or contributor following these instructions will refuse to add auth or will flag it as a violation. This creates friction and confusion during the v2.0 migration.
 
-**Why it happens:** The threshold is a step function ($10M boundary), not a simple percentage. Developers may apply the wrong cap or fail to enforce the funding source restriction. The gestor fee is also sometimes buried in "administrative costs" in the budget rather than broken out as a separate line.
+**Why it happens:** The rule was correct for v1.0. It hasn't been updated for the v2.0 milestone.
 
-**Consequences:** Validation Rule #1.5 (BLOCKER).
+**Consequences:** Development confusion. AI assistants refuse valid auth-related changes. PR reviewers citing CLAUDE.md as reason to reject auth code.
 
 **Prevention:**
-- Require explicit gestor fee entry as a separate field (not hidden in admin costs).
-- Implement the step function clearly: `if eficine_request > 10_000_000 then max 4% else max 5%`.
-- In the flujo de efectivo, programmatically ensure the gestor fee line item's source is "ERPI" never "EFICINE."
+1. Update CLAUDE.md BEFORE starting the auth phase. Remove or update the "Never add Firebase Auth" rule.
+2. Replace with: "Firebase Auth is required. Google login for Lemon Studios team. All Firestore reads/writes must include user context."
+3. Update the "No Firebase Auth -- single-user tool" note under Firebase section.
+4. Update the Project Structure section to include auth-related files.
 
-**Detection:** Real-time validation on the financial structure screen.
+**Detection:** Read CLAUDE.md. If it still says "never add Firebase Auth," it's stale.
 
-**Phase:** Phase 3 (Validation), Phase 4 (flujo de efectivo generation must respect the source restriction).
+**Phase:** Must be updated at the START of v2.0, before any code changes.
+
+**Confidence:** HIGH -- verified at CLAUDE.md line 173.
 
 ---
 
-### Pitfall 14: Claude API Rate Limits and Timeout During 4-Pass Generation
+### Pitfall 12: Postproduccion Modality Invalidates the 4-Pass Pipeline Order
 
-**What goes wrong:** The 4-pass document generation pipeline involves 10+ sequential API calls to Claude, each potentially processing a full screenplay plus context. A single timeout, rate limit, or API error mid-pipeline leaves the project in an inconsistent state: Pass 1 completed, Pass 2 partially completed, Passes 3-4 not started.
+**What goes wrong:** The v1.0 generation pipeline runs in strict order: Pass 1 (Screenplay Analysis) -> Pass 2 (Line Producer: budget, plan de rodaje, ruta critica) -> Pass 3 (Finance Advisor: flujo, esquema) -> Pass 4 (Legal: contracts) -> Pass 5 (Combined: resumen ejecutivo, sinopsis, etc.). For Postproduccion modality, Pass 2 is fundamentally different: there's no shooting schedule (filming is done), the budget structure changes (past expenditures + remaining post costs), and the ruta critica covers only post-production stages. If you run the existing Pass 2 prompts for a Postproduccion project, you get a shooting schedule for a film that's already shot.
 
-**Why it happens:** Anthropic API has rate limits (tokens per minute, requests per minute). A full screenplay can be 20,000-40,000 tokens. Each pass sends prior outputs as context, compounding token usage. Network interruptions happen.
+**Why it happens:** All 6 Cloud Functions in `functions/src/index.ts` call `loadProjectDataForGeneration()` which loads the same data structure regardless of modality. The pass handlers assume Produccion workflow. There's no modality branching in the pipeline.
 
-**Consequences:** Partially generated documents that reference each other inconsistently. User confusion about what's complete and what's not. Wasted API credits on retries.
+**Consequences:** Generated documents are nonsensical for Postproduccion. The plan de rodaje describes future shooting for a completed film. The budget includes pre-production costs that were already spent. The ruta critica shows filming stages that already happened.
 
 **Prevention:**
-- Make each document generation IDEMPOTENT. Store results per-document in Firestore. If a pass fails, retry that specific document, not the entire pipeline.
-- Implement a generation queue with status tracking: `pending -> generating -> complete -> error`. Show status per document on the dashboard.
-- Use Firebase Cloud Functions (not client-side) for API calls to avoid browser timeouts.
-- Implement exponential backoff with jitter for rate limit errors.
-- Set realistic timeouts (2-3 minutes per document, given 200K+ token context windows).
+1. Add `modalidad` to the `ProjectMetadata` type in both frontend (`src/schemas/project.ts`) and backend (`functions/src/pipeline/orchestrator.ts`).
+2. Create a pipeline configuration per modality that defines which passes to run and which prompts to use.
+3. For Postproduccion: skip Pass 2 entirely (or replace with a "Post-Production Planner" pass). The budget pass must be post-production-aware (show pre-production as completed expenditure, post-production as remaining).
+4. The Combined pass must generate different documents: no A7 propuesta de produccion, but instead an "escrito libre de postproduccion."
 
-**Detection:** Generation status dashboard showing each document's state. If any document is stuck in "generating" for more than 5 minutes, flag it.
+**Detection:** Create a Postproduccion project and run the pipeline. If it generates a plan de rodaje, the modality routing failed.
 
-**Phase:** Phase 4 (AI Document Generation) -- pipeline architecture must handle partial failure gracefully from day one.
+**Phase:** Modality routing phase. Requires new prompts and pipeline configuration.
+
+**Confidence:** HIGH -- verified against prompt files and pipeline structure.
 
 ---
 
 ## Minor Pitfalls
 
----
-
-### Pitfall 15: Ruta Critica and Flujo de Efectivo Timeline Desync
-
-**What goes wrong:** The ruta critica says rodaje happens in Month 3, but the flujo de efectivo shows production spending in Month 5. This isn't a hard rejection trigger (it's Validation Rule #11, a WARNING), but evaluators notice and it signals a poorly planned project.
-
-**Prevention:** Derive both the ruta critica timeline and the flujo de efectivo spending timeline from the SAME underlying schedule model. Don't generate them independently.
-
-**Phase:** Phase 4 (AI Generation) -- Pass 1 (schedule) must feed Pass 2 (financial) with explicit timeline data.
+Issues that cause UI bugs, poor DX, or minor inconsistencies.
 
 ---
 
-### Pitfall 16: Bonus Points Category Selection Errors
+### Pitfall 13: Google Login Domain Restriction Not Configured
 
-**What goes wrong:** The user selects a bonus points category (e.g., "directora mujer") but the director is co-directing with a man, which disqualifies the bonus. Or: the user claims "descentralizacion regional" but the ERPI's fiscal domicile is in CDMX metro area. Bonus categories are non-cumulative (only ONE can apply), and each has specific eligibility criteria.
+**What goes wrong:** You enable Google login via Firebase Auth and any Google account can log in. A random person with a Gmail account accesses the tool and can see (or create) projects. For an internal Lemon Studios tool, this is a data leak.
 
-**Prevention:** Auto-evaluate bonus eligibility based on entered data. Don't let the user freely select a category; instead, show which categories they QUALIFY for and which they don't, with explanations.
+**Prevention:**
+1. Use Firebase Auth's `hd` (hosted domain) parameter to restrict Google login to `@lemonstudios.mx` (or whatever the company domain is).
+2. Alternatively, use an allowlist of email addresses in Firestore and check membership on first login.
+3. If using Google Workspace, configure the OAuth consent screen to "Internal" so only organization members can authenticate.
 
-**Phase:** Phase 3 (Validation) -- bonus eligibility is a rule check, not a user choice.
+**Phase:** Auth phase configuration.
 
----
-
-### Pitfall 17: Co-Production Rules Silently Ignored
-
-**What goes wrong:** The project is flagged as an international co-production but the app doesn't enforce the special rules: IMCINE prior recognition certificate, territorial budget split (national vs. foreign spend), foreign currency conversion with exchange rate at registration date, and justification of Mexican creative participation.
-
-**Prevention:** When `es_coproduccion_internacional == True`, activate a separate validation pathway (Rule #12) that adds these as BLOCKER requirements. Don't bury co-production rules in the general flow.
-
-**Phase:** Phase 1 (Data Model -- conditional fields), Phase 3 (Validation -- conditional rule activation).
+**Confidence:** MEDIUM -- depends on whether Lemon Studios uses Google Workspace.
 
 ---
 
-### Pitfall 18: Firebase Firestore Document Size Limits
+### Pitfall 14: Zustand Stores Have No User Scoping
 
-**What goes wrong:** A generated document (especially the presupuesto desglosado with hundreds of line items, or the flujo de efectivo as a multi-dimensional matrix) exceeds Firestore's 1MB document size limit. The save fails silently or throws an opaque error.
+**What goes wrong:** The `appStore` holds `activeProjectId`. If the app somehow retains state across user switches (e.g., user logs out and another logs in without a full page reload), the active project from User A's session leaks into User B's session. The `wizardStore` holds `activeScreen` and `sidebarOpen` which are less dangerous but still user-specific state.
 
-**Prevention:** Structure the Firestore data model with subcollections for large datasets. Budget line items should be a subcollection of the budget document, not embedded arrays. The flujo de efectivo matrix should be stored as a collection of rows, not a single nested object.
+**Prevention:**
+1. Clear all Zustand stores on logout: `useAppStore.getState().setActiveProject(null)`.
+2. Use a `useEffect` in the `AuthProvider` that resets stores when `user` changes.
+3. If using persistent storage for Zustand, key it by userId: `persist({ name: \`app-store-\${userId}\` })`.
 
-**Detection:** Monitor document sizes during development. If any document approaches 500KB, restructure.
+**Phase:** Auth phase, logout flow implementation.
 
-**Phase:** Phase 1 (Data Model) -- must be designed with Firestore limits in mind from the start.
+**Confidence:** HIGH -- verified against `src/stores/appStore.ts`.
+
+---
+
+### Pitfall 15: React Query Cache Leaks Data Between Users
+
+**What goes wrong:** Similar to Zustand, React Query caches query results keyed by query key (e.g., `['projects']`). If User A logs out and User B logs in, the cached project list from User A is still in the React Query cache. User B briefly sees User A's projects until the cache is invalidated. This is a data leak.
+
+**Prevention:**
+1. Call `queryClient.clear()` on logout.
+2. Better: include the `userId` in query keys: `['projects', userId]`. This way each user's data is cached separately and there's no cross-contamination.
+3. The React Query provider is in `main.tsx`. The QueryClient should be recreated or cleared when auth state changes.
+
+**Phase:** Auth phase, logout flow.
+
+**Confidence:** HIGH -- standard React Query auth pattern.
+
+---
+
+### Pitfall 16: Co-Production Multi-Currency Breaks Integer Centavos Arithmetic
+
+**What goes wrong:** The entire financial system uses integer centavos (MXN * 100). When a co-production has a foreign contribution in EUR, you need to store the EUR amount AND its MXN equivalent. If you store the EUR amount in centavos and multiply by the exchange rate, you get floating-point intermediate values that must be rounded back to integer centavos. Different rounding of the EUR->MXN conversion at different points in the code produces different MXN totals, breaking the golden equation.
+
+**Prevention:**
+1. Store foreign amounts in their native currency centavos (e.g., EUR cents).
+2. Store the exchange rate with sufficient precision (6 decimal places minimum).
+3. Define a SINGLE conversion function: `convertToMXNCentavos(foreignCentavos, rate)` that uses consistent rounding (e.g., `Math.round(foreignCentavos * rate)`).
+4. The MXN equivalent is the canonical value for all calculations. Foreign amounts are informational only.
+5. When the exchange rate changes, ALL MXN equivalents must be recomputed through the single conversion function.
+
+**Phase:** Co-production engine phase.
+
+**Confidence:** HIGH -- verified against the centavos pattern in `src/lib/constants.ts` and `src/hooks/useCompliance.ts`.
+
+---
+
+### Pitfall 17: Resubmission Modality Needs Prior Submission History
+
+**What goes wrong:** The "previously-authorized project resubmission" modality requires knowing the prior submission's authorization number, period, score, and evaluator comments. The current data model has `intentos_proyecto` (a simple integer counter) but no structured history of prior submissions. Without this history, the system cannot populate the resubmission FORMATO or validate that the project is eligible for resubmission (max 3 attempts per EFICINE rules).
+
+**Prevention:**
+1. Add a `prior_submissions` array to the project schema: `Array<{ periodo: string, score: number, authorization_number?: string, status: 'authorized' | 'not_authorized', comments?: string }>`.
+2. The resubmission modality should pre-populate documents with data from the most recent prior submission.
+3. Validation rule: if `prior_submissions.length >= 3`, block new submission (EFICINE max 3 attempts).
+4. The resubmission must reference the prior authorization period and show what changed since the last submission.
+
+**Phase:** Modality routing phase, specifically resubmission support.
+
+**Confidence:** HIGH -- verified against `src/schemas/project.ts` (`intentos_proyecto` field) and `references/validation_rules.md` rule #6.
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase | Likely Pitfall | Mitigation |
-|-------|---------------|------------|
-| Phase 1: Data Model | Single-source principle not enforced for financial data, titles, and fees | Design the schema so every datum has ONE canonical location. Other documents reference it, never duplicate it. |
-| Phase 1: Data Model | Firestore document size limits for complex financial matrices | Use subcollections for budget line items, flujo rows, and team members. |
-| Phase 2: Screenplay Parser | Non-standard PDF formats produce garbage parse results | Build a robust manual correction UI. Detection heuristics for failed parses. Reject scanned PDFs early. |
-| Phase 3: Validation | Validation rules run only at export time instead of continuously | Implement real-time validation that fires on every data change. The traffic light dashboard must be live. |
-| Phase 3: Validation | 3% screenwriter rule calculated without IVA or with wrong fee components | Separate authorship fee from other writing payments. Always calculate con IVA. |
-| Phase 4: AI Generation | AI invents numbers instead of using injected values | All monetary values MUST come through `{{variable}}` injection. Post-generation extraction and validation of all figures. |
-| Phase 4: AI Generation | AI generates English, Peninsular Spanish, or generic boilerplate | Append `GUARDARRAILES_IDIOMA` to every prompt programmatically. Post-generation anglicism scan. |
-| Phase 4: AI Generation | Pipeline partial failure leaves inconsistent document state | Idempotent per-document generation with status tracking. Firebase Functions for API calls. |
-| Phase 4: AI Generation | Stale dependencies between passes not tracked | DAG-based dependency model. Hash inputs per document. Visual staleness indicator. |
-| Phase 5: Export | File naming sanitization bleeds into document content | Completely separate string-processing functions for names vs. content. |
-| Phase 5: Export | Expired documents not caught before final export | Final date-compliance sweep with hard block on expired documents. |
+| Phase Topic | Likely Pitfall | Mitigation | Severity |
+|-------------|---------------|------------|----------|
+| Firebase Auth setup | Auth state flash on page load (#7) | AuthProvider with loading state blocks render until auth resolves | Moderate |
+| Firebase Auth setup | CLAUDE.md contradicts v2.0 goals (#11) | Update CLAUDE.md before starting code changes | Moderate |
+| Firebase Auth setup | Google login open to any account (#13) | Restrict to company domain or allowlist | Minor |
+| Security rules deployment | Locks out existing data (#1) | Migrate data BEFORE deploying rules | Critical |
+| Security rules deployment | 10-read limit on role checks (#10) | Use custom claims, not document reads for roles | Moderate |
+| Data model migration | ERPI singleton breaks multi-user (#2) | Move to per-project or per-user ERPI settings | Critical |
+| Data model migration | listProjects query rejected by rules (#8) | Add where clause matching security rule conditions | Moderate |
+| Collaboration | Auto-save concurrent write data loss (#3) | Section-level locking or optimistic locking | Critical |
+| Collaboration | Zustand/React Query cache leaks (#14, #15) | Clear caches on auth state change | Minor |
+| Cloud Functions | No auth validation on callable functions (#4) | Add auth guard + project access check to all functions | Critical |
+| Co-production engine | Exchange rate staleness (#5) | Multi-rate model with refresh capability | Critical |
+| Co-production engine | Territorial budget split (#9) | Dual-column budget structure per account | Moderate |
+| Co-production engine | Multi-currency breaks centavos math (#16) | Single conversion function with consistent rounding | Moderate |
+| Modality routing | Parallel document/prompt/validation universes (#6) | Strategy pattern with ModalityConfig | Critical |
+| Modality routing | 4-pass pipeline wrong for Postproduccion (#12) | Pipeline factory per modality | Moderate |
+| Modality routing | Resubmission needs submission history (#17) | Prior submissions array in project schema | Moderate |
 
 ---
 
-## EFICINE-Specific Rejection Triggers (from app_spec.md)
+## Migration Order (Risk-Minimizing Sequence)
 
-The app_spec documents 14 specific rejection triggers. Each maps to pitfalls above:
+Based on pitfall dependencies, the safest migration order is:
 
-| Rejection Trigger | Related Pitfall | Severity |
-|---|---|---|
-| 1. Any missing document | #7 (completeness), Validation Rule #8 | CRITICAL |
-| 2. Title mismatch | #3 (title inconsistency) | CRITICAL |
-| 3. Fee mismatches | #4 (fee cross-matching) | CRITICAL |
-| 4. INDAUTOR title mismatch | #3 (title inconsistency) | CRITICAL |
-| 5. Expired documents | #7 (date tracking) | CRITICAL |
-| 6. Screenshots as bank proof | UX -- reject screenshot uploads, require official bank letters | MODERATE |
-| 7. Missing e.firma | UX -- checklist item, app cannot generate | MODERATE |
-| 8. Screenwriter underpayment | #10 (3% rule miscalculation) | CRITICAL |
-| 9. In-kind over 10% | #12 (in-kind double-counting) | CRITICAL |
-| 10. File naming violations | #11 (accent/character stripping) | CRITICAL |
-| 11. Documents not in Spanish | #6 (AI language issues) | CRITICAL |
-| 12. Prohibited EFICINE expenditures | #9 (prohibited items in budget) | CRITICAL |
-| 13. ERPI paying itself | Business logic check -- persona fisica ERPI cannot receive EFICINE compensation | MODERATE |
-| 14. 4th submission attempt | UX -- track submission history per project | LOW |
+1. **Update CLAUDE.md** (unblocks everything, zero risk)
+2. **Add Firebase Auth** (no rules yet -- just auth state in frontend, login flow)
+3. **Run data migration script** (add `ownerId`, `teamMembers` to existing docs, move ERPI to per-project)
+4. **Update all service files** (add `where` clauses, user context to queries)
+5. **Update all Cloud Functions** (add auth guards + project access checks)
+6. **Deploy security rules** (LAST -- only after all data and code is migrated)
+7. **Implement collaboration** (section locking, real-time listeners)
+8. **Add modality routing** (strategy pattern, separate from auth)
+9. **Add co-production engine** (multi-currency, territorial splits)
+
+Deploying rules before step 4 completes = bricked app (Pitfall #1).
+Deploying auth before step 5 completes = false security (Pitfall #4).
+Adding modality before auth is stable = too many moving parts.
 
 ---
 
 ## Sources
 
-- [The PDF Problem: Why AI Struggles to Read Documents (2026)](https://medium.com/@umesh382.kushwaha/the-pdf-problem-why-ai-struggles-to-read-the-documents-that-run-your-business-173673150c05) -- PDF parsing challenges
-- [Long-Form Generation with LLMs: Structure, Coherence, and Facts](https://brics-econ.org/long-form-generation-with-large-language-models-how-to-keep-structure-coherence-and-facts-accurate) -- LLM consistency issues in document generation
-- [Best Practices for Financial Reporting: Eliminate Rounding Errors](https://blog.fhblackinc.com/best-practices-financial-reporting-eliminate-rounding-errors) -- Financial calculation consistency
-- [Testing Financial Apps for Accuracy and Compliance](https://www.softwaretestingmagazine.com/knowledge/testing-financial-apps-for-accuracy-and-compliance/) -- Financial software testing patterns
-- `directives/app_spec.md` -- 14 rejection triggers, document map, pipeline architecture (HIGH confidence, primary source)
-- `references/validation_rules.md` -- 13 cross-module validation rules (HIGH confidence, primary source)
-- `directives/politica_idioma.md` -- Language policy and protected terminology (HIGH confidence, primary source)
+- [Firebase Fix Insecure Rules](https://firebase.google.com/docs/firestore/security/insecure-rules)
+- [Firebase Security Rules and Authentication](https://firebase.google.com/docs/rules/rules-and-auth)
+- [Firebase Secure Data Access for Users and Groups](https://firebase.google.com/docs/firestore/solutions/role-based-access)
+- [Firebase Team-Based User Management](https://blog.richartkeil.com/how-to-build-a-team-based-user-management-system-in-firebase/)
+- [Firebase Transaction Serializability](https://firebase.google.com/docs/firestore/transaction-data-contention)
+- [Firebase Callable Functions Auth](https://firebase.google.com/docs/functions/callable)
+- [Firebase Auth onAuthStateChanged](https://firebase.google.com/docs/auth/web/start)
+- [Firebase request.auth null issue](https://github.com/firebase/firebase-tools/issues/5210)
+- [Firestore Role-Based Access Control](https://oneuptime.com/blog/post/2026-02-17-how-to-write-firestore-security-rules-for-role-based-access-control/view)
+- [Firestore Group-Based Permissions Pattern](https://medium.com/firebase-developers/patterns-for-security-with-firebase-group-based-permissions-for-cloud-firestore-72859cdec8f6)
+- [Film Co-Production Currency Management](https://raindance.org/how-filmmakers-manage-currency-on-international-shoots/)
+- [IMCINE EFICINE Lineamientos 2026](https://www.imcine.gob.mx/media/2026/1/lineamientosyrequisitosparalaevaluaciondeproyectosdeeficineproduccion-file_6971706c4a932.pdf)
+- Codebase verification: `firestore.rules`, `storage.rules`, `src/services/projects.ts`, `src/services/erpi.ts`, `src/hooks/useAutoSave.ts`, `functions/src/index.ts`, `functions/src/pipeline/orchestrator.ts`, `src/schemas/project.ts`, `references/scoring_rubric.md`, `references/validation_rules.md`

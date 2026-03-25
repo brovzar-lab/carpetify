@@ -1,225 +1,169 @@
-# Technology Stack
+# Technology Stack: v2.0 Additions
 
-**Project:** Carpetify (EFICINE Article 189 Submission Dossier Generator)
-**Researched:** 2026-03-21
+**Project:** Carpetify v2.0 (Multi-User + Extended Modalities)
+**Researched:** 2026-03-25
 **Overall confidence:** HIGH
+**Scope:** New libraries/services ONLY. Existing stack (React 19, Vite 8, Tailwind v4, shadcn/ui, Firebase 12, Anthropic SDK, Zustand, React Query, RHF + Zod, etc.) is validated and unchanged.
 
-## Recommended Stack
+---
 
-### Core Framework & Build
+## Existing Stack (Unchanged)
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| React | 19.x | UI framework | Already decided. React 19 is stable, works with all chosen libraries | HIGH |
-| Vite | 8.x | Build tool / dev server | CRA is deprecated. Vite 8 uses Oxc for transforms, sub-2s dev starts, native ESM. No Babel dependency. | HIGH |
-| TypeScript | 5.7+ | Type safety | Non-negotiable for a financial/legal compliance tool. Catches amount mismatches at compile time. | HIGH |
-| React Router | 7.13+ | Client-side routing | v7 merges Remix into React Router. Single package (no react-router-dom needed). SPA mode fits this internal tool. | HIGH |
+The v1.0 stack is locked in and working well. v2.0 does NOT change the core stack -- it adds to it.
 
-### UI Layer
+| Layer | Technology | Version | Status |
+|-------|-----------|---------|--------|
+| Framework | React | 19.2 | KEEP |
+| Bundler | Vite | 8.0 | KEEP |
+| Language | TypeScript (strict) | 5.9 | KEEP |
+| Styling | Tailwind CSS v4 + shadcn/ui | 4.2 | KEEP |
+| State | Zustand + React Query | 5.0 / 5.94 | KEEP |
+| Forms | React Hook Form + Zod | 7.71 / 4.3 | KEEP |
+| Routing | React Router | 7.13 | KEEP |
+| Backend | Firebase (Firestore, Storage, Functions v2, Hosting) | 12.11 | KEEP + add Auth |
+| AI | Anthropic SDK | 0.80 | KEEP |
+| PDF | pdf-parse (server), pdfjs-dist (client) | 2.4 / 10.4 | KEEP |
+| Tests | Vitest + Testing Library + Playwright | 4.1 / 1.58 | KEEP |
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| Tailwind CSS | 4.2+ | Utility-first CSS | Already decided. v4 is 5x faster builds, zero-config, CSS-native with @property and cascade layers. | HIGH |
-| shadcn/ui | v4 CLI | Component library | Already decided. Not a dependency -- copies components into your project. Works with Tailwind v4 + Radix primitives. Wizard steps, forms, dialogs, tables all available. | HIGH |
-| Lucide React | latest | Icons | Default icon set for shadcn/ui. Tree-shakeable. | HIGH |
-| class-variance-authority | latest | Component variants | Required by shadcn/ui for variant management | HIGH |
+---
 
-### Backend (Firebase)
+## New Stack Additions for v2.0
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| firebase | 12.11+ | Client SDK (Firestore, Storage) | Already decided. v12 is current stable. Modular/tree-shakeable API. No Auth needed for v1. | HIGH |
-| firebase-admin | 13.7+ | Server-side SDK (Cloud Functions) | Required for Functions runtime. Use for Anthropic API calls to keep API key server-side. | HIGH |
-| firebase-functions | 7.2+ | Cloud Functions v2 | v2 functions are the current standard. Use onCall for client-invoked AI generation, onRequest for webhooks if needed. Requires Node.js 20+. | HIGH |
+### Authentication
 
-### PDF Parsing (Screenplay Input)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Firebase Auth (Google provider) | 12.11 (already in firebase SDK) | User authentication | Already in the Firebase SDK bundle. Zero new dependencies. Google provider fits Lemon Studios workflow (Google Workspace). |
+| Firebase Admin SDK (custom claims) | Already in functions/package.json | Server-side role assignment | Custom claims embed role in JWT token -- no extra Firestore reads in security rules. |
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| unpdf | latest | PDF text extraction | Modern UnJS library wrapping pdf.js. Works in Cloud Functions (serverless-compatible). Better maintained than pdf-parse (unmaintained 4+ years). Edge-runtime compatible if ever needed. | MEDIUM |
-| pdfjs-dist | 5.x (fallback) | Full PDF rendering | If unpdf's extraction quality is insufficient for screenplay formatting (INT/EXT markers, scene headers), fall back to pdfjs-dist for page-level text with coordinates. | MEDIUM |
+**Why Firebase Auth over alternatives:** The app already uses Firebase for everything. Adding a separate auth provider (Auth0, Clerk, Supabase Auth) would add a dependency, complicate the deploy pipeline, and require bridging auth tokens to Firestore security rules. Firebase Auth is the only option that provides native integration with Firestore security rules via `request.auth.token`.
 
-**Why not pdf-parse:** Unmaintained since 2020. Still gets downloads from legacy projects, but unpdf is its spiritual successor with active maintenance.
+### Multi-Currency (Co-Production)
 
-### PDF Generation (Document Output)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `dinero.js` | 2.0.0 | Multi-currency integer arithmetic | Went stable March 2026. Integer-based (no floating-point), 166 ISO 4217 currencies, tree-shakeable, TypeScript-first. Prevents MXN/USD mixing at the type level. |
+| `@dinero.js/currencies` | 2.0.0 | Currency definitions | Pre-built currency objects with correct decimal exponents. MXN exponent=2 matches existing centavos pattern. |
+| Banxico SIE API | v1 | Official MXN exchange rates | Legally required source for EFICINE co-productions. `SF43718` = USD/MXN FIX rate. Free API, token-based auth. |
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| @react-pdf/renderer | 4.3+ | PDF generation from React components | Declarative, React-native API. Define document layouts as JSX components. Perfect for structured EFICINE FORMATOS (tables, headers, styled text). Runs in both browser and Node.js (Cloud Functions). | HIGH |
+**Why dinero.js over manual centavos:** Single-currency centavos works fine (keep for existing MXN-only paths). But co-production needs currency-aware arithmetic where you cannot add MXN + USD without explicit conversion. dinero.js enforces this at the type level. Gradual adoption -- only in co-production module, existing code unchanged.
 
-**Why not jsPDF:** jsPDF requires imperative, coordinate-based API (`doc.text(x, y, "text")`). For ~20 structured documents with tables, headers, and consistent formatting, the declarative React component model of @react-pdf/renderer is dramatically more maintainable. The EFICINE documents have complex table layouts (FORMATO 3 cash flow, FORMATO 9 financial scheme) that would be painful in jsPDF.
+**Why NOT `currency.js`:** Uses floating-point internally, then rounds. For a legal compliance tool where wrong centavo amounts get applications rejected, integer-only math is non-negotiable.
 
-**Why not pdfmake:** Less React-native. pdfmake uses JSON document definitions which work but lose the composability of React components. @react-pdf/renderer lets you build reusable PDF components (e.g., a `<FormatoHeader>` component shared across all FORMATOS).
+### Text Diff (Document Version Comparison)
 
-### AI Integration
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `diff` | 8.0.4 | Text diffing engine | 8M+ weekly downloads. Myers algorithm. Word-level and line-level diffs. Built-in TypeScript types since v8. |
+| `diff2html` | 3.x | Diff visualization | Renders unified diffs as side-by-side HTML. Used by GitHub/GitLab. CSS themes included. |
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| @anthropic-ai/sdk | 0.80+ | Claude API client | Official Anthropic SDK. Use from Firebase Cloud Functions ONLY (API key stays server-side). Supports streaming for long document generation. | HIGH |
+**Why this pair:** `diff` computes the delta, `diff2html` renders it. Clean separation. No alternative provides both computation and rendering.
 
-**Architecture note:** All Claude API calls happen in Cloud Functions, never from the browser. The client calls a Firebase callable function, which invokes Claude, stores the result in Firestore, and returns a reference. This keeps the API key secure and avoids CORS issues.
+### Real-Time Collaboration Bridge
 
-### Forms & Validation
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `@tanstack-query-firebase/react` | 2.1.1 | React Query + Firestore real-time bridge | Connects onSnapshot to React Query cache. Already using React Query, so this is the natural bridge. Avoids managing onSnapshot subscriptions separately from cache. |
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| React Hook Form | 7.x | Form state management | Uncontrolled components = fewer re-renders. Critical for the 5-screen wizard with many fields. Integrates with Zod via @hookform/resolvers. | HIGH |
-| @hookform/resolvers | latest | Zod-to-RHF bridge | Connects Zod schemas to React Hook Form validation | HIGH |
-| Zod | 4.3+ | Schema validation | TypeScript-first. Define schemas once, use for form validation AND Firestore data validation AND cross-document consistency checks. The 13 EFICINE validation rules map directly to Zod refinements. | HIGH |
+---
 
-**Why not Formik:** More re-renders (controlled components), larger bundle, less actively maintained. React Hook Form is the clear winner for 2025-2026.
+## Complete New Dependencies
 
-### Data Fetching & State
+### Frontend (`package.json`)
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| @tanstack/react-query | 5.91+ | Server state management | Manages Firestore read caching, AI generation mutation states, invalidation on regeneration. onMutate for optimistic updates when saving form data. | HIGH |
-| Zustand | 5.x | Client state | Lightweight store for wizard step state, active project selection, UI state (sidebar, modals). No Redux boilerplate. | MEDIUM |
+```bash
+npm install dinero.js @dinero.js/currencies  # Multi-currency
+npm install diff diff2html                    # Document diffing
+npm install @tanstack-query-firebase/react    # Real-time bridge
+```
 
-**Why not Redux:** Massive overkill for an internal single-user tool. Zustand gives global state in ~10 lines.
+**Total new frontend dependencies: 5 packages**
 
-### Export & Packaging
+### Cloud Functions (`functions/package.json`)
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| JSZip | 3.10 | ZIP file generation | Battle-tested, 3M+ weekly downloads. Creates the organized folder structure (A_PROPUESTA/, B_PERSONAL/, etc.) client-side. | HIGH |
-| file-saver | 2.x | Download trigger | Cross-browser `saveAs()` for triggering ZIP download. Companion to JSZip. | HIGH |
+```bash
+cd functions && npm install dinero.js @dinero.js/currencies
+```
 
-**Why not client-zip:** Smaller and faster, but JSZip has a much larger ecosystem and handles the folder structure API more intuitively. The carpeta ZIP is not large enough for streaming to matter.
+**Total new Cloud Functions dependencies: 2 packages**
 
-### Utilities
+### Infrastructure (no npm)
 
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| date-fns | 4.x | Date formatting | Locale-aware. `format(date, "d 'de' MMMM 'de' yyyy", { locale: es })` gives "15 de julio de 2026". Tree-shakeable. | HIGH |
-| date-fns/locale/es | included | Spanish locale | Mexican Spanish date formatting built-in | HIGH |
+- Firebase Auth: Enable Google provider in Firebase Console
+- Firestore Security Rules: Rewrite `firestore.rules` (deploy with `firebase deploy --only firestore:rules`)
+- Firebase Secret Manager: Add `BANXICO_API_TOKEN` secret
+- Firestore TTL: Enable on `presence` collection group for automatic cleanup
 
-**Why not dayjs/moment:** date-fns is tree-shakeable (import only what you use), moment is deprecated, dayjs works but date-fns has better TypeScript support.
+**No new Firebase services.** No RTDB, no additional regions, no additional billing tiers.
 
-### Dev Dependencies
-
-| Technology | Version | Purpose | Why | Confidence |
-|------------|---------|---------|-----|------------|
-| ESLint | 9.x | Linting | Flat config format (eslint.config.js). Use @eslint/js + typescript-eslint. | HIGH |
-| Prettier | 3.x | Formatting | With prettier-plugin-tailwindcss for class sorting | HIGH |
-| vitest | 3.x | Testing | Native Vite integration. Same config, same transforms. No Jest config gymnastics. | HIGH |
-| @testing-library/react | latest | Component testing | Standard React testing companion | HIGH |
+---
 
 ## Alternatives Considered
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| Build tool | Vite 8 | Next.js | SSR/RSC unnecessary for internal SPA tool. Adds complexity without benefit. No SEO needed. |
-| Build tool | Vite 8 | Create React App | Deprecated. Dead project. |
-| PDF parsing | unpdf | pdf-parse | Unmaintained since 2020. unpdf wraps the same pdf.js but with active maintenance. |
-| PDF generation | @react-pdf/renderer | jsPDF | Imperative API is unmaintainable for 20+ structured documents with tables. |
-| PDF generation | @react-pdf/renderer | pdfmake | JSON definitions less composable than React components for this many templates. |
-| Forms | React Hook Form | Formik | More re-renders, larger bundle, less active development. |
-| Forms | React Hook Form | TanStack Form | Too new, smaller ecosystem, RHF is battle-tested. |
-| Validation | Zod | Yup | Zod has better TypeScript inference, more expressive for financial rules (.refine()). |
-| State | Zustand | Redux Toolkit | Overkill for single-user internal tool. |
-| State | Zustand | Jotai | Either works. Zustand slightly better for the "global project state" pattern needed here. |
-| CSS | Tailwind v4 | CSS Modules | Already decided. Tailwind + shadcn/ui is the prescribed stack. |
-| Dates | date-fns | dayjs | date-fns is tree-shakeable, better TS types, native ES module. |
-| ZIP | JSZip | client-zip | JSZip more mature, better folder API, size difference irrelevant for this use case. |
-| Testing | Vitest | Jest | Vitest uses same Vite config. Zero additional setup. Faster. |
+| Auth | Firebase Auth | Auth0, Clerk, Supabase Auth | Split-brain: separate auth provider requires bridging tokens to Firestore rules. Firebase Auth is native. |
+| Roles | Custom claims | Firestore role documents | 10-document-read limit per rule eval. Custom claims are in JWT, zero reads. |
+| Presence | Firestore docs + TTL | Firebase RTDB | Adding second database for 4 users is overengineering. |
+| Real-time bridge | @tanstack-query-firebase | react-firebase-hooks | react-firebase-hooks is 3+ years stale, doesn't integrate with React Query. |
+| Currency | dinero.js v2 | currency.js | currency.js uses float internally. Legal compliance requires integer arithmetic. |
+| Exchange rates | Banxico SIE API | Open Exchange Rates | IMCINE legally requires Banxico FIX rate. Third-party rates are non-compliant. |
+| Diff engine | diff (jsdiff) | diff-match-patch | DMP is for real-time collab (OT). We need read-only comparison. |
+| Diff render | diff2html | Monaco Editor diff | Monaco is a full code editor (huge bundle). Our content is prose, not code. |
+| Collab editing | Section-level locking | yjs / automerge (CRDTs) | Form fields, not prose. Section locking is the right granularity. |
+| State mgmt | Zustand (keep) | Redux Toolkit | Multi-user doesn't change state complexity enough. Zustand + RQ still right. |
+| Rich text | None | ProseMirror / TipTap | Users don't edit generated docs. They review and regenerate. |
+| i18n | es.ts (keep) | i18next | No new languages planned. Single locale file works. |
 
-## Installation
+---
 
-```bash
-# Initialize project
-npm create vite@latest carpetify -- --template react-ts
+## Version Compatibility Matrix
 
-# Core UI
-npm install react-router tailwindcss @tailwindcss/vite lucide-react class-variance-authority clsx tailwind-merge
+| New Package | Requires | Compatible With Existing |
+|-------------|----------|------------------------|
+| `dinero.js` 2.0.0 | TypeScript 4.7+ | TypeScript 5.9 -- yes |
+| `@dinero.js/currencies` 2.0.0 | dinero.js 2.0.0 | N/A (new) |
+| `diff` 8.0.4 | Node 14+ / browser | Node 22 (Functions), browser -- yes |
+| `diff2html` 3.x | Browser | Vite + React -- yes |
+| `@tanstack-query-firebase/react` 2.1.1 | @tanstack/react-query 5.x, firebase 10+ | RQ 5.94, Firebase 12.11 -- yes |
 
-# shadcn/ui (run after project init)
-npx shadcn@latest init
+---
 
-# Firebase
-npm install firebase
-npm install -D firebase-tools
+## Migration Strategy
 
-# PDF
-npm install @react-pdf/renderer unpdf
+### Auth Migration (biggest impact, do first)
 
-# AI (Cloud Functions only -- not in frontend package.json)
-# In functions/package.json:
-# npm install @anthropic-ai/sdk firebase-admin firebase-functions
+1. `src/lib/firebase.ts` -- Add `getAuth(app)` export (1 line)
+2. `src/App.tsx` -- Add auth guard route wrapper
+3. All 7 Cloud Functions -- Add `request.auth` checks
+4. `firestore.rules` -- Rewrite from wide-open to RBAC
+5. `storage.rules` -- Rewrite from wide-open to auth-gated
+6. `src/stores/appStore.ts` -- Add user state
 
-# Forms & Validation
-npm install react-hook-form @hookform/resolvers zod
+**Risk:** All 7 existing Cloud Functions currently ignore auth. Must add auth checks to all callables simultaneously with deploying security rules. Partial deployment = broken app.
 
-# Data Fetching & State
-npm install @tanstack/react-query zustand
+### Currency Migration (moderate, do with co-production)
 
-# Export
-npm install jszip file-saver
-npm install -D @types/file-saver
+**Gradual approach.** Keep existing centavos for MXN-only paths. Add dinero.js only in new co-production module. Don't refactor proven financial code.
 
-# Utilities
-npm install date-fns
+### Real-Time Migration (low impact)
 
-# Dev
-npm install -D eslint @eslint/js typescript-eslint prettier prettier-plugin-tailwindcss vitest @testing-library/react @testing-library/jest-dom jsdom
-```
+Existing `services/projects.ts` uses one-shot reads. Real-time subscriptions are additive. No breaking changes.
 
-## Project Structure
-
-```
-carpetify/
-├── src/
-│   ├── components/       # React components (English names)
-│   │   ├── ui/           # shadcn/ui components
-│   │   ├── wizard/       # 5-screen intake wizard
-│   │   ├── dashboard/    # Traffic light validation dashboard
-│   │   ├── documents/    # Document viewer/editor
-│   │   └── export/       # Export manager
-│   ├── lib/              # Utilities, Firebase config
-│   ├── hooks/            # Custom React hooks
-│   ├── schemas/          # Zod schemas (mirror Firestore structure)
-│   ├── locales/          # es.json with all Spanish UI strings
-│   ├── pdf/              # @react-pdf/renderer document templates
-│   │   ├── formatos/     # FORMATO 1-11 PDF templates
-│   │   └── components/   # Reusable PDF components (headers, tables)
-│   ├── services/         # Firebase callable function wrappers
-│   └── validation/       # 13 EFICINE cross-document rules in Zod
-├── functions/            # Firebase Cloud Functions
-│   ├── src/
-│   │   ├── ai/           # Claude API integration
-│   │   ├── parsing/      # PDF text extraction (unpdf)
-│   │   └── validation/   # Server-side validation
-│   └── package.json      # Separate deps: @anthropic-ai/sdk, firebase-admin
-├── prompts/              # Spanish AI prompts (pre-written, DO NOT MODIFY)
-├── schemas/              # JSON schemas (reference)
-├── references/           # Scoring rubric, validation rules
-└── directives/           # Language policy, app spec
-```
-
-## Key Architecture Decisions
-
-1. **Anthropic SDK lives in Cloud Functions only.** Never expose the API key to the browser. Client calls `httpsCallable('generateDocument')`, Cloud Function calls Claude, stores result in Firestore.
-
-2. **PDF generation happens client-side** with @react-pdf/renderer. The AI generates structured content (stored as JSON/Markdown in Firestore), and the React PDF components render it into formatted PDFs on demand. This keeps Cloud Functions lean and avoids storing large PDF blobs.
-
-3. **PDF parsing happens server-side** in Cloud Functions using unpdf. Screenplay PDFs are uploaded to Firebase Storage, a Cloud Function triggers on upload, extracts text, and stores parsed data in Firestore.
-
-4. **Zod schemas are the single source of truth** for data shape. Used for: form validation (via @hookform/resolvers), Firestore document validation, cross-document consistency checks (the 13 EFICINE rules), and TypeScript type inference.
-
-5. **No i18n library.** The app is Spanish-only. Use a `locales/es.json` constants file for all UI strings. No react-intl, no i18next -- those add abstraction for a single-locale app.
+---
 
 ## Sources
 
-- [Vite 8 announcement](https://vite.dev/blog/announcing-vite8)
-- [Tailwind CSS v4](https://tailwindcss.com/blog/tailwindcss-v4)
-- [shadcn/ui installation](https://ui.shadcn.com/docs/installation)
-- [@react-pdf/renderer npm](https://www.npmjs.com/package/@react-pdf/renderer)
-- [unpdf on GitHub](https://github.com/unjs/unpdf)
-- [Firebase JS SDK releases](https://github.com/firebase/firebase-js-sdk/releases)
-- [@anthropic-ai/sdk npm](https://www.npmjs.com/package/@anthropic-ai/sdk)
-- [React Hook Form](https://react-hook-form.com/)
-- [Zod v4 release notes](https://zod.dev/v4)
-- [TanStack Query](https://tanstack.com/query/latest)
-- [React Router v7](https://reactrouter.com/)
-- [JSZip](https://stuk.github.io/jszip/)
-- [unpdf vs pdf-parse vs pdfjs-dist comparison (2026)](https://www.pkgpulse.com/blog/unpdf-vs-pdf-parse-vs-pdfjs-dist-pdf-parsing-extraction-nodejs-2026)
+### HIGH Confidence (Official docs, verified)
+- [Firebase Auth Web - Google Sign-In](https://firebase.google.com/docs/auth/web/google-signin)
+- [Firebase Custom Claims](https://firebase.google.com/docs/auth/admin/custom-claims)
+- [Firestore Security Rules - Role-Based Access](https://firebase.google.com/docs/firestore/solutions/role-based-access)
+- [Firestore onSnapshot](https://firebase.google.com/docs/firestore/query-data/listen)
+- [Dinero.js v2 docs](https://www.dinerojs.com/)
+- [Banxico SIE API](https://www.banxico.org.mx/SieAPIRest/service/v1/doc/series)
+- [jsdiff (diff npm)](https://www.npmjs.com/package/diff)
+- [diff2html](https://diff2html.xyz/)
+
+### MEDIUM Confidence (Verified with multiple sources)
+- [TanStack Query Firebase](https://react-query-firebase.invertase.dev/)
+- [Dinero.js v2 stable release](https://www.sarahdayan.com/blog/dinerojs-v2-is-out) -- confirmed stable March 2026

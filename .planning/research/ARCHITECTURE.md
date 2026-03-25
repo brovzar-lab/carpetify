@@ -1,550 +1,694 @@
-# Architecture Patterns
+# Architecture Patterns: v2.0 Integration
 
-**Domain:** EFICINE Article 189 submission dossier generator
-**Researched:** 2026-03-21
+**Domain:** Multi-user collaborative legal compliance tool (EFICINE dossier generation)
+**Researched:** 2026-03-25
+**Focus:** How auth/RBAC, collaboration, co-production engine, AI review, and modality routing integrate with existing Firebase/React architecture
 
-## Recommended Architecture
+---
 
-### High-Level Overview
+## Current Architecture Snapshot
 
-Carpetify is a pipeline application disguised as a wizard. The user fills forms, but under the hood the system is a **sequential document generation pipeline** where each stage feeds the next. The architecture must reflect this: data flows forward through well-defined stages, and changes to upstream data invalidate downstream outputs.
-
-```
-[Intake Wizard] --> [Firestore Project Doc] --> [Screenplay Parser]
-                                                       |
-                                                       v
-                                              [AI Generation Pipeline]
-                                              Pass 1: Screenplay Analysis
-                                              Pass 2: Line Producer (A7, A8, A9)
-                                              Pass 3: Finance (flujo, esquema, carta)
-                                              Pass 4: Legal (contracts, cartas)
-                                              Pass 5: Combined (A1, A2, A6, A10, C4, pitch)
-                                              Pass 6: Cross-validation
-                                                       |
-                                                       v
-                                              [Validation Engine]
-                                              13 rules, blocker vs warning
-                                                       |
-                                                       v
-                                              [Export Manager]
-                                              PDF generation + ZIP packaging
-```
-
-### Component Boundaries
-
-| Component | Responsibility | Communicates With | Firebase Surface |
-|-----------|---------------|-------------------|------------------|
-| **Intake Wizard** | Collect project metadata, team data, financial structure, uploaded docs | Firestore (write), Storage (file uploads) | Firestore `projects/{id}`, Storage `projects/{id}/uploads/` |
-| **Screenplay Parser** | Extract scenes, locations, characters, INT/EXT/DAY/NIGHT from PDF | Storage (read PDF), Firestore (write parsed data) | Firestore `projects/{id}/screenplay` |
-| **AI Generation Pipeline** | Run 6 sequential passes through Claude API, produce document content | Firestore (read all project data, write generated docs), Cloud Functions (orchestration) | Firestore `projects/{id}/generated/{docId}` |
-| **Validation Engine** | Run 13 cross-module rules, classify blockers vs warnings | Firestore (read all data + generated docs, write validation results) | Firestore `projects/{id}/validation` |
-| **Dashboard** | Show traffic-light status per document and per rule, score estimate | Firestore (read validation results, generated doc status) | Read-only |
-| **Export Manager** | Generate PDFs from stored content, name files, compile ZIP | Firestore (read generated docs), Storage (read uploaded docs, write final ZIP) | Storage `projects/{id}/export/` |
-
-### Data Flow
+Before prescribing changes, here is what exists:
 
 ```
-USER INPUT FLOW:
-  Wizard Screen 1 (Project Setup)
-    --> projects/{id}/metadata
-  Wizard Screen 2 (Screenplay Upload)
-    --> Storage: projects/{id}/uploads/guion.pdf
-    --> [Screenplay Parser trigger]
-    --> projects/{id}/screenplay (parsed breakdown)
-  Wizard Screen 3 (Creative Team)
-    --> projects/{id}/team/{memberId}
-  Wizard Screen 4 (Financial Structure)
-    --> projects/{id}/financials
-  Wizard Screen 5 (Document Upload)
-    --> Storage: projects/{id}/uploads/{docType}.pdf
-    --> projects/{id}/documents/{docId} (metadata + status)
-
-AI GENERATION FLOW (sequential, each pass reads outputs of prior passes):
-  Pass 1: analisis_guion.md
-    IN:  screenplay parsed data
-    OUT: projects/{id}/generated/screenplay_analysis
-         (scenes, locations, characters, complexity signals, shooting day estimate)
-
-  Pass 2: Line Producer documents
-    IN:  screenplay_analysis + metadata + team
-    OUT: projects/{id}/generated/a7_propuesta_produccion
-         projects/{id}/generated/a8_plan_rodaje
-         projects/{id}/generated/a8_ruta_critica
-         projects/{id}/generated/a9_presupuesto_resumen
-         projects/{id}/generated/a9_presupuesto_desglose
-
-  Pass 3: Finance documents
-    IN:  Pass 2 outputs (budget) + financials from intake
-    OUT: projects/{id}/generated/a9d_flujo_efectivo
-         projects/{id}/generated/e1_esquema_financiero
-         projects/{id}/generated/e2_carta_aportacion
-
-  Pass 4: Legal documents
-    IN:  Pass 2 outputs (budget fees) + team data + metadata
-    OUT: projects/{id}/generated/b3_contratos
-         projects/{id}/generated/c2b_cesion_derechos
-         projects/{id}/generated/c3_cartas_compromiso
-
-  Pass 5: Combined documents
-    IN:  ALL prior pass outputs + metadata + team + screenplay
-    OUT: projects/{id}/generated/a1_resumen_ejecutivo
-         projects/{id}/generated/a2_sinopsis
-         projects/{id}/generated/a4_propuesta_direccion (template)
-         projects/{id}/generated/a6_solidez_equipo
-         projects/{id}/generated/a10_propuesta_exhibicion
-         projects/{id}/generated/c4_ficha_tecnica
-         projects/{id}/generated/pitch_contribuyentes
-
-  Pass 6: Cross-validation
-    IN:  ALL generated documents
-    OUT: projects/{id}/generated/validacion_cruzada
-
-VALIDATION FLOW (runs after generation and on any data change):
-  IN:  All of projects/{id}/** (metadata, team, financials, generated, documents)
-  OUT: projects/{id}/validation/
-       {rule_id: {status: pass|fail|warning, details: string, affected_docs: [...]}}
-
-EXPORT FLOW:
-  IN:  projects/{id}/generated/** + projects/{id}/uploads/**
-  OUT: Storage projects/{id}/export/carpeta_{PROJ}.zip
+Browser (React SPA)
+  |
+  +-- Zustand stores: appStore (activeProjectId), wizardStore (activeScreen)
+  +-- React Query: server state cache (1min staleTime)
+  +-- useAutoSave hook: 1500ms debounce writes to Firestore
+  +-- useValidation hook: 10 real-time onSnapshot listeners per project
+  +-- useGeneratedDocs hook: real-time listener on generated/ subcollection
+  +-- Services layer: projects.ts, erpi.ts, storage.ts, generation.ts
+  |
+  v
+Firebase (No Auth)
+  +-- Firestore: projects/{id}, projects/{id}/team, /financials, /screenplay, /generated, /documents, /meta
+  +-- Firestore: erpi_settings/default (singleton)
+  +-- Storage: screenplay PDFs
+  +-- Cloud Functions v2: 7 callables (extract, analyze, 4 pipeline passes, scoreEstimate)
+  +-- Security rules: allow read, write: if true (wide open)
 ```
 
-## Component Deep Dives
+**Key architectural facts from codebase inspection:**
+- `firebase.ts` initializes Firestore, Storage, Functions -- NO Auth import
+- `projects.ts` creates documents with no owner/user field
+- `erpi_settings/default` is a singleton shared across all projects
+- Cloud Functions access `request.data` but never check `request.auth`
+- All Firestore security rules are `allow read, write: if true`
+- `useAutoSave` writes directly to `projects/{projectId}/{path}/data` with no user context
+- `useValidation` opens 10+ real-time Firestore listeners per project session
 
-### 1. Intake Wizard (React Client)
+---
 
-**Pattern:** Multi-step form wizard with local state + Firestore persistence per screen.
-
-Use a single `ProjectContext` React context that holds the current project state. Each wizard screen reads from and writes to a specific Firestore subcollection. Use `react-hook-form` for per-screen form state with Zod validation matching the JSON schemas in `schemas/`.
-
-**Key design decision:** Persist to Firestore on screen completion (not on every keystroke). This avoids excessive writes and gives natural save points. Show a "Guardando..." indicator on screen transitions.
-
-**Screen dependencies:**
-- Screen 1 (Project Setup): No dependencies. Creates the project document.
-- Screen 2 (Screenplay Upload): Requires projectId from Screen 1. Triggers async screenplay parsing.
-- Screen 3 (Creative Team): No hard dependency on Screen 2, but screenplay data enriches role suggestions.
-- Screen 4 (Financial Structure): Requires basic metadata from Screen 1 for EFICINE cap validation.
-- Screen 5 (Document Upload): Requires projectId. Independent of other screens.
-
-### 2. Screenplay Parser (Cloud Function)
-
-**Pattern:** Triggered by Storage upload event. Runs PDF text extraction, then sends to Claude for structured analysis.
+## Recommended v2.0 Architecture
 
 ```
-Storage trigger (guion.pdf uploaded)
-  --> Cloud Function: parseScreenplay
-    --> pdf-parse: extract raw text
-    --> Claude API (analisis_guion.md prompt): structured analysis
-    --> Write to Firestore: projects/{id}/screenplay
-    --> Update status: projects/{id}/metadata.screenplay_status = "parsed"
+Browser (React SPA)
+  |
+  +-- NEW: AuthProvider (React Context) wrapping App
+  |     +-- onAuthStateChanged + onIdTokenChanged listeners
+  |     +-- Exposes: user, role, loading, signIn, signOut
+  |     +-- Claims: { role: 'producer' | 'line_producer' | 'lawyer' | 'director' }
+  |
+  +-- NEW: ProtectedRoute wrapper (redirects to /login if !user)
+  +-- NEW: RoleGate component (hides/disables UI based on role)
+  |
+  +-- MODIFIED: Zustand stores add currentUserId
+  +-- EXISTING: React Query (unchanged, but query keys include userId for cache isolation)
+  +-- MODIFIED: useAutoSave adds updatedBy: userId to every write
+  +-- NEW: usePresence hook (lightweight Firestore presence for active editors)
+  +-- EXISTING: useValidation (unchanged -- validation is data-driven, auth-agnostic)
+  +-- MODIFIED: Services layer adds auth token forwarding to Cloud Functions
+  |
+  v
+Firebase (WITH Auth)
+  +-- Auth: Google provider, custom claims for roles
+  +-- Firestore: SAME data model + owner/collaborators fields on project docs
+  +--   NEW: projects/{id}/history subcollection (version snapshots)
+  +--   NEW: projects/{id}/presence subcollection (active editors)
+  +--   MODIFIED: erpi_settings keyed by orgId, not singleton
+  +-- Storage: SAME + auth-gated paths
+  +-- Cloud Functions v2: MODIFIED to check request.auth on all callables
+  +-- Security rules: REWRITTEN with proper RBAC rules
 ```
 
-Use `pdf-parse` (npm package) for text extraction from the PDF. Do NOT use pdf.js on the client -- screenplay PDFs can be large and parsing is CPU-intensive. Run in a Cloud Function with 512MB+ memory and 120s timeout.
+---
 
-The Claude call for screenplay analysis is the **foundation** of the entire pipeline. Every subsequent generation pass depends on its output. Store the full structured output (scenes array, locations array, characters array, complexity signals, estimated shooting days).
+## Component-by-Component Integration Plan
 
-### 3. AI Generation Pipeline (Cloud Functions)
+### 1. Firebase Auth + Google Sign-In
 
-**Pattern:** Sequential Cloud Function chain. Each pass is a separate Cloud Function invocation. Use a pipeline orchestrator function that calls each pass in order and tracks progress.
+**What changes:**
 
-**Why Cloud Functions, not client-side:**
-- Claude API calls for document generation are long-running (30-90 seconds each).
-- Pass 2 alone has 5 document generations. Total pipeline time: 5-15 minutes.
-- Cloud Functions have 540s (9 min) max timeout on v2. For the full pipeline, use a chained approach.
-- Client should show progress via Firestore listeners, not hold open connections.
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `src/lib/firebase.ts` | MODIFY | Add `getAuth(app)` export |
+| `src/contexts/AuthContext.tsx` | CREATE | React context with `onAuthStateChanged`, user state, role from custom claims |
+| `src/components/auth/LoginPage.tsx` | CREATE | Google sign-in button, Spanish UI |
+| `src/components/auth/ProtectedRoute.tsx` | CREATE | Wraps routes, redirects to `/login` |
+| `src/main.tsx` | MODIFY | Wrap `App` with `AuthProvider` |
+| `src/App.tsx` | MODIFY | Add `/login` route, wrap other routes with `ProtectedRoute` |
+| `functions/src/auth/` | CREATE | `setCustomClaims` callable, `onUserCreate` trigger |
+| `functions/src/index.ts` | MODIFY | Add auth check to ALL existing callables |
 
-**Pipeline orchestrator pattern:**
+**Auth Context pattern (HIGH confidence -- Firebase official docs):**
 
 ```typescript
-// Firestore document tracks pipeline state
-projects/{id}/pipeline: {
-  status: "idle" | "running" | "complete" | "error",
-  currentPass: 1-6,
-  currentDoc: string,
-  completedDocs: string[],
-  errors: {docId: string, error: string}[],
-  startedAt: Timestamp,
-  completedAt: Timestamp | null
+// src/contexts/AuthContext.tsx
+interface AuthContextType {
+  user: User | null
+  role: UserRole | null
+  loading: boolean
+  signInWithGoogle: () => Promise<void>
+  signOut: () => Promise<void>
 }
+
+// Uses onIdTokenChanged (not onAuthStateChanged) to catch custom claims updates
+// Role extracted from user.getIdTokenResult().claims.role
 ```
 
-The orchestrator Cloud Function:
-1. Reads all project data from Firestore
-2. For each pass (1-6), calls Claude with the appropriate prompt from `prompts/`
-3. Substitutes `{{variables}}` in the prompt template with actual project data
-4. Appends the language guardrail block from politica_idioma
-5. Stores each generated document in `projects/{id}/generated/{docId}`
-6. Updates pipeline status after each document (client sees real-time progress)
-7. If a pass fails, marks the error and continues to the next independent document
+**Custom claims flow:**
+1. User signs in with Google (first time)
+2. `onUserCreate` Cloud Function trigger fires
+3. Admin checks if email is in allowlist (Lemon Studios domain)
+4. Sets default role via `admin.auth().setCustomClaims(uid, { role: 'viewer' })`
+5. Producer manually promotes roles via admin UI or a `setRole` callable function
+6. Client calls `user.getIdTokenResult(true)` to refresh claims after role change
 
-**Critical: prompt template loading.** Store prompt templates as static assets deployed with the Cloud Functions (copy `prompts/*.md` into the functions bundle). Do NOT store them in Firestore -- they are code, not data.
+**Why custom claims over document-based roles:** Custom claims are embedded in the auth token, so Firestore security rules can read `request.auth.token.role` without an additional document read. Since Firestore allows only 10 document reads per rule evaluation, this is critical for the 10+ listeners in useValidation.
 
-**Variable substitution approach:**
-```typescript
-function substituteVariables(template: string, data: Record<string, string>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? `[MISSING: ${key}]`);
-}
-```
+### 2. Firestore Security Rules (RBAC)
 
-### 4. Validation Engine (Shared Library: Client + Cloud Functions)
+**What changes:**
 
-**Pattern:** Pure functions that take project state and return validation results. Run on both client (for real-time feedback during intake) and Cloud Functions (for authoritative validation before export).
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `firestore.rules` | REWRITE | From wide-open to proper RBAC |
+| `storage.rules` | REWRITE | Gate file access to project collaborators |
 
-The 13 validation rules from `references/validation_rules.md` fall into two categories:
+**Recommended rules structure:**
 
-**Client-side (real-time, during intake):**
-- Rule 1.2: EFICINE compliance percentages (as user enters financial data)
-- Rule 1.3: Screenwriter 3% check (as fees are entered)
-- Rule 1.4: In-kind contribution caps
-- Rule 1.5: Gestor cap
-- Rule 5: Experience thresholds (as team filmography is entered)
-- Rule 6: ERPI eligibility
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
-**Server-side (post-generation):**
-- Rule 1.1: Budget/flujo/esquema reconciliation (requires generated docs)
-- Rule 2: Title consistency across all generated docs
-- Rule 3: Fee cross-matching across contracts/budget/flujo
-- Rule 4: Date compliance
-- Rule 7: Prohibited EFICINE expenditures in flujo
-- Rule 8: Document completeness
-- Rule 9: File format compliance
-
-**Both (client for preview, server for authority):**
-- Rule 10: Hyperlink accessibility (warning only)
-- Rule 11: Ruta critica / flujo sync
-- Rule 12: Co-production special rules
-- Rule 13: Bonus points eligibility
-
-**Implementation:** Create a `validation/` module with one function per rule. Each returns:
-```typescript
-type ValidationResult = {
-  ruleId: string;
-  status: "pass" | "fail" | "warning" | "not_applicable";
-  severity: "blocker" | "warning";
-  message: string; // In Spanish
-  affectedDocs: string[];
-  details?: Record<string, unknown>;
-};
-```
-
-### 5. Dashboard (React Client)
-
-**Pattern:** Real-time Firestore listener on `projects/{id}/validation` and `projects/{id}/pipeline`. Renders traffic-light grid.
-
-The dashboard is the primary view after intake is complete. Shows:
-- Pipeline progress (which pass is running, which docs are done)
-- Per-document status (generated / pending / error / user-upload needed)
-- Per-validation-rule status (pass / fail / warning)
-- Score estimate (from scoring rubric)
-- Completeness checklist (what the user still needs to provide)
-
-Use `onSnapshot` listeners for real-time updates during generation.
-
-### 6. Export Manager (Cloud Function)
-
-**Pattern:** Cloud Function triggered by user action. Reads all generated content, generates PDFs, packages into ZIP.
-
-```
-User clicks "Exportar Carpeta"
-  --> Cloud Function: exportCarpeta
-    --> Read all generated docs from Firestore
-    --> Read all uploaded docs from Storage
-    --> Generate PDFs from document content (use @react-pdf/renderer or pdfkit)
-    --> Apply file naming convention (max 15 chars, no accents)
-    --> Organize into folder structure (A_PROPUESTA/, B_PERSONAL/, etc.)
-    --> Create ZIP archive
-    --> Upload ZIP to Storage
-    --> Return download URL to client
-```
-
-Use `pdfkit` or `@react-pdf/renderer` server-side for PDF generation. The generated content in Firestore is structured data (JSON + text blocks); the Export Manager converts this to formatted PDFs matching EFICINE formatting expectations.
-
-Use `archiver` (npm) for ZIP creation.
-
-## Patterns to Follow
-
-### Pattern 1: Firestore as Pipeline State Machine
-
-Use Firestore documents as the shared state between all components. Each component reads what it needs and writes its output. The client uses `onSnapshot` to reactively update the UI.
-
-**Why:** Firebase is already the chosen backend. Firestore real-time listeners eliminate the need for polling, WebSockets, or a custom pub/sub system. The pipeline state is naturally document-shaped.
-
-```typescript
-// Pipeline state document
-interface PipelineState {
-  status: "idle" | "running" | "complete" | "error";
-  currentPass: number;
-  currentDoc: string;
-  progress: Record<string, "pending" | "running" | "complete" | "error">;
-  startedAt: Timestamp;
-  completedAt: Timestamp | null;
-}
-```
-
-### Pattern 2: Invalidation Graph for Regeneration
-
-When user changes upstream data, downstream generated documents become stale. Track a dependency graph:
-
-```
-metadata.titulo_proyecto --> [ALL generated docs] (title consistency)
-screenplay parsed data --> [Pass 1 output] --> [Pass 2 outputs] --> [Pass 3, 4, 5 outputs]
-financials --> [Pass 3 outputs] --> [Pass 4 outputs (contract fees)] --> [Pass 5 outputs]
-team data --> [Pass 4 outputs (contracts)] --> [Pass 5 outputs (A6 solidez, C4 ficha)]
-```
-
-**Implementation:** When any Firestore write occurs in project data, a Cloud Function checks which generated docs depend on the changed fields and marks them as `stale`. The UI shows stale docs with a yellow indicator and a "Regenerar" button.
-
-Store staleness in the generated doc metadata:
-```typescript
-interface GeneratedDoc {
-  docId: string;
-  content: Record<string, unknown>; // Structured document content
-  generatedAt: Timestamp;
-  stale: boolean;
-  staleReason?: string;
-  dependsOn: string[]; // List of data paths this doc reads from
-}
-```
-
-### Pattern 3: Prompt-as-Code
-
-Prompts in `prompts/*.md` are treated as immutable code artifacts, not user-editable content. They are bundled with Cloud Functions at deploy time. Variable substitution happens at runtime but the prompt templates themselves are versioned in git.
-
-### Pattern 4: Amount Formatting as a Single Utility
-
-All MXN amounts flow through one formatter: `formatMXN(amount: number): string` returning `$X,XXX,XXX MXN`. This function is used in:
-- UI display
-- Variable substitution into prompts
-- PDF generation
-- Validation error messages
-
-Never format amounts inline. Always use the utility.
-
-## Anti-Patterns to Avoid
-
-### Anti-Pattern 1: Client-Side AI Calls
-**What:** Calling Claude API directly from the React client.
-**Why bad:** Exposes API key, no retry logic, browser tab close kills generation, CORS issues, 5-15 minute pipeline blocks the UI thread.
-**Instead:** All Claude API calls go through Cloud Functions. Client monitors progress via Firestore listeners.
-
-### Anti-Pattern 2: Monolithic Generation Function
-**What:** One Cloud Function that runs all 6 passes sequentially.
-**Why bad:** Cloud Functions v2 max timeout is 540 seconds. Full pipeline can exceed this. One failure loses all progress.
-**Instead:** Chain passes as separate function invocations, or use a single function with per-document checkpointing (write each generated doc to Firestore immediately, so a restart can skip completed docs).
-
-### Anti-Pattern 3: Storing Generated Content as PDFs in Firestore
-**What:** Generating PDFs immediately and storing binary blobs.
-**Why bad:** PDFs can't be partially updated, validated field-by-field, or used as input to subsequent generation passes. You need the structured data.
-**Instead:** Store generated content as structured JSON in Firestore. Generate PDFs only at export time from the structured data.
-
-### Anti-Pattern 4: Per-Field Real-Time Validation via Cloud Functions
-**What:** Calling a Cloud Function every time a form field changes to validate.
-**Why bad:** Extremely expensive (Firebase invocations + latency), terrible UX.
-**Instead:** Client-side validation for field-level and screen-level rules (Zod schemas from `schemas/*.json`). Server-side validation only for cross-document rules post-generation.
-
-### Anti-Pattern 5: Flat Firestore Document for Entire Project
-**What:** Storing all project data in a single Firestore document.
-**Why bad:** Firestore document max size is 1MB. A fully generated project with budget breakdowns, shooting schedules, and contract text will exceed this. Also, every read/write touches the entire project.
-**Instead:** Use subcollections: `metadata`, `screenplay`, `team/{id}`, `financials`, `generated/{docId}`, `validation`, `documents/{docId}`.
-
-## Firestore Data Model
-
-```
-projects/
-  {projectId}/
-    metadata: {                    // Screen 1 data
-      titulo_proyecto: string,
-      categoria_cinematografica: "Ficcion" | "Documental" | "Animacion",
-      categoria_director: "Opera Prima" | "Segundo+",
-      duracion_estimada: number,
-      formato_filmacion: string,
-      relacion_aspecto: string,
-      idiomas: string[],
-      costo_total_mxn: number,
-      monto_eficine_mxn: number,
-      erpi: { razon_social, rfc, representante_legal, domicilio_fiscal },
-      periodo_registro: "2026-P1" | "2026-P2",
-      createdAt: Timestamp,
-      updatedAt: Timestamp,
-      screenplay_status: "pending" | "uploading" | "parsing" | "parsed" | "error",
-      pipeline_status: "idle" | "running" | "complete" | "error"
+    // Helper: is the user authenticated?
+    function isAuth() {
+      return request.auth != null;
     }
 
-    screenplay: {                  // Parsed screenplay data (from Pass 1)
-      raw_text_hash: string,       // To detect re-uploads
-      num_paginas: number,
-      num_escenas: number,
-      escenas: [{numero, int_ext, dia_noche, locacion, personajes, paginas, complejidad}],
-      locaciones: [{nombre, tipo, frecuencia}],
-      personajes: [{nombre, num_escenas, es_protagonista}],
-      complejidad: {stunts, vfx, agua, animales, ninos, noche_pct, ...},
-      dias_rodaje_estimados: number,
-      parsedAt: Timestamp
+    // Helper: get user role from custom claims
+    function userRole() {
+      return request.auth.token.role;
     }
 
-    team/
-      {memberId}: {                // One per creative team member
-        nombre_completo: string,
-        cargo: string,
-        nacionalidad: string,
-        filmografia: [{titulo, anio, cargo_en_obra, formato, exhibicion}],
-        formacion: string,
-        premios: string[],
-        enlaces: string[],
-        honorarios_mxn: number,
-        aportacion_especie_mxn: number
-      }
-
-    financials: {                  // Screen 4 data
-      aportacion_erpi_efectivo: number,
-      aportacion_erpi_especie: number,
-      terceros: [{nombre, tipo, monto, efectivo_especie}],
-      monto_eficine: number,
-      total_calculado: number,
-      pct_erpi: number,
-      pct_eficine: number,
-      pct_federal_total: number,
-      gestor: {nombre, monto}
+    // Helper: is user a collaborator on this project?
+    function isCollaborator(projectId) {
+      return isAuth() &&
+        request.auth.uid in get(/databases/$(database)/documents/projects/$(projectId)).data.collaborators;
     }
 
-    documents/
-      {docId}: {                   // User-uploaded documents (Screen 5)
-        tipo: string,              // "acta_constitutiva", "indautor", "seguro", etc.
-        filename: string,
-        storagePath: string,
-        uploadedAt: Timestamp,
-        fechaEmision: Timestamp,   // For date compliance validation
-        status: "uploaded" | "verified" | "expired"
-      }
+    // Helper: is user the project owner?
+    function isOwner(projectId) {
+      return isAuth() &&
+        get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
+    }
 
-    generated/
-      {docId}: {                   // AI-generated documents
-        docId: string,             // "a7_propuesta_produccion", "a9_presupuesto_resumen", etc.
-        pass: number,              // Which pipeline pass generated this (1-6)
-        content: object,           // Structured content (varies per document type)
-        textContent: string,       // Plain text version for documents that are prose
-        generatedAt: Timestamp,
-        stale: boolean,
-        staleReason: string | null,
-        promptVersion: string,     // Hash of prompt template used
-        modelVersion: string       // Claude model version used
-      }
+    // Projects: owner + collaborators can read/write
+    match /projects/{projectId} {
+      allow read: if isCollaborator(projectId) || isOwner(projectId);
+      allow create: if isAuth() && userRole() == 'producer';
+      allow update: if isCollaborator(projectId) || isOwner(projectId);
+      allow delete: if isOwner(projectId);
 
-    validation: {                  // Validation engine results
-      lastRunAt: Timestamp,
-      overallStatus: "pass" | "has_blockers" | "has_warnings",
-      scoreEstimate: number,
-      rules: {
-        [ruleId]: {
-          status: "pass" | "fail" | "warning" | "not_applicable",
-          severity: "blocker" | "warning",
-          message: string,
-          affectedDocs: string[],
-          details: object
-        }
-      },
-      completeness: {
-        [sectionId]: {
-          [docId]: "complete" | "generated" | "uploaded" | "missing" | "stale"
-        }
+      // All subcollections inherit project-level access
+      match /{subcollection}/{docId} {
+        allow read: if isCollaborator(projectId) || isOwner(projectId);
+        allow write: if isCollaborator(projectId) || isOwner(projectId);
       }
     }
 
-    pipeline: {                    // Generation pipeline state
-      status: "idle" | "running" | "complete" | "error",
-      currentPass: number,
-      currentDoc: string,
-      progress: { [docId]: "pending" | "running" | "complete" | "error" },
-      errors: [{docId, error, timestamp}],
-      startedAt: Timestamp,
-      completedAt: Timestamp
+    // ERPI settings: scoped to organization, not singleton
+    match /organizations/{orgId}/erpi_settings/{settingsId} {
+      allow read, write: if isAuth() &&
+        request.auth.uid in get(/databases/$(database)/documents/organizations/$(orgId)).data.members;
     }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow write: if request.auth.uid == userId;
+    }
+  }
+}
 ```
 
-## Suggested Build Order
+**Critical migration concern:** The current `erpi_settings/default` singleton must migrate to `organizations/{orgId}/erpi_settings/default`. This is a data model change that affects `src/services/erpi.ts`, `functions/src/pipeline/orchestrator.ts` (reads ERPI settings), and the `ERPISettingsPage` component.
 
-The build order is dictated by **data dependencies**: each component needs the previous component's outputs to function.
+### 3. Role-Based Access Control (Section-Level Collaboration)
 
-### Phase 1: Scaffold + Data Model + Intake Wizard
-**Builds:** React project, Firebase config, Firestore schema, 5-screen intake wizard, basic routing.
-**Rationale:** Everything depends on the data model. The wizard is the entry point for all data. Without persisted project data, no other component can function.
-**Dependencies:** None (this is the foundation).
-**Deliverable:** User can create a project, fill all 5 screens, data persists in Firestore.
+**Roles and their section access:**
 
-### Phase 2: Screenplay Parser
-**Builds:** PDF upload to Storage, Cloud Function for PDF text extraction + Claude analysis, parsed data stored in Firestore.
-**Rationale:** The screenplay analysis is the foundation for ALL AI generation (Passes 2-5 depend on Pass 1). Building this second validates the Cloud Functions + Claude API integration pattern that the rest of the pipeline will use.
-**Dependencies:** Phase 1 (needs projectId and Storage bucket).
-**Deliverable:** User uploads a screenplay PDF, system extracts structured data, user can review/confirm breakdown.
+| Role | Wizard Screens | Actions |
+|------|---------------|---------|
+| `producer` | All screens | Full CRUD, manage collaborators, run pipeline, export |
+| `line_producer` | `datos`, `equipo`, `financiera`, `generacion` | Edit intake data, run generation passes |
+| `lawyer` | `documentos`, `financiera` | Edit legal documents, upload contracts, view financials |
+| `director` | `guion`, `equipo` | View screenplay analysis, edit creative team data |
+| `viewer` | All screens (read-only) | View only, no edits |
 
-### Phase 3: AI Document Generation Pipeline
-**Builds:** Pipeline orchestrator Cloud Function, all 6 passes of document generation, prompt template loading + variable substitution, pipeline progress tracking.
-**Rationale:** This is the core value of the application. It must come before validation (which validates generated docs) and before export (which packages generated docs).
-**Dependencies:** Phase 1 (project data) + Phase 2 (screenplay analysis).
-**Deliverable:** User clicks "Generate", pipeline runs all passes, generated documents appear in Firestore, progress visible in UI.
+**What changes:**
 
-### Phase 4: Validation Engine
-**Builds:** All 13 validation rules, client-side validators for intake forms, server-side validators for post-generation, traffic-light dashboard, score estimate.
-**Rationale:** Validation needs both user data (from Phase 1) AND generated documents (from Phase 3) to run the full rule set. Building it after generation means you can test against real outputs.
-**Dependencies:** Phase 1 (user data) + Phase 3 (generated documents).
-**Deliverable:** Dashboard shows per-rule and per-document status. User sees what's blocking export and what's still needed.
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `src/lib/permissions.ts` | CREATE | `ROLE_PERMISSIONS` map, `canEdit(role, screen)`, `canRunPipeline(role)` |
+| `src/components/common/RoleGate.tsx` | CREATE | Conditional render based on role + screen |
+| `src/components/wizard/WizardShell.tsx` | MODIFY | Wrap edit controls with `RoleGate` |
+| `src/hooks/useAutoSave.ts` | MODIFY | Check `canEdit()` before saving, add `updatedBy` field |
+| `src/stores/appStore.ts` | MODIFY | Add `currentUserId`, `currentUserRole` |
+| Project Firestore document | MODIFY | Add `ownerId`, `collaborators: { [uid]: role }` map |
 
-### Phase 5: Export Manager
-**Builds:** PDF generation from structured content, file naming sanitization, folder structure assembly, ZIP compilation, download flow.
-**Rationale:** This is the final step. It needs everything upstream to be working: project data, generated docs, uploaded docs, validation status.
-**Dependencies:** All prior phases.
-**Deliverable:** User clicks "Export", gets a downloadable ZIP with the complete carpeta organized per EFICINE conventions.
+**Permission model (client-side + server-side):**
 
-### Build Order Dependency Graph
+```typescript
+// src/lib/permissions.ts
+export type UserRole = 'producer' | 'line_producer' | 'lawyer' | 'director' | 'viewer'
+
+export const ROLE_PERMISSIONS: Record<UserRole, {
+  screens: WizardScreen[]
+  canRunPipeline: boolean
+  canExport: boolean
+  canManageCollaborators: boolean
+  canDelete: boolean
+}> = {
+  producer: {
+    screens: ['datos', 'guion', 'equipo', 'financiera', 'documentos', 'generacion', 'validacion', 'exportar'],
+    canRunPipeline: true, canExport: true, canManageCollaborators: true, canDelete: true,
+  },
+  line_producer: {
+    screens: ['datos', 'equipo', 'financiera', 'generacion'],
+    canRunPipeline: true, canExport: false, canManageCollaborators: false, canDelete: false,
+  },
+  lawyer: {
+    screens: ['documentos', 'financiera'],
+    canRunPipeline: false, canExport: false, canManageCollaborators: false, canDelete: false,
+  },
+  director: {
+    screens: ['guion', 'equipo'],
+    canRunPipeline: false, canExport: false, canManageCollaborators: false, canDelete: false,
+  },
+  viewer: {
+    screens: [],
+    canRunPipeline: false, canExport: false, canManageCollaborators: false, canDelete: false,
+  },
+}
+```
+
+**Important: Firestore rules enforce the real security.** Client-side RoleGate is UX only. The security rules check `collaborators[request.auth.uid]` and the custom claim `role` for write operations. This dual enforcement is essential -- UI gating alone is not security.
+
+### 4. Real-Time Collaboration (Presence + Section Locking)
+
+**Problem:** Multiple users editing the same project simultaneously. Firestore does not have native section-level locking.
+
+**Solution:** Lightweight presence tracking + optimistic concurrency (last-write-wins with conflict indicators). Full OT/CRDT is massive overkill for form-based data entry.
+
+**What changes:**
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `src/hooks/usePresence.ts` | CREATE | Write/listen to `projects/{id}/presence/{uid}` |
+| `src/components/common/ActiveEditors.tsx` | CREATE | Avatar badges showing who is on which screen |
+| `src/hooks/useAutoSave.ts` | MODIFY | Add `updatedBy`, `updatedAt` fields to detect external changes |
+| `src/components/common/ConflictBanner.tsx` | CREATE | "Data changed by [user]" notification |
+
+**Presence data model:**
 
 ```
-Phase 1 (Scaffold + Data Model + Intake)
-    |
-    v
-Phase 2 (Screenplay Parser)
-    |
-    v
-Phase 3 (AI Generation Pipeline)  <-- MOST COMPLEX, highest risk
-    |
-    v
-Phase 4 (Validation Engine)
-    |
-    v
-Phase 5 (Export Manager)
+projects/{projectId}/presence/{userId}
+{
+  displayName: string
+  photoURL: string
+  activeScreen: WizardScreen
+  lastSeen: Timestamp  // Firestore TTL or manual cleanup
+}
 ```
 
-**Note:** Phases 1 and 2 could partially overlap (Storage upload in Phase 1, parsing logic in Phase 2). Phases 4 and 5 could also partially overlap since client-side validation (intake form validators) could be built during Phase 3 while generation is being developed.
+**Concurrency strategy:**
+- Each `useAutoSave` write includes `updatedBy: userId` and `updatedAt: serverTimestamp()`
+- When `onSnapshot` fires and `updatedBy !== currentUserId`, show a non-blocking toast: "Datos actualizados por [name]"
+- For form fields, Firestore merge semantics handle field-level updates naturally -- two users editing different fields on the same screen will not overwrite each other
+- For the same field edited by two users, last-write-wins is acceptable for this use case (form data, not prose editing)
+- Presence documents use Firestore TTL (set `expireAt` field to 5 minutes from now, re-heartbeat every 60 seconds)
+
+**Why NOT real-time collaborative editing (Google Docs style):** The wizard screens are structured forms, not free-text documents. Users fill in discrete fields (project title, budget amounts, team member data). Firestore's merge writes already handle this gracefully. Building OT/CRDT would cost 10x the effort for negligible benefit.
+
+### 5. Co-Production Accounting Engine
+
+**Problem:** International co-productions require multi-currency budget splits, exchange rate tracking, and IMCINE territorial participation rules.
+
+**What changes:**
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `src/schemas/coproduction.ts` | CREATE | Zod schemas for co-production partners, currency amounts, exchange rates |
+| `src/lib/currency.ts` | CREATE | Multi-currency arithmetic (all in minor units), conversion functions |
+| `src/lib/constants.ts` | MODIFY | Add supported currencies, exchange rate source URL |
+| `src/hooks/useCoproduction.ts` | CREATE | Derived calculations: territorial splits, participation percentages |
+| `src/components/wizard/CoproductionPanel.tsx` | CREATE | New panel within FinancialStructure screen |
+| `functions/src/pipeline/orchestrator.ts` | MODIFY | Include co-production data in `ProjectDataForGeneration` |
+| `functions/src/pipeline/passes/financeAdvisor.ts` | MODIFY | Generate co-production split tables |
+| `prompts/` | MODIFY | Add co-production context variables to finance/budget prompts |
+
+**Currency architecture (integer arithmetic, consistent with existing centavos pattern):**
+
+```typescript
+// src/lib/currency.ts
+export interface MoneyAmount {
+  amountMinorUnits: number    // integer: centavos (MXN), cents (USD), etc.
+  currencyCode: 'MXN' | 'USD' | 'EUR' | 'CAD'
+  minorUnitScale: number      // 100 for most currencies
+}
+
+export interface ExchangeRate {
+  from: string
+  to: 'MXN'           // Always convert TO MXN (IMCINE requires MXN budget)
+  rate: number         // e.g. 17.2534 (stored as float -- this is a rate, not money)
+  date: string         // ISO date of rate
+  source: string       // 'banxico' | 'manual'
+}
+
+// Convert foreign currency to MXN centavos
+export function toMXNCentavos(amount: MoneyAmount, rate: ExchangeRate): number {
+  const baseUnits = amount.amountMinorUnits / amount.minorUnitScale
+  const mxn = baseUnits * rate.rate
+  return Math.round(mxn * 100) // MXN centavos
+}
+```
+
+**Critical rule:** Exchange rates are stored as floating-point numbers because they ARE rates, not monetary values. The conversion result is immediately rounded to integer centavos. This is consistent with the existing `tipo_cambio_fx` field already in the project schema.
+
+**Co-production Firestore data model:**
+
+```
+projects/{projectId}/coproduction/data
+{
+  partners: [
+    {
+      nombre: string,
+      pais: string,
+      participacion_porcentaje: number,  // integer 0-100
+      aportacion_efectivo_minor_units: number,
+      aportacion_especie_minor_units: number,
+      currency_code: string,
+      es_empresa_mexicana: boolean,
+    }
+  ],
+  exchange_rates: [
+    { from: 'USD', to: 'MXN', rate: 17.25, date: '2026-03-15', source: 'banxico' }
+  ],
+  territorial_split: {
+    gasto_nacional_centavos: number,    // MXN spent in Mexico
+    gasto_extranjero_centavos: number,  // Converted to MXN
+    participacion_mexicana_pct: number, // Must meet IMCINE minimums
+  }
+}
+```
+
+### 6. AI Pre-Submission Review (Evaluator Simulation)
+
+**Problem:** Before export, simulate how an IMCINE evaluator would score the carpeta. Different from the existing `estimateScore` function which scores individual artistic merit -- this reviews the entire dossier for completeness, coherence, and compliance.
+
+**What changes:**
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `prompts/revision_pre_envio.md` | CREATE | Spanish prompt simulating evaluator review |
+| `functions/src/review/reviewHandler.ts` | CREATE | Loads all generated docs + metadata, sends to Claude |
+| `functions/src/review/types.ts` | CREATE | Review result types |
+| `functions/src/index.ts` | MODIFY | Add `runPreSubmissionReview` callable |
+| `src/services/review.ts` | CREATE | Client service to invoke review |
+| `src/hooks/useReview.ts` | CREATE | State management for review UI |
+| `src/components/wizard/ReviewPanel.tsx` | CREATE | Display review findings |
+| `src/components/wizard/WizardShell.tsx` | MODIFY | Add "revision" screen to wizard |
+| `src/stores/wizardStore.ts` | MODIFY | Add 'revision' to WizardScreen type |
+
+**Review architecture:**
+
+```
+Client triggers review
+  -> Cloud Function: runPreSubmissionReview(projectId)
+    -> Load ALL project data (metadata, team, financials, generated docs content)
+    -> Load scoring rubric as context
+    -> Send to Claude (claude-sonnet-4-20250514) with evaluator persona prompt
+    -> Return structured review: { score_estimate, findings[], recommendations[] }
+    -> Store at projects/{projectId}/review/latest
+```
+
+**Key design decision:** The review function reads ALL generated document prose, not just metadata. This means it needs the full content from `projects/{projectId}/generated/*`. The existing `loadProjectDataForGeneration` function loads metadata but not generated content. A new `loadProjectDataForReview` function is needed.
+
+**Token budget concern:** All 21 generated documents' prose content could total 50K-100K tokens. Use Claude claude-sonnet-4-20250514 (200K context) and summarize each document to key points before sending to the review prompt. This is a Moderate pitfall (see PITFALLS.md).
+
+### 7. Document Version History + Diff
+
+**Problem:** Track changes to generated documents across regeneration cycles. Show what changed between versions.
+
+**What changes:**
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `functions/src/pipeline/passes/*.ts` | MODIFY | Before overwriting generated doc, snapshot current version to history subcollection |
+| `src/hooks/useDocHistory.ts` | CREATE | Load version history for a document |
+| `src/components/wizard/DocDiffView.tsx` | CREATE | Side-by-side or inline diff display |
+| `src/lib/diff.ts` | CREATE | Text diff utilities (use `diff` npm package) |
+
+**Version history data model:**
+
+```
+projects/{projectId}/generated/{docId}           -- current version (existing)
+projects/{projectId}/generated/{docId}/history/{versionId}  -- previous versions (NEW)
+{
+  content: { ... },           // full document content snapshot
+  version: number,
+  generatedAt: Timestamp,
+  generatedBy: string,        // userId who triggered generation
+  passId: string,
+  diff_summary: string,       // optional: auto-generated change summary
+}
+```
+
+**Diff strategy:**
+- Store full snapshots (not deltas) in history subcollection -- simpler, Firestore is cheap
+- Client-side diff computation using `diff` library (lightweight, no server needed)
+- Display as inline diff with additions/deletions highlighted
+- Keep last 10 versions per document (Cloud Function cleanup or Firestore TTL)
+
+### 8. Modality Routing (Produccion vs Postproduccion vs Resubmission)
+
+**Problem:** Different EFICINE modalities require different document sets, different rubrics, different FORMATOs, and different validation rules.
+
+**What changes:**
+
+| File | Change Type | Description |
+|------|-------------|-------------|
+| `src/lib/constants.ts` | MODIFY | Add `MODALIDADES_EFICINE`, postproduccion rubric thresholds |
+| `src/schemas/project.ts` | MODIFY | Add `modalidad` field to ProjectMetadata |
+| `src/lib/modality.ts` | CREATE | Document registry per modality, rubric selector, validation rule selector |
+| `src/hooks/useValidation.ts` | MODIFY | Select validation rules based on modality |
+| `src/hooks/useGeneration.ts` | MODIFY | Pipeline pass selection based on modality |
+| `functions/src/pipeline/orchestrator.ts` | MODIFY | Load modality-specific document registry |
+| `prompts/` | CREATE | Postproduccion-specific prompts (different documents) |
+| `references/scoring_rubric.md` | EXISTS | Already documents postproduccion rubric (65pt material filmado, etc.) |
+
+**Modality routing architecture:**
+
+```typescript
+// src/lib/modality.ts
+export type Modalidad = 'produccion' | 'postproduccion' | 'resubmission'
+
+export const MODALITY_CONFIG: Record<Modalidad, {
+  documentRegistry: string[]
+  pipelinePasses: PassId[]
+  rubric: RubricConfig
+  validationRuleIds: string[]
+  wizardScreens: WizardScreen[]
+}> = {
+  produccion: {
+    documentRegistry: ['A1','A2','A4','A6','A7','A8a','A8b','A9a','A9b','A9d','A10','A11',
+      'B3-prod','B3-dir','C2b','C3a','C3b','C4','E1','E2','PITCH'],
+    pipelinePasses: ['lineProducer', 'financeAdvisor', 'legal', 'combined'],
+    rubric: PRODUCCION_RUBRIC,
+    validationRuleIds: ['VALD-01','VALD-02',/* ...all 17 */],
+    wizardScreens: ['datos','guion','equipo','financiera','documentos',
+      'generacion','validacion','exportar'],
+  },
+  postproduccion: {
+    documentRegistry: ['A6','A8b','A9a','A9b','A9d','A10','ESCRITO_POST','C4','E1','E2'],
+    pipelinePasses: ['financeAdvisor', 'combined_post'],
+    rubric: POSTPRODUCCION_RUBRIC,
+    validationRuleIds: ['VALD-01','VALD-02','VALD-POST-01',/* ...subset + post-specific */],
+    wizardScreens: ['datos','equipo','financiera','documentos','material_filmado',
+      'generacion','validacion','exportar'],
+  },
+  resubmission: {
+    documentRegistry: ['A1','A2',/* ...same as produccion with carry-forward */],
+    pipelinePasses: ['lineProducer', 'financeAdvisor', 'legal', 'combined'],
+    rubric: PRODUCCION_RUBRIC,
+    validationRuleIds: ['VALD-01',/* ...all + VALD-RESUB-01 */],
+    wizardScreens: ['datos','guion','equipo','financiera','documentos',
+      'generacion','validacion','exportar'],
+  },
+}
+```
+
+**Key architectural principle:** The modality drives configuration, not code branching. Each subsystem (pipeline, validation, export) reads from the modality config rather than having `if (modalidad === 'postproduccion')` scattered through the code. This is a strategy pattern.
+
+---
+
+## Data Model Changes Summary
+
+### Modified Collections
+
+| Collection | Change | Reason |
+|------------|--------|--------|
+| `projects/{id}` | Add `ownerId`, `collaborators`, `modalidad`, `organizationId` fields | Auth, RBAC, modality routing |
+| `projects/{id}/generated/{docId}` | Add `generatedBy` field | Audit trail |
+| `projects/{id}/coproduction/data` | NEW subcollection | Co-production engine |
+| `projects/{id}/presence/{uid}` | NEW subcollection | Real-time collaboration |
+| `projects/{id}/generated/{docId}/history/{versionId}` | NEW sub-subcollection | Version history |
+| `projects/{id}/review/latest` | NEW subcollection | AI review results |
+| `erpi_settings/default` | MIGRATE to `organizations/{orgId}/erpi_settings/default` | Multi-org support |
+| `users/{uid}` | NEW collection | User profiles, preferences |
+| `organizations/{orgId}` | NEW collection | Org membership, settings |
+
+### New Top-Level Collections
+
+```
+users/{uid}
+{
+  displayName: string
+  email: string
+  photoURL: string
+  organizationId: string
+  role: UserRole          // denormalized from custom claims for UI reads
+  createdAt: Timestamp
+}
+
+organizations/{orgId}
+{
+  name: string            // e.g. "Lemon Studios"
+  members: string[]       // array of UIDs for security rule checks
+  allowedDomains: string[] // e.g. ["lemonstudios.mx"] for auto-join
+  createdAt: Timestamp
+}
+```
+
+---
+
+## Modified Files Inventory
+
+### Files That MUST Change (Breaking Changes)
+
+| File | Change Scope | Why |
+|------|-------------|-----|
+| `src/lib/firebase.ts` | Add Auth import | Auth initialization |
+| `src/main.tsx` | Wrap with AuthProvider | Auth context |
+| `src/App.tsx` | Add login route, protected routes | Auth gating |
+| `firestore.rules` | Complete rewrite | Security (currently wide open) |
+| `storage.rules` | Complete rewrite | Security (currently wide open) |
+| `functions/src/index.ts` | Add `request.auth` checks to ALL callables | Server-side auth enforcement |
+| `src/services/projects.ts` | Add `ownerId`, `collaborators` to createProject | Data model |
+| `src/services/erpi.ts` | Change from singleton to org-scoped | Data model migration |
+| `functions/src/pipeline/orchestrator.ts` | Add orgId to ERPI lookup, add modality config | Data model |
+| `src/hooks/useAutoSave.ts` | Add `updatedBy` field, check permissions | Auth + collaboration |
+| `src/stores/appStore.ts` | Add user context | Auth state |
+| `src/schemas/project.ts` | Add `modalidad`, `ownerId`, `collaborators` fields | Data model |
+| `src/lib/constants.ts` | Add modality configs, currencies, postproduccion thresholds | New features |
+
+### Files That Need Minor Modifications
+
+| File | Change Scope | Why |
+|------|-------------|-----|
+| `src/stores/wizardStore.ts` | Add new screen slugs | Modality routing, review screen |
+| `src/components/layout/AppHeader.tsx` | Add user avatar, sign-out button | Auth UI |
+| `src/components/dashboard/DashboardPage.tsx` | Filter projects by user/org | Auth scoping |
+| `src/hooks/useValidation.ts` | Select rules by modality | Modality routing |
+| `src/hooks/useGeneration.ts` | Select passes by modality | Modality routing |
+| `src/locales/es.ts` | Add strings for all new UI | Language policy |
+
+### New Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/contexts/AuthContext.tsx` | Auth state management |
+| `src/components/auth/LoginPage.tsx` | Google sign-in page |
+| `src/components/auth/ProtectedRoute.tsx` | Route guard |
+| `src/components/common/RoleGate.tsx` | Role-based UI gating |
+| `src/components/common/ActiveEditors.tsx` | Presence indicators |
+| `src/components/common/ConflictBanner.tsx` | Concurrent edit notification |
+| `src/lib/permissions.ts` | RBAC permission map |
+| `src/lib/currency.ts` | Multi-currency arithmetic |
+| `src/lib/modality.ts` | Modality configuration registry |
+| `src/lib/diff.ts` | Text diff utilities |
+| `src/schemas/coproduction.ts` | Co-production Zod schemas |
+| `src/hooks/usePresence.ts` | Active editor tracking |
+| `src/hooks/useCoproduction.ts` | Co-production derived state |
+| `src/hooks/useReview.ts` | AI review state |
+| `src/hooks/useDocHistory.ts` | Document version history |
+| `src/services/review.ts` | Review Cloud Function client |
+| `src/components/wizard/CoproductionPanel.tsx` | Co-production UI |
+| `src/components/wizard/ReviewPanel.tsx` | AI review UI |
+| `src/components/wizard/DocDiffView.tsx` | Version diff UI |
+| `functions/src/auth/claims.ts` | Custom claims management |
+| `functions/src/review/reviewHandler.ts` | AI review logic |
+| `functions/src/review/types.ts` | Review types |
+| `prompts/revision_pre_envio.md` | Evaluator review prompt |
+
+---
+
+## Dependency Graph (Build Order)
+
+```
+Phase 1: Auth Foundation
+  firebase.ts -> AuthContext -> ProtectedRoute -> App.tsx routes
+  firestore.rules rewrite
+  storage.rules rewrite
+  Cloud Functions auth checks
+  |
+  v
+Phase 2: RBAC + Collaboration
+  permissions.ts -> RoleGate
+  appStore modifications
+  useAutoSave modifications (updatedBy)
+  usePresence hook + ActiveEditors UI
+  |
+  v
+Phase 3: Data Model Migration
+  Project schema changes (ownerId, collaborators, modalidad)
+  ERPI settings migration (singleton -> org-scoped)
+  users/ and organizations/ collections
+  |
+  v
+Phase 4: Modality Routing  (can parallel with Phase 5)
+  modality.ts config registry
+  Wizard screen routing based on modality
+  Pipeline pass selection
+  Validation rule selection
+  Postproduccion prompts
+  |
+Phase 5: Co-Production Engine  (can parallel with Phase 4)
+  currency.ts
+  coproduction.ts schema
+  CoproductionPanel UI
+  orchestrator.ts modifications
+  financeAdvisor.ts modifications
+  |
+  v
+Phase 6: AI Review + Version History
+  Version history subcollection
+  Pipeline pass modifications (snapshot before overwrite)
+  useDocHistory + DocDiffView
+  Review prompt + Cloud Function + UI
+```
+
+**Why this order:**
+1. Auth MUST come first -- every subsequent feature depends on knowing who the user is
+2. RBAC depends on auth being in place
+3. Data model migration depends on auth (need ownerId) and RBAC (need collaborators)
+4. Modality routing and co-production are independent of each other but both need the migrated data model
+5. AI review and version history are the least coupled features -- they enhance existing functionality
+
+---
 
 ## Scalability Considerations
 
-| Concern | At 1 project | At 3 projects (target) | At 10+ projects |
-|---------|-------------|----------------------|-----------------|
-| Firestore reads | Negligible | Negligible | Still negligible -- each project is isolated |
-| Claude API cost | ~$5-15 per full pipeline run | ~$15-45 per period | Consider caching unchanged passes |
-| Cloud Function duration | 5-15 min total pipeline | Same, runs per project | Concurrent execution, no issue |
-| Storage | ~100MB per project (PDFs) | ~300MB | Free tier covers this |
-| PDF generation | Seconds | Seconds per project | Not a concern |
+| Concern | Current (1 user) | At 4 users (Lemon Studios team) | At 20 users (hypothetical) |
+|---------|-------------------|-------------------------------|---------------------------|
+| Firestore reads | ~10 listeners/project | ~40 listeners/project | Restructure to use fewer listeners |
+| Presence | N/A | 4 presence docs, 60s heartbeat | TTL cleanup, reduce heartbeat |
+| Security rules | Wide open (fast) | ~2 doc reads per rule eval | Custom claims avoid extra reads |
+| Auto-save conflicts | N/A | Rare (different screens) | Need field-level merge, not doc-level |
+| Cloud Function concurrency | No contention | Low contention | Queue generation requests |
+| Review token budget | N/A | 50-100K tokens per review | Summarize docs before sending |
 
-This is a single-user internal tool for up to 3 projects per EFICINE period. Scalability is not a concern. Optimize for **developer velocity and correctness**, not throughput.
+---
 
-## Technology Choices for Architecture
+## Anti-Patterns to Avoid
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| State management | React Context + Firestore listeners | No Redux needed for a wizard app. Firestore `onSnapshot` IS the real-time state layer. |
-| Form handling | react-hook-form + Zod | Schema-driven validation matching `schemas/*.json`. Best DX for multi-step forms. |
-| PDF text extraction | pdf-parse (Cloud Function) | Lightweight, works server-side, handles screenplay PDFs well. |
-| PDF generation | @react-pdf/renderer (Cloud Function) | React-based API for generating formatted PDFs from structured data. Familiar mental model. |
-| ZIP packaging | archiver (Cloud Function) | Standard Node.js ZIP library. Mature, reliable. |
-| AI integration | Anthropic SDK (@anthropic-ai/sdk) | Official SDK, used in Cloud Functions only. |
-| Routing | React Router v7 | Standard. Wizard steps as routes for back/forward navigation and deep linking. |
-| UI components | shadcn/ui + Tailwind | Already decided. Good component library for form-heavy apps. |
+### Anti-Pattern 1: Auth Check Only on Frontend
+**What:** Checking `user.role === 'producer'` in React but not in Firestore rules.
+**Why bad:** Any user can open browser DevTools and write directly to Firestore.
+**Instead:** Firestore security rules are the ONLY real security. Client-side checks are UX convenience only.
+
+### Anti-Pattern 2: Storing Roles in Firestore Documents Only
+**What:** Reading `users/{uid}.role` in every Firestore security rule evaluation.
+**Why bad:** Each rule invocation has a 10-document-read limit. With 10+ listeners in useValidation, you burn reads fast.
+**Instead:** Use Firebase custom claims (embedded in auth token, zero document reads).
+
+### Anti-Pattern 3: Real-Time Collaborative Text Editing via Firestore
+**What:** Building OT/CRDT for prose document editing through Firestore.
+**Why bad:** Firestore is not designed for character-by-character sync. Latency, cost, and complexity would be enormous.
+**Instead:** Forms use field-level merge (already works). For prose editing of generated docs, use a "check out / check in" pattern or accept last-write-wins.
+
+### Anti-Pattern 4: Single Modality Config Scattered Across Code
+**What:** `if (modalidad === 'postproduccion')` checks sprinkled through 20 files.
+**Why bad:** Adding a third modality requires touching every file.
+**Instead:** Central `MODALITY_CONFIG` registry. Each subsystem reads from config, never branches on modality string.
+
+### Anti-Pattern 5: Migrating Data Model Without a Script
+**What:** Manually updating Firestore documents in production.
+**Why bad:** Inconsistent state, missed documents, no rollback.
+**Instead:** Write a Cloud Function or Firestore script that migrates existing projects to the new schema (adds default `ownerId`, `collaborators`, `modalidad: 'produccion'`).
+
+---
 
 ## Sources
 
-- Project specification: `directives/app_spec.md`
-- Data model schemas: `schemas/modulo_a.json` through `schemas/modulo_e.json`
-- AI prompt execution order: `prompts/README.md`
-- Validation rules: `references/validation_rules.md`
-- Project context: `.planning/PROJECT.md`
-- Confidence: HIGH -- all findings are from first-party project documentation. Architecture patterns are based on standard React + Firebase patterns verified against project requirements.
+- [Firebase Auth web Google sign-in](https://firebase.google.com/docs/auth/web/google-signin) -- Official docs, HIGH confidence
+- [Firestore role-based access](https://firebase.google.com/docs/firestore/solutions/role-based-access) -- Official docs, HIGH confidence
+- [Firebase custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) -- Official docs, HIGH confidence
+- [Firestore field-level access control](https://firebase.google.com/docs/firestore/security/rules-fields) -- Official docs, HIGH confidence
+- [Firestore transactions and concurrency](https://firebase.google.com/docs/firestore/transaction-data-contention) -- Official docs, HIGH confidence
+- [Firestore version history pattern](https://medium.com/google-cloud/building-a-time-machine-with-firestore-a-complete-guide-to-data-history-tracking-3bd1d506250c) -- Community, MEDIUM confidence
+- [EFICINE Lineamientos Produccion](https://www.estimulosfiscales.hacienda.gob.mx/work/models/efiscales/documentos/eficine/Lineamientos_Produccion_Junio2024.pdf) -- Official government source, HIGH confidence
+- Codebase inspection of all files listed in this document -- HIGH confidence
