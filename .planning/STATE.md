@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-03-25T00:14:49.383Z"
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-03-25T04:01:20.739Z"
 progress:
-  total_phases: 8
-  completed_phases: 6
-  total_plans: 26
-  completed_plans: 26
+  total_phases: 11
+  completed_phases: 7
+  total_plans: 27
+  completed_plans: 27
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 06 — validation-data-wiring-fix
+**Current focus:** Phase 07 — document-completeness-export-gate-fix
 
 ## Current Position
 
-Phase: 06
-Plan: Not started
+Phase: 07 (document-completeness-export-gate-fix) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Plan: Not started
 | Phase 06 P01 | 4min | 2 tasks | 3 files |
 | Phase 06 P02 | 5min | 2 tasks | 6 files |
 | Phase 06 P03 | 4min | 2 tasks | 4 files |
+| Phase 07 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -158,6 +159,8 @@ Recent decisions affecting current work:
 - [Phase 06]: Budget subscription stores full document (Record) for fee extraction, with totalCentavos derived via useMemo
 - [Phase 06]: deriveScreenStatuses exported as pure function from useValidation.ts for testability and reuse
 - [Phase 06]: Metadata spread-then-override pattern ensures regional fields flow through without changing ProjectDataSnapshot type
+- [Phase 07]: Removed A3/A5 from REQUIRED_DOCUMENTS (no matching source in either generated doc registry or upload tipo list)
+- [Phase 07]: C3b label changed to Carta PICS to match generated document registry naming
 
 ### Pending Todos
 
@@ -170,6 +173,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T00:09:24.554Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-03-25T04:01:20.724Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None

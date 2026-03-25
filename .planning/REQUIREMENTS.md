@@ -47,7 +47,7 @@
 - [x] **VALD-03**: Fee cross-matching — producer, director, and screenwriter fees match across contracts, budget line items, and cash flow (blocker)
 - [x] **VALD-04**: Date compliance — all supporting documents have issue dates within 3 months of the target registration period close date (blocker)
 - [x] **VALD-05**: EFICINE compliance — ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, federal sources ≤ 80%, screenwriter ≥ 3%, in-kind ≤ 10%, per-person in-kind ≤ 50% of fee, gestor cap (blocker)
-- [ ] **VALD-06**: Document completeness — every required document in Sections A–E is generated or uploaded; missing any = flagged as blocker
+- [x] **VALD-06**: Document completeness — every required document in Sections A–E is generated or uploaded; missing any = flagged as blocker
 - [x] **VALD-07**: Experience thresholds — producer has ≥ 1 exhibited feature (fiction/doc) or ≥ 3 shorts (animation); director has ≥ 1 feature or ≥ 2 shorts (blocker)
 - [x] **VALD-08**: ERPI eligibility — fewer than 2 unexhibited prior EFICINE projects, ≤ 3 submissions this period, ≤ 3 total attempts for this project (blocker)
 - [ ] **VALD-09**: File format compliance — all output PDFs ≤ 40 MB, filenames ≤ 15 chars, no accents/ñ/commas/&/symbols (blocker)
@@ -150,7 +150,7 @@
 | VALD-03 | Phase 6 | Complete |
 | VALD-04 | Phase 6 | Complete |
 | VALD-05 | Phase 6 | Complete |
-| VALD-06 | Phase 7 | Pending |
+| VALD-06 | Phase 7 | Complete |
 | VALD-07 | Phase 6 | Complete |
 | VALD-08 | Phase 6 | Complete |
 | VALD-09 | Phase 9 | Pending |

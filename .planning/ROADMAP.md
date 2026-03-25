@@ -152,7 +152,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md — Align REQUIRED_DOCUMENTS keys with DocumentChecklist tipo values, add missing required upload entries, wire hasExclusiveContribution from ERPI in-kind data, update tests
+- [x] 07-01-PLAN.md — Align REQUIRED_DOCUMENTS keys with DocumentChecklist tipo values, add missing required upload entries, wire hasExclusiveContribution from ERPI in-kind data, update tests
 
 ### Phase 8: Score Estimation & Accuracy Fix
 **Goal**: Viability scoring produces accurate results using correct role matching and populated scoring signals, and artistic score estimation is accessible from the UI
