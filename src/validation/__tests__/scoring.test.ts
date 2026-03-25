@@ -71,10 +71,10 @@ describe('computeViabilityScore', () => {
     snap.team = [
       {
         nombre_completo: 'Ana Lopez',
-        cargo: 'Productor/a',
+        cargo: 'Productor',
         nacionalidad: 'Mexicana',
         filmografia: [
-          { titulo: 'Film Compartido', anio: 2020, cargo_en_obra: 'Productor/a' },
+          { titulo: 'Film Compartido', anio: 2020, cargo_en_obra: 'Productor' },
         ],
         honorarios_centavos: 100000,
         aportacion_especie_centavos: 0,
@@ -82,10 +82,10 @@ describe('computeViabilityScore', () => {
       },
       {
         nombre_completo: 'Carlos Reyes',
-        cargo: 'Director/a',
+        cargo: 'Director',
         nacionalidad: 'Mexicana',
         filmografia: [
-          { titulo: 'Film Compartido', anio: 2020, cargo_en_obra: 'Director/a' },
+          { titulo: 'Film Compartido', anio: 2020, cargo_en_obra: 'Director' },
         ],
         honorarios_centavos: 100000,
         aportacion_especie_centavos: 0,
@@ -225,7 +225,7 @@ describe('generateImprovementSuggestions', () => {
     snap.team = [
       {
         nombre_completo: 'Director Sin Links',
-        cargo: 'Director/a',
+        cargo: 'Director',
         nacionalidad: 'Mexicana',
         filmografia: [],
         honorarios_centavos: 100000,
@@ -272,7 +272,7 @@ describe('generateImprovementSuggestions', () => {
     snap.team = [
       {
         nombre_completo: 'Director',
-        cargo: 'Director/a',
+        cargo: 'Director',
         nacionalidad: 'Mexicana',
         filmografia: [],
         honorarios_centavos: 100000,
@@ -309,7 +309,7 @@ describe('generateImprovementSuggestions', () => {
     snap.team = [
       {
         nombre_completo: 'Director',
-        cargo: 'Director/a',
+        cargo: 'Director',
         nacionalidad: 'Mexicana',
         filmografia: [],
         honorarios_centavos: 100000,
