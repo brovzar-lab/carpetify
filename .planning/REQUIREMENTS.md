@@ -47,16 +47,16 @@
 - [x] **VALD-03**: Fee cross-matching — producer, director, and screenwriter fees match across contracts, budget line items, and cash flow (blocker)
 - [x] **VALD-04**: Date compliance — all supporting documents have issue dates within 3 months of the target registration period close date (blocker)
 - [x] **VALD-05**: EFICINE compliance — ERPI ≥ 20%, EFICINE ≤ 80% and ≤ $25M MXN, federal sources ≤ 80%, screenwriter ≥ 3%, in-kind ≤ 10%, per-person in-kind ≤ 50% of fee, gestor cap (blocker)
-- [x] **VALD-06**: Document completeness — every required document in Sections A–E is generated or uploaded; missing any = flagged as blocker
+- [ ] **VALD-06**: Document completeness — every required document in Sections A–E is generated or uploaded; missing any = flagged as blocker
 - [x] **VALD-07**: Experience thresholds — producer has ≥ 1 exhibited feature (fiction/doc) or ≥ 3 shorts (animation); director has ≥ 1 feature or ≥ 2 shorts (blocker)
 - [x] **VALD-08**: ERPI eligibility — fewer than 2 unexhibited prior EFICINE projects, ≤ 3 submissions this period, ≤ 3 total attempts for this project (blocker)
-- [x] **VALD-09**: File format compliance — all output PDFs ≤ 40 MB, filenames ≤ 15 chars, no accents/ñ/commas/&/symbols (blocker)
+- [ ] **VALD-09**: File format compliance — all output PDFs ≤ 40 MB, filenames ≤ 15 chars, no accents/ñ/commas/&/symbols (blocker)
 - [x] **VALD-10**: Prohibited expenditure scan — flag any EFICINE-sourced funds allocated to prohibited categories in the cash flow (blocker)
 - [x] **VALD-11**: Ruta crítica ↔ cash flow sync — timeline stages align with spending periods (warning)
-- [x] **VALD-12**: Hyperlink accessibility — verify filmmaker portfolio and material visual links are publicly accessible (warning)
+- [ ] **VALD-12**: Hyperlink accessibility — verify filmmaker portfolio and material visual links are publicly accessible (warning)
 - [x] **VALD-13**: Bonus points eligibility — detect applicable bonus category (+5 pts) and flag required documentation (warning)
 - [x] **VALD-14**: Real-time validation — compliance checks run as data is entered, not just at export time
-- [x] **VALD-15**: Score estimation — estimate project's EFICINE score against the rubric (100 pts + 5 bonus) with actionable improvement suggestions
+- [ ] **VALD-15**: Score estimation — estimate project's EFICINE score against the rubric (100 pts + 5 bonus) with actionable improvement suggestions
 - [x] **VALD-16**: Traffic light dashboard — per-document and per-rule status (🟢 complete, 🟡 needs attention, 🔴 missing/blocking) as primary navigation surface
 - [x] **VALD-17**: Document expiration alert system — proactive warnings when uploaded documents (insurance quote, CPA quote, bank statements, third-party support letters, in-kind quotes) approach 3-month expiration relative to target registration close date. Show days remaining, flag red when <14 days
 
@@ -150,16 +150,16 @@
 | VALD-03 | Phase 6 | Complete |
 | VALD-04 | Phase 6 | Complete |
 | VALD-05 | Phase 6 | Complete |
-| VALD-06 | Phase 4 | Complete |
+| VALD-06 | Phase 7 | Pending |
 | VALD-07 | Phase 6 | Complete |
 | VALD-08 | Phase 6 | Complete |
-| VALD-09 | Phase 4 | Complete |
+| VALD-09 | Phase 9 | Pending |
 | VALD-10 | Phase 4 | Complete |
 | VALD-11 | Phase 4 | Complete |
-| VALD-12 | Phase 4 | Complete |
+| VALD-12 | Phase 9 | Pending |
 | VALD-13 | Phase 6 | Complete |
 | VALD-14 | Phase 6 | Complete |
-| VALD-15 | Phase 4 | Complete |
+| VALD-15 | Phase 8 | Pending |
 | VALD-16 | Phase 6 | Complete |
 | VALD-17 | Phase 4 | Complete |
 | EXPRT-01 | Phase 5 | Complete |
@@ -176,9 +176,9 @@
 **Coverage:**
 - v1 requirements: 49 total
 - Mapped to phases: 49
-- Complete: 38 | Pending (Phase 6 gap closure): 11
+- Complete: 45 | Pending (gap closure phases 7-9): 4
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after roadmap creation*
+*Last updated: 2026-03-25 after gap closure phase creation*

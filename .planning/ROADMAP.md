@@ -17,7 +17,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: AI Document Generation Pipeline** - 4-pass document generation with prompt injection, staleness tracking, and one-click regeneration (completed 2026-03-24)
 - [x] **Phase 4: Validation Engine + Dashboard** - 17 compliance rules, traffic light dashboard, score estimation, and real-time validation (completed 2026-03-24)
 - [x] **Phase 5: Export Manager** - PDF generation, IMCINE naming, pre-export language check, ZIP packaging (completed 2026-03-24)
-- [ ] **Phase 6: Validation Data Wiring Fix** - Fix Firestore path mismatches in useValidation, implement fee cross-match extractors, add ERPI submission tracking, regional bonus fields, and date format fix
+- [x] **Phase 6: Validation Data Wiring Fix** - Fix Firestore path mismatches in useValidation, implement fee cross-match extractors, add ERPI submission tracking, regional bonus fields, and date format fix (completed 2026-03-25)
+- [ ] **Phase 7: Document Completeness & Export Gate Fix** - Align REQUIRED_DOCUMENTS namespace with DocumentChecklist tipo values, wire hasExclusiveContribution from financial data
+- [ ] **Phase 8: Score Estimation & Accuracy Fix** - Fix scoring role name mismatch, populate scoring signals, wire artistic score Cloud Function trigger
+- [ ] **Phase 9: Validation Stub Completion** - Populate outputFiles for VALD-09 file format pre-validation, wire extractLinks for VALD-12 hyperlink accessibility
 
 ## Phase Details
 
@@ -135,16 +138,65 @@ Plans:
 - [x] 06-02-PLAN.md — Fee cross-match extractors from budget_output, ERPI submission tracking schema/UI, regional bonus schema fields and UI inputs
 - [x] 06-03-PLAN.md — Per-screen traffic light derivation from validation results, regional bonus engine wiring, full verification
 
+### Phase 7: Document Completeness & Export Gate Fix
+**Goal**: VALD-06 document completeness check correctly identifies uploaded documents, and export is no longer permanently blocked by false missing-document errors
+**Depends on**: Phase 6
+**Requirements**: VALD-06
+**Gap Closure**: Closes critical gap from v1.0 milestone audit — production blocker
+**Success Criteria** (what must be TRUE):
+  1. REQUIRED_DOCUMENTS keys match the tipo values used by DocumentChecklist and storage.ts
+  2. Uploaded documents (cv_productor, cotizacion_seguro, etc.) are correctly recognized as present by VALD-06
+  3. hasExclusiveContribution is derived from financial data instead of hardcoded false
+  4. Export proceeds when all required documents are genuinely uploaded (no false blockers)
+  5. Traffic lights no longer show false-red on datos/documentos screens due to namespace mismatch
+**Plans:** TBD
+
+Plans:
+- [ ] 07-01: TBD
+
+### Phase 8: Score Estimation & Accuracy Fix
+**Goal**: Viability scoring produces accurate results using correct role matching and populated scoring signals, and artistic score estimation is accessible from the UI
+**Depends on**: Phase 7
+**Requirements**: VALD-15
+**Gap Closure**: Closes medium-priority gap from v1.0 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. findTeamByRole matches 'Productor' and 'Director' (not 'Productor/a' and 'Director/a')
+  2. Scoring signals (screenplayPagesPerDay, budgetHasImprevistos, exhibitionHasSpectatorEstimate, etc.) populated in useValidation snapshot
+  3. ScoreEstimationPanel triggers the estimateScore Cloud Function for artistic scoring
+  4. Dashboard ProjectCard shows completion/readiness percentage instead of hardcoded 0%
+**Plans:** TBD
+
+Plans:
+- [ ] 08-01: TBD
+
+### Phase 9: Validation Stub Completion
+**Goal**: VALD-09 file format compliance and VALD-12 hyperlink accessibility rules produce real results instead of permanently skipping
+**Depends on**: Phase 7
+**Requirements**: VALD-09, VALD-12
+**Gap Closure**: Closes low-priority gaps from v1.0 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. outputFiles populated in useValidation snapshot from rendered PDF metadata
+  2. VALD-09 validates filenames (≤15 chars, ASCII) and sizes (≤40MB) against IMCINE rules
+  3. extractLinks() extracts team member portfolio URLs and document URLs
+  4. VALD-12 checks extracted links for accessibility (warning, not blocker)
+**Plans:** TBD
+
+Plans:
+- [ ] 09-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Intake Wizard | 4/4 | Complete   | 2026-03-22 |
+| 1. Scaffold + Intake Wizard | 4/4 | Complete | 2026-03-22 |
 | 2. Screenplay Processing | 2/2 | Complete | 2026-03-23 |
 | 3. AI Document Generation Pipeline | 6/6 | Complete | 2026-03-24 |
 | 4. Validation Engine + Dashboard | 8/8 | Complete | 2026-03-24 |
 | 5. Export Manager | 3/3 | Complete | 2026-03-24 |
-| 6. Validation Data Wiring Fix | 0/3 | Not started | - |
+| 6. Validation Data Wiring Fix | 3/3 | Complete | 2026-03-25 |
+| 7. Document Completeness & Export Gate Fix | 0/TBD | Not started | - |
+| 8. Score Estimation & Accuracy Fix | 0/TBD | Not started | - |
+| 9. Validation Stub Completion | 0/TBD | Not started | - |
