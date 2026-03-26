@@ -732,6 +732,54 @@ export const es = {
     migrationError: 'Error al migrar datos. Contacta soporte.',
   },
 
+  // -- RBAC (Role-Based Access Control) --
+  rbac: {
+    roles: {
+      productor: 'Productor',
+      line_producer: 'Line Producer',
+      abogado: 'Abogado',
+      director: 'Director',
+    },
+    accessDenied: {
+      title: 'No tienes acceso a este proyecto',
+      description: 'Solicita acceso al productor del proyecto para poder visualizarlo.',
+      backButton: 'Volver a Mis Proyectos',
+    },
+    readOnly: {
+      banner: (productorName: string) =>
+        `Solo lectura \u2014 contacta a ${productorName} para editar.`,
+    },
+    team: {
+      title: 'Equipo del Proyecto',
+      owner: 'Propietario',
+      removeButton: 'Revocar acceso',
+      removeConfirm: (name: string) =>
+        `Se eliminara a ${name} del proyecto. Esta accion no se puede deshacer.`,
+      removedToast: 'Acceso revocado exitosamente.',
+    },
+    invite: {
+      title: 'Invitar al proyecto',
+      emailLabel: 'Correo electronico',
+      emailPlaceholder: 'ejemplo@correo.com',
+      roleLabel: 'Rol',
+      sendButton: 'Enviar invitacion',
+      sending: 'Enviando invitacion...',
+      successToast: 'Invitacion enviada exitosamente.',
+      errorToast: 'Error al enviar la invitacion. Intenta de nuevo.',
+      alreadyInvited: 'Ya existe una invitacion pendiente para este correo.',
+      alreadyMember: 'Este usuario ya es miembro del proyecto.',
+    },
+    pending: {
+      title: 'Invitaciones pendientes',
+      invitedBy: (name: string) => `Invitado por ${name}`,
+      acceptButton: 'Aceptar',
+      declineButton: 'Rechazar',
+      noInvitations: 'No tienes invitaciones pendientes.',
+      acceptedToast: 'Invitacion aceptada. Ya puedes acceder al proyecto.',
+      declinedToast: 'Invitacion rechazada.',
+    },
+  },
+
   // -- Error States --
   errors: {
     firestoreConnection:

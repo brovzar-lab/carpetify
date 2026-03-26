@@ -13,6 +13,7 @@ import { loadProjectDataForGeneration } from './pipeline/orchestrator.js';
 import { initClaudeClient } from './claude/client.js';
 import { handleScoreEstimation } from './scoreHandler.js';
 import { handleV1Migration } from './migration/migrateV1Data.js';
+import { migrateProjectsAddCollaborators } from './migrations/addCollaboratorsField.js';
 import { requireAuth, requireProjectAccess } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
@@ -397,6 +398,32 @@ export const migrateV1Data = onCall(
     } catch (err) {
       console.error('migrateV1Data error:', err);
       throw new HttpsError('internal', 'Error al migrar datos de v1.0.');
+    }
+  },
+);
+
+// ---- Phase 11: RBAC Migration ----
+
+/**
+ * migrateAddCollaborators: Callable Cloud Function.
+ * Adds collaborators map and memberUIDs array to existing projects
+ * that were created before Phase 11 RBAC support.
+ * Idempotent: safe to call multiple times.
+ */
+export const migrateAddCollaborators = onCall(
+  {
+    timeoutSeconds: 60,
+    memory: '256MiB',
+    region: 'us-central1',
+  },
+  async (request) => {
+    requireAuth(request);
+
+    try {
+      return await migrateProjectsAddCollaborators();
+    } catch (err) {
+      console.error('migrateAddCollaborators error:', err);
+      throw new HttpsError('internal', 'Error al migrar campos de colaboradores.');
     }
   },
 );

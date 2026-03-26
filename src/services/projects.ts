@@ -38,6 +38,8 @@ export async function createProject(userId: string, orgId: string): Promise<stri
     },
     ownerId: userId,
     orgId: orgId,
+    collaborators: { [userId]: 'productor' },
+    memberUIDs: [userId],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -102,6 +104,8 @@ export async function cloneProject(id: string, userId: string, orgId: string): P
     },
     ownerId: userId,
     orgId: orgId,
+    collaborators: { [userId]: 'productor' },
+    memberUIDs: [userId],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -109,15 +113,22 @@ export async function cloneProject(id: string, userId: string, orgId: string): P
 }
 
 /**
- * Lists projects owned by the current user, sorted by creation date (newest first).
- * Per Pitfall #8: includes where clause filtering by ownerId.
+ * Lists projects where the current user is a member (owner or collaborator).
+ * Uses array-contains on memberUIDs for efficient querying.
+ * Returns ownerId and collaborators so the dashboard can show role info.
  */
 export async function listProjects(userId: string): Promise<
-  Array<{ id: string; metadata: ProjectMetadata; createdAt: Date }>
+  Array<{
+    id: string
+    metadata: ProjectMetadata
+    createdAt: Date
+    ownerId: string
+    collaborators: Record<string, string>
+  }>
 > {
   const q = query(
     projectsCol,
-    where('ownerId', '==', userId),
+    where('memberUIDs', 'array-contains', userId),
     orderBy('createdAt', 'desc'),
   )
   const snap = await getDocs(q)
@@ -127,6 +138,8 @@ export async function listProjects(userId: string): Promise<
       id: d.id,
       metadata: data.metadata as ProjectMetadata,
       createdAt: data.createdAt?.toDate?.() ?? new Date(),
+      ownerId: data.ownerId as string,
+      collaborators: (data.collaborators ?? {}) as Record<string, string>,
     }
   })
 }
