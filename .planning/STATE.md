@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 12-02-PLAN.md
-last_updated: "2026-03-26T03:18:36.557Z"
+stopped_at: Completed 12-03-PLAN.md
+last_updated: "2026-03-26T14:38:13.566Z"
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -56,6 +56,7 @@ Plan: 3 of 3
 | Phase 11-rbac-access-control P02 | 8min | 2 tasks | 11 files |
 | Phase 12-realtime-collaboration P01 | 3min | 3 tasks | 11 files |
 | Phase 12-realtime-collaboration P02 | 3min | 2 tasks | 6 files |
+| Phase 12-realtime-collaboration P03 | 5min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,10 @@ Recent decisions affecting current work:
 - [Phase 12-realtime-collaboration]: Used title attribute for avatar tooltip instead of external tooltip library
 - [Phase 12-realtime-collaboration]: ForceBreakDialog uses shadcn Dialog (AlertDialog not available in project)
 - [Phase 12-realtime-collaboration]: Collaboration UI components are pure props-based with no hook calls -- hooks wired in Plan 03
+- [Phase 12-realtime-collaboration]: Lock acquired on edit intent (button click), not on page open -- prevents phantom locks
+- [Phase 12-realtime-collaboration]: Auto-save flushAndWait before releaseLock ensures no pending data is lost when edit mode ends
+- [Phase 12-realtime-collaboration]: Role restriction takes visual priority over lock banner per D-14
+- [Phase 12-realtime-collaboration]: Sign-out RTDB cleanup is best-effort: 2-minute onDisconnect timeout handles failures
 
 ### Pending Todos
 
@@ -105,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T03:18:36.549Z
-Stopped at: Completed 12-02-PLAN.md
+Last session: 2026-03-26T14:38:13.563Z
+Stopped at: Completed 12-03-PLAN.md
 Resume file: None

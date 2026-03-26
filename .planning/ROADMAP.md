@@ -30,7 +30,7 @@
 
 - [x] **Phase 10: Authentication & Identity** - Firebase Auth with Google sign-in, session persistence, route protection, Cloud Function auth validation, and v1.0 data migration (completed 2026-03-26)
 - [x] **Phase 11: RBAC & Project Access Control** - Role-based permissions, project invitations, and Firestore security rules enforcement (completed 2026-03-26)
-- [ ] **Phase 12: Real-Time Collaboration** - Simultaneous project editing with section-level locking, presence indicators, role-based screen access, and conflict notification
+- [x] **Phase 12: Real-Time Collaboration** - Simultaneous project editing with section-level locking, presence indicators, role-based screen access, and conflict notification (completed 2026-03-26)
 - [ ] **Phase 13: Activity Tracking & Invitation Flow** - Field-level change attribution log and email-based project invitation with accept/decline
 - [ ] **Phase 14: Document Versioning** - Version history for generated documents with inline diff comparison and one-click revert
 - [ ] **Phase 15: AI Pre-Submission Review** - IMCINE evaluator simulation producing per-section scores, improvement suggestions, and readiness assessment
@@ -84,7 +84,7 @@ Plans:
 Plans:
 - [x] 12-01-PLAN.md — RTDB infrastructure, presence/lock hooks, idle detection, forceBreakLock Cloud Function, RTDB security rules
 - [x] 12-02-PLAN.md — Collaboration UI components (PresenceAvatar, LockBanner, ForceBreakDialog) and Spanish locale strings
-- [ ] 12-03-PLAN.md — WizardShell/Sidebar/AppHeader integration, useAutoSave lock coordination, sign-out RTDB cleanup
+- [x] 12-03-PLAN.md — WizardShell/Sidebar/AppHeader integration, useAutoSave lock coordination, sign-out RTDB cleanup
 
 ### Phase 13: Activity Tracking & Invitation Flow
 **Goal**: Team members can trace who changed what and when, and new collaborators join projects through a proper invitation flow
@@ -147,7 +147,7 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 9. Validation Stub Completion | v1.0 | 1/1 | Complete | 2026-03-25 |
 | 10. Authentication & Identity | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 12. Real-Time Collaboration | v2.0 | 2/3 | In Progress|  |
+| 12. Real-Time Collaboration | v2.0 | 3/3 | Complete   | 2026-03-26 |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 0/? | Not started | - |
 | 14. Document Versioning | v2.0 | 0/? | Not started | - |
 | 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |
