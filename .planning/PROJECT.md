@@ -124,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 — Phase 13 complete: activity tracking and invitation email flow (COLLAB-04, COLLAB-06)*
+*Last updated: 2026-03-26 — Phase 14 complete: document versioning with version snapshots, side-by-side diff, and one-click revert (AIGEN-V2-03, 04, 05)*
