@@ -10,13 +10,17 @@
  */
 
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
-import type { GeneratedDocument, DocumentId, PassId } from '../shared/types.js';
+import type { GeneratedDocument, DocumentId, PassId, VersionTriggerReason } from '../shared/types.js';
 import { DOCUMENT_REGISTRY } from '../shared/types.js';
 import type { BudgetOutput } from '../financial/budgetComputer.js';
 
 /**
  * Save a generated document to Firestore.
  * Writes to projects/{projectId}/generated/{docId}
+ *
+ * Before overwriting an existing document, snapshots its current content
+ * into a versions subcollection (per D-01, D-02). When 10 versions exist,
+ * the oldest is pruned in the same batched write (per D-04).
  */
 export async function saveGeneratedDocument(
   projectId: string,
@@ -25,10 +29,62 @@ export async function saveGeneratedDocument(
   passId: PassId,
   promptFile: string,
   modelUsed: string,
+  triggeredBy?: string,
+  triggerReason?: VersionTriggerReason,
 ): Promise<void> {
   const db = getFirestore();
   const registry = DOCUMENT_REGISTRY[docId];
 
+  const docRef = db
+    .collection('projects')
+    .doc(projectId)
+    .collection('generated')
+    .doc(docId);
+
+  // Check if document already exists to increment version
+  const existing = await docRef.get();
+
+  let newVersion = 1;
+  if (existing.exists) {
+    const existingData = existing.data()!;
+    const currentVersion = (existingData.version as number) || 1;
+    newVersion = currentVersion + 1;
+
+    // Step 1: Snapshot existing document before overwrite (per D-01, D-02)
+    const versionsRef = docRef.collection('versions');
+
+    // Per D-04: Check if at 10 versions, if so delete oldest in same batch
+    const versionsSnap = await versionsRef.orderBy('version', 'asc').get();
+    const batch = db.batch();
+
+    // If at or above 10 versions, delete the oldest to make room
+    if (versionsSnap.size >= 10) {
+      const oldestDoc = versionsSnap.docs[0];
+      batch.delete(oldestDoc.ref);
+    }
+
+    // Archive current version to subcollection
+    const versionDoc: Record<string, unknown> = {
+      content: existingData.editedContent ?? existingData.content,
+      editedContent: existingData.editedContent ?? null,
+      contentType: existingData.contentType ?? 'prose',
+      version: currentVersion,
+      passId: existingData.passId ?? passId,
+      generatedAt: existingData.generatedAt ?? null,
+      archivedAt: FieldValue.serverTimestamp(),
+      triggerReason: triggerReason ?? 'regeneration',
+      triggeredBy: triggeredBy ?? null,
+      modelUsed: existingData.modelUsed ?? '',
+      promptFile: existingData.promptFile ?? '',
+    };
+
+    batch.set(versionsRef.doc(String(currentVersion)), versionDoc);
+
+    // Commit the batch (prune + archive atomically)
+    await batch.commit();
+  }
+
+  // Step 2: Write new version
   const docData: Omit<GeneratedDocument, 'generatedAt'> & { generatedAt: ReturnType<typeof FieldValue.serverTimestamp> } = {
     docId,
     docName: registry.docName,
@@ -40,22 +96,9 @@ export async function saveGeneratedDocument(
     inputHash: '', // TODO: compute from input data
     modelUsed,
     promptFile,
-    version: 1, // Will be incremented on subsequent generations
+    version: newVersion,
     manuallyEdited: false,
   };
-
-  const docRef = db
-    .collection('projects')
-    .doc(projectId)
-    .collection('generated')
-    .doc(docId);
-
-  // Check if document already exists to increment version
-  const existing = await docRef.get();
-  if (existing.exists) {
-    const existingData = existing.data();
-    docData.version = ((existingData?.version as number) || 0) + 1;
-  }
 
   await docRef.set(docData);
 }

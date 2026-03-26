@@ -62,6 +62,38 @@ export interface GeneratedDocument {
   editedContent?: string;
 }
 
+// ---- Version trigger reasons ----
+
+export type VersionTriggerReason = 'regeneration' | 'manual_revert' | 'pipeline_run';
+
+// ---- Document version snapshot (Firestore: projects/{id}/generated/{docId}/versions/{versionNumber}) ----
+
+/** Version snapshot stored in projects/{projectId}/generated/{docId}/versions/{versionNumber} */
+export interface DocumentVersion {
+  /** Full content snapshot (editedContent ?? content at time of archival) */
+  content: unknown;
+  /** Manual edits snapshot if they existed */
+  editedContent: string | null;
+  /** Content type: 'prose' | 'structured' | 'table' */
+  contentType: 'prose' | 'structured' | 'table';
+  /** Version number (matches subcollection doc ID) */
+  version: number;
+  /** Pass that produced this version */
+  passId: PassId;
+  /** When this version was originally generated */
+  generatedAt: Timestamp | null;
+  /** Server timestamp when snapshot was taken */
+  archivedAt: Timestamp;
+  /** Why this version was created: regeneration, manual_revert, or pipeline_run */
+  triggerReason: VersionTriggerReason;
+  /** userId of who triggered the change (null for legacy/system) */
+  triggeredBy: string | null;
+  /** AI model used for this version */
+  modelUsed: string;
+  /** Prompt file used for this version */
+  promptFile: string;
+}
+
 // ---- Generation state (Firestore: projects/{id}/meta/generation_state) ----
 
 export interface PassState {
