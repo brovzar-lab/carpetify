@@ -32,7 +32,7 @@
 - [x] **Phase 11: RBAC & Project Access Control** - Role-based permissions, project invitations, and Firestore security rules enforcement (completed 2026-03-26)
 - [x] **Phase 12: Real-Time Collaboration** - Simultaneous project editing with section-level locking, presence indicators, role-based screen access, and conflict notification (completed 2026-03-26)
 - [x] **Phase 13: Activity Tracking & Invitation Flow** - Field-level change attribution log and email-based project invitation with accept/decline (completed 2026-03-26)
-- [x] **Phase 14: Document Versioning** - Version history for generated documents with inline diff comparison and one-click revert (completed 2026-03-26)
+- [ ] **Phase 14: Document Versioning** - Version history for generated documents with inline diff comparison and one-click revert (gap closure in progress)
 - [ ] **Phase 15: AI Pre-Submission Review** - IMCINE evaluator simulation producing per-section scores, improvement suggestions, and readiness assessment
 
 ## Phase Details
@@ -109,13 +109,14 @@ Plans:
   1. Each time a document is regenerated, the previous version is preserved with timestamp, trigger reason, and who triggered it
   2. User can select any two versions of a document and see an inline diff with additions highlighted in green and deletions in red
   3. User can revert to any previous version with one click, and the reverted content becomes the current active version
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [x] 14-00-PLAN.md — Wave 0 test stubs: Spanish prose diff tests (D-07), documentStore version snapshot tests, revertDocument copy-forward tests
 - [x] 14-01-PLAN.md — Version snapshot in saveGeneratedDocument with 10-version prune, triggeredBy threading through all 4 pass handlers
 - [x] 14-02-PLAN.md — Frontend versioning components: diff library, locale strings, version service, 6 UI components (VersionBadge, ProseDiffViewer, StructuredDiffViewer, VersionSelector, VersionHistoryPanel, RevertConfirmDialog)
 - [x] 14-03-PLAN.md — revertDocumentVersion Cloud Function with soft downstream warning (D-10 override), DocumentViewer integration (history/compare/revert modes), activity log revert event
+- [ ] 14-04-PLAN.md — Gap closure: resolve 6 documentStore test stubs with firebase-admin mocks (AIGEN-V2-03 test coverage)
 
 ### Phase 15: AI Pre-Submission Review
 **Goal**: Users get an AI-powered assessment of their complete carpeta from the perspective of IMCINE evaluators before submitting
@@ -152,5 +153,5 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 14. Document Versioning | v2.0 | 4/4 | Complete   | 2026-03-26 |
+| 14. Document Versioning | v2.0 | 4/5 | Gap closure | - |
 | 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |
