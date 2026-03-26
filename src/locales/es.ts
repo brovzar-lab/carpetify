@@ -803,6 +803,7 @@ export const es = {
     lockReleased: 'Edicion finalizada.',
     lockFailed: 'No se pudo bloquear la seccion. Otro usuario la esta editando.',
     finishEditing: 'Terminar edicion',
+    startEditing: 'Editar',
     // Presence labels per D-05, D-06, D-07
     presence: {
       online: 'En linea',

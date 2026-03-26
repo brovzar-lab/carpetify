@@ -2,11 +2,13 @@ import { Link, useParams } from 'react-router'
 import { ArrowLeft, Lock } from 'lucide-react'
 import { es } from '@/locales/es'
 import { TrafficLight, type TrafficLightStatus } from '@/components/common/TrafficLight'
+import { SidebarPresenceDot } from '@/components/collaboration/SidebarPresenceDot'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/appStore'
 import { canEditScreen } from '@/lib/permissions'
 import type { WizardScreen } from '@/stores/wizardStore'
+import type { PresenceEntry } from '@/hooks/useProjectPresence'
 
 interface ScreenItem {
   key: WizardScreen
@@ -31,6 +33,8 @@ const additionalScreens: ScreenItem[] = [
 interface WizardSidebarProps {
   /** Traffic light status per screen. Defaults to 'partial' if not provided. */
   screenStatuses?: Partial<Record<WizardScreen, TrafficLightStatus>>
+  /** Presence entries for other users in this project (per D-05). */
+  presenceList?: PresenceEntry[]
 }
 
 /**
@@ -38,8 +42,9 @@ interface WizardSidebarProps {
  * 240px fixed width, full height, muted background.
  * All screens always accessible (free navigation per D-01).
  * Shows lock icon next to screens the user cannot edit (per RBAC role).
+ * Shows presence dots next to screens where other users are present (per D-05).
  */
-export function WizardSidebar({ screenStatuses = {} }: WizardSidebarProps) {
+export function WizardSidebar({ screenStatuses = {}, presenceList = [] }: WizardSidebarProps) {
   const { projectId, screen } = useParams<{
     projectId: string
     screen: string
@@ -51,6 +56,7 @@ export function WizardSidebar({ screenStatuses = {} }: WizardSidebarProps) {
     const isActive = activeScreen === item.key
     const status = screenStatuses[item.key] || 'partial'
     const isLocked = currentProjectRole !== null && !canEditScreen(currentProjectRole, item.key)
+    const screenEntries = presenceList.filter((entry) => entry.screen === item.key)
 
     return (
       <Link
@@ -65,6 +71,7 @@ export function WizardSidebar({ screenStatuses = {} }: WizardSidebarProps) {
       >
         <TrafficLight status={status} />
         <span className="flex-1">{item.label}</span>
+        <SidebarPresenceDot entries={screenEntries} />
         {isLocked && <Lock className="h-3.5 w-3.5 text-muted-foreground/50" />}
       </Link>
     )

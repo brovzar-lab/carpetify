@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect, useState } from 'react'
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
@@ -7,25 +7,45 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 /**
  * Auto-save hook with 1500ms debounce for Notion-like editing experience.
  * Flushes pending save on unmount. Retries up to 3 times with exponential backoff.
+ *
+ * Lock coordination (optional, for section locking per D-12):
+ * - lockOwned: when provided as false, doSave skips the save entirely
+ * - onSaveComplete: callback after successful save (resets idle lock timer)
+ * - flushAndWait: immediately executes pending save (used before lock release per Pitfall 5)
  */
 export function useAutoSave(
   projectId: string,
   path: string,
   debounceMs = 1500,
+  lockOwned?: boolean,
+  onSaveComplete?: () => void,
 ) {
   const [status, setStatus] = useState<SaveStatus>('idle')
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const retriesRef = useRef(0)
+  const pendingDataRef = useRef<Record<string, unknown> | null>(null)
   const maxRetries = 3
+
+  // Keep onSaveComplete in a ref to avoid stale closures
+  const onSaveCompleteRef = useRef(onSaveComplete)
+  useEffect(() => {
+    onSaveCompleteRef.current = onSaveComplete
+  }, [onSaveComplete])
 
   const doSave = useCallback(
     async (data: Record<string, unknown>) => {
+      // Per D-12: skip save if lock is not held
+      if (lockOwned === false) return
+
       setStatus('saving')
       try {
-        const ref = doc(db, `projects/${projectId}/${path}`)
-        await updateDoc(ref, { ...data, updatedAt: serverTimestamp() })
+        const ref = doc(db, `projects/${projectId}/${path}/data`)
+        await setDoc(ref, { ...data, updatedAt: serverTimestamp() }, { merge: true })
         setStatus('saved')
         retriesRef.current = 0
+        pendingDataRef.current = null
+        // Call onSaveComplete after successful save
+        onSaveCompleteRef.current?.()
         // Reset to idle after 3 seconds
         setTimeout(() => setStatus((s) => (s === 'saved' ? 'idle' : s)), 3000)
       } catch {
@@ -39,16 +59,32 @@ export function useAutoSave(
         }
       }
     },
-    [projectId, path],
+    [projectId, path, lockOwned],
   )
 
   const save = useCallback(
     (data: Record<string, unknown>) => {
+      pendingDataRef.current = data
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => doSave(data), debounceMs)
     },
     [doSave, debounceMs],
   )
+
+  /**
+   * Immediately execute any pending debounced save and wait for completion.
+   * Used before lock release per Pitfall 5: flush pending auto-save before releasing lock.
+   */
+  const flushAndWait = useCallback(async () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = undefined
+    }
+    if (pendingDataRef.current) {
+      const data = pendingDataRef.current
+      await doSave(data)
+    }
+  }, [doSave])
 
   // Flush pending save on unmount
   useEffect(() => {
@@ -57,5 +93,5 @@ export function useAutoSave(
     }
   }, [])
 
-  return { save, status }
+  return { save, status, flushAndWait }
 }
