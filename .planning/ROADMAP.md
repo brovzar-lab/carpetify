@@ -94,9 +94,10 @@ Plans:
   1. An activity log shows timestamped entries of which user changed which field, viewable by any project member
   2. Inviting a team member sends an email with a link that, when clicked, adds them to the project with the assigned role
   3. An invited user can accept or decline the invitation from the link, and declining does not grant project access
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
+- [ ] 13-00-PLAN.md — Wave 0 test stubs for activity log service (COLLAB-04) and invitation email flow (COLLAB-06)
 - [ ] 13-01-PLAN.md — Activity log data service, useAutoSave field diff integration, useActivityLog hook, ActivityTab/Entry/Filters UI, WizardShell/Sidebar integration with badge count
 - [ ] 13-02-PLAN.md — Resend email delivery, onDocumentCreated trigger, InvitationPage deep link with 6 states, return URL pattern, invitation locale strings
 

@@ -2,9 +2,10 @@
 phase: 13
 slug: activity-tracking
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-26
+updated: 2026-03-26
 ---
 
 # Phase 13 — Validation Strategy
@@ -38,7 +39,14 @@ created: 2026-03-26
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| *Populated after plans are created* | | | | | | | |
+| 00-T1 | 13-00 | 0 | COLLAB-04 | unit stub | `npx vitest run src/services/__tests__/activityLog.test.ts --reporter=verbose` | Wave 0 creates | ⬜ pending |
+| 00-T2 | 13-00 | 0 | COLLAB-06 | unit stub | `npx vitest run src/__tests__/functions/emailTemplates.test.ts src/__tests__/functions/onInvitationCreated.test.ts --reporter=verbose` | Wave 0 creates | ⬜ pending |
+| 01-T1 | 13-01 | 1 | COLLAB-04 | unit | `npx vitest run src/services/__tests__/activityLog.test.ts --reporter=verbose` | Wave 0 | ⬜ pending |
+| 01-T2 | 13-01 | 1 | COLLAB-04 | unit | `npx vitest run src/services/__tests__/activityLog.test.ts --reporter=verbose` | Wave 0 | ⬜ pending |
+| 01-T3 | 13-01 | 1 | COLLAB-04 | unit+tsc | `npx vitest run --reporter=verbose` | Wave 0 | ⬜ pending |
+| 01-T4 | 13-01 | 1 | COLLAB-04 | unit+tsc | `npx vitest run --reporter=verbose` | Wave 0 | ⬜ pending |
+| 02-T1 | 13-02 | 2 | COLLAB-06 | unit | `npx vitest run src/__tests__/functions/emailTemplates.test.ts src/__tests__/functions/onInvitationCreated.test.ts --reporter=verbose` | Wave 0 | ⬜ pending |
+| 02-T2 | 13-02 | 2 | COLLAB-06 | unit+tsc | `npx vitest run --reporter=verbose` | Wave 0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -46,11 +54,12 @@ created: 2026-03-26
 
 ## Wave 0 Requirements
 
-- [ ] Activity event helper tests — stubs for COLLAB-04
-- [ ] Invitation flow tests — stubs for COLLAB-06
-- [ ] Existing vitest + Playwright infrastructure covers framework needs
+- [ ] `src/services/__tests__/activityLog.test.ts` — stubs for COLLAB-04 (buildChangeSummary, FIELD_LABELS, SCREEN_LABELS, coalesceOrCreate)
+- [ ] `src/__tests__/functions/emailTemplates.test.ts` — stubs for COLLAB-06 (buildInvitationEmailHtml HTML rendering)
+- [ ] `src/__tests__/functions/onInvitationCreated.test.ts` — stubs for COLLAB-06 (trigger logic, mocked Resend)
+- [x] Existing vitest + Playwright infrastructure covers framework needs
 
-*If none: "Existing infrastructure covers all phase requirements."*
+**Plan:** 13-00-PLAN.md (Wave 0)
 
 ---
 
@@ -65,11 +74,11 @@ created: 2026-03-26
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** ready (pending Wave 0 execution)
