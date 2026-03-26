@@ -23,6 +23,7 @@ import {
 import { formatMXN } from '@/lib/format'
 import { PERIODOS_EFICINE } from '@/lib/constants'
 import { es } from '@/locales/es'
+import { canDeleteProject, type ProjectRole } from '@/lib/permissions'
 import { useValidation } from '@/hooks/useValidation'
 import { ValidationProjectCardBadge } from '@/components/validation/ValidationProjectCardBadge'
 import type { ProjectMetadata } from '@/schemas/project'
@@ -31,6 +32,7 @@ import type { DocExpirationStatus } from '@/validation/rules/documentExpiration'
 interface ProjectCardProps {
   id: string
   metadata: ProjectMetadata
+  userRole: ProjectRole | null
   onDelete: (id: string) => void
   onClone: (id: string) => void
 }
@@ -44,7 +46,7 @@ function getDaysRemaining(periodo: string): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
-export function ProjectCard({ id, metadata, onDelete, onClone }: ProjectCardProps) {
+export function ProjectCard({ id, metadata, userRole, onDelete, onClone }: ProjectCardProps) {
   const navigate = useNavigate()
   const daysLeft = getDaysRemaining(metadata.periodo_registro)
   const periodLabel =
@@ -91,6 +93,11 @@ export function ProjectCard({ id, metadata, onDelete, onClone }: ProjectCardProp
             <Badge variant="outline" className="text-xs">
               {periodLabel}
             </Badge>
+            {userRole && (
+              <Badge variant="outline" className="text-xs text-primary border-primary/30">
+                {es.rbac.roles[userRole]}
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -160,43 +167,46 @@ export function ProjectCard({ id, metadata, onDelete, onClone }: ProjectCardProp
             <TooltipContent>{es.dashboard.cloneButton}</TooltipContent>
           </Tooltip>
 
-          <Dialog>
-            <DialogTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-2 text-destructive hover:text-destructive"
-                />
-              }
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only">{es.dashboard.deleteConfirmTitle}</span>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{es.dashboard.deleteConfirmTitle}</DialogTitle>
-                <DialogDescription>
-                  {es.dashboard.deleteConfirmBody(metadata.titulo_proyecto || 'Sin titulo')}
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2">
-                <DialogClose render={<Button variant="outline" />}>
-                  {es.dashboard.deleteConfirmCancel}
-                </DialogClose>
-                <DialogClose
-                  render={
-                    <Button
-                      variant="destructive"
-                      onClick={() => onDelete(id)}
-                    />
-                  }
-                >
-                  {es.dashboard.deleteConfirmConfirm}
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          {/* Per D-05: hide delete button for roles without canDeleteProject */}
+          {(!userRole || canDeleteProject(userRole)) && (
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-destructive hover:text-destructive"
+                  />
+                }
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span className="sr-only">{es.dashboard.deleteConfirmTitle}</span>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{es.dashboard.deleteConfirmTitle}</DialogTitle>
+                  <DialogDescription>
+                    {es.dashboard.deleteConfirmBody(metadata.titulo_proyecto || 'Sin titulo')}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2">
+                  <DialogClose render={<Button variant="outline" />}>
+                    {es.dashboard.deleteConfirmCancel}
+                  </DialogClose>
+                  <DialogClose
+                    render={
+                      <Button
+                        variant="destructive"
+                        onClick={() => onDelete(id)}
+                      />
+                    }
+                  >
+                    {es.dashboard.deleteConfirmConfirm}
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </CardContent>
     </Card>

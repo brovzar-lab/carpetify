@@ -11,12 +11,15 @@ import { PERIODOS_EFICINE } from '@/lib/constants'
 import { es } from '@/locales/es'
 import { PeriodGroup } from './PeriodGroup'
 import { EmptyState } from './EmptyState'
+import { PendingInvitations } from '@/components/project/PendingInvitations'
 import type { ProjectMetadata } from '@/schemas/project'
 
 interface ProjectWithId {
   id: string
   metadata: ProjectMetadata
   createdAt: Date
+  ownerId?: string
+  collaborators?: Record<string, string>
 }
 
 function groupByPeriod(projects: ProjectWithId[]) {
@@ -137,6 +140,9 @@ export function DashboardPage() {
             </div>
           </div>
 
+          {/* Pending invitations banner */}
+          <PendingInvitations />
+
           {/* Content */}
           {isLoading && <SkeletonCards />}
 
@@ -149,6 +155,7 @@ export function DashboardPage() {
                   key={period}
                   period={period}
                   projects={periodProjects}
+                  userId={user?.uid}
                   onDelete={handleDelete}
                   onClone={handleClone}
                 />

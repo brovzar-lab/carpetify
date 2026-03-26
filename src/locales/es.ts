@@ -745,6 +745,7 @@ export const es = {
       description: 'Solicita acceso al productor del proyecto para poder visualizarlo.',
       backButton: 'Volver a Mis Proyectos',
     },
+    loadingAccess: 'Verificando acceso...',
     readOnly: {
       banner: (productorName: string) =>
         `Solo lectura \u2014 contacta a ${productorName} para editar.`,
@@ -753,9 +754,12 @@ export const es = {
       title: 'Equipo del Proyecto',
       owner: 'Propietario',
       removeButton: 'Revocar acceso',
+      removeCancel: 'Cancelar',
+      removing: 'Revocando...',
       removeConfirm: (name: string) =>
         `Se eliminara a ${name} del proyecto. Esta accion no se puede deshacer.`,
       removedToast: 'Acceso revocado exitosamente.',
+      pendingStatus: 'Pendiente',
     },
     invite: {
       title: 'Invitar al proyecto',

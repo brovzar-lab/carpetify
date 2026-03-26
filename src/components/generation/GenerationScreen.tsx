@@ -6,6 +6,8 @@ import { useState } from 'react'
 import { es } from '@/locales/es'
 import { useGeneration } from '@/hooks/useGeneration'
 import { useGeneratedDocs } from '@/hooks/useGeneratedDocs'
+import { useAppStore } from '@/stores/appStore'
+import { canRunPipeline } from '@/lib/permissions'
 import { PipelineControl } from '@/components/generation/PipelineControl'
 import { PipelineProgress } from '@/components/generation/PipelineProgress'
 import { DocumentList } from '@/components/generation/DocumentList'
@@ -27,20 +29,26 @@ export function GenerationScreen({ projectId }: GenerationScreenProps) {
   const { docs, loading } = useGeneratedDocs(projectId)
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null)
 
+  // Per D-05: hide pipeline trigger buttons for roles without canRunPipeline
+  const currentProjectRole = useAppStore((s) => s.currentProjectRole)
+  const showPipelineControls = !currentProjectRole || canRunPipeline(currentProjectRole)
+
   const hasDocs = docs.length > 0
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header: title + CTA */}
+      {/* Header: title + CTA (hidden for unauthorized roles per D-05) */}
       <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
         <h1 className="text-xl font-semibold">{es.generation.pageTitle}</h1>
-        <PipelineControl
-          isRunning={isRunning}
-          pipelineStatus={pipelineStatus}
-          failedAtPass={failedAtPass}
-          onGenerate={() => startPipeline()}
-          onResume={(passId) => startPipeline(passId)}
-        />
+        {showPipelineControls && (
+          <PipelineControl
+            isRunning={isRunning}
+            pipelineStatus={pipelineStatus}
+            failedAtPass={failedAtPass}
+            onGenerate={() => startPipeline()}
+            onResume={(passId) => startPipeline(passId)}
+          />
+        )}
       </div>
 
       {/* Pipeline progress (when running, above content) */}

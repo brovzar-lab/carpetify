@@ -16,6 +16,8 @@ import { AlertTriangle, FileText } from 'lucide-react'
 import { useValidation } from '@/hooks/useValidation'
 import { useGeneratedDocs } from '@/hooks/useGeneratedDocs'
 import { useExport } from '@/hooks/useExport'
+import { useAppStore } from '@/stores/appStore'
+import { canExport } from '@/lib/permissions'
 import { fetchProjectTitle } from '@/services/export'
 import { ExportReadinessCard } from './ExportReadinessCard'
 import { ExportBlockedDialog } from './ExportBlockedDialog'
@@ -89,6 +91,10 @@ export function ExportScreen({ projectId }: ExportScreenProps) {
     setDismissedWarnings(allIds)
   }, [report])
 
+  // Per D-05: hide export actions for roles without canExport
+  const currentProjectRole = useAppStore((s) => s.currentProjectRole)
+  const showExportActions = !currentProjectRole || canExport(currentProjectRole)
+
   // Derived state
   const loading = validationLoading || docsLoading
   const generatedDocsExist = generatedDocs.length > 0
@@ -127,17 +133,19 @@ export function ExportScreen({ projectId }: ExportScreenProps) {
     <div className="flex-1 overflow-y-auto p-8 space-y-6">
       <h1 className="text-xl font-semibold">{es.export.pageTitle}</h1>
 
-      {/* Zone 1: Readiness card */}
-      <ExportReadinessCard
-        report={report}
-        generatedDocsExist={generatedDocsExist}
-        isExporting={isExporting}
-        onExport={startExport}
-        onShowBlockers={() => setBlockedOpen(true)}
-        onRetry={startExport}
-        hasError={!!error}
-        exportComplete={exportComplete}
-      />
+      {/* Zone 1: Readiness card (hidden for unauthorized roles per D-05) */}
+      {showExportActions && (
+        <ExportReadinessCard
+          report={report}
+          generatedDocsExist={generatedDocsExist}
+          isExporting={isExporting}
+          onExport={startExport}
+          onShowBlockers={() => setBlockedOpen(true)}
+          onRetry={startExport}
+          hasError={!!error}
+          exportComplete={exportComplete}
+        />
+      )}
 
       {/* Warnings panel */}
       {report && report.warnings.length > 0 && (
@@ -188,8 +196,8 @@ export function ExportScreen({ projectId }: ExportScreenProps) {
         </Alert>
       )}
 
-      {/* Zone 4: Download card (after export completion) */}
-      {downloadInfo && (
+      {/* Zone 4: Download card (after export completion, hidden for unauthorized roles per D-05) */}
+      {showExportActions && downloadInfo && (
         <DownloadCard
           filename={downloadInfo.filename}
           sizeMB={downloadInfo.size}
