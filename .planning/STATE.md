@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-03-26T01:15:20.599Z"
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-03-26T02:36:35.433Z"
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 11 — rbac-access-control
+**Current focus:** Phase 12 — realtime-collaboration
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
+Phase: 12 (realtime-collaboration) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Plan: Not started
 | Phase 11-rbac-access-control P01 | 5min | 2 tasks | 8 files |
 | Phase 11-rbac-access-control P03 | 6min | 2 tasks | 12 files |
 | Phase 11-rbac-access-control P02 | 8min | 2 tasks | 11 files |
+| Phase 12-realtime-collaboration P01 | 3min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 11-rbac-access-control]: Hidden-not-disabled pattern (D-05): unauthorized actions conditionally rendered, not shown as disabled
 - [Phase 11-rbac-access-control]: Invitation acceptance uses Firestore runTransaction for atomic collaborator/memberUIDs update
 - [Phase 11-rbac-access-control]: Email normalization (toLowerCase+trim) applied on both server and client for consistent invitation matching
+- [Phase 12-realtime-collaboration]: onDisconnect queued before set() per Firebase Pitfall 1 to prevent orphaned RTDB presence entries
+- [Phase 12-realtime-collaboration]: Server time offset (.info/serverTimeOffset) used in lock acquisition to handle client-server clock skew
+- [Phase 12-realtime-collaboration]: Lock duration 2min, idle threshold 30s, lock timeout 60s -- matching plan spec and RTDB security rule expiry check
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T01:07:33.088Z
-Stopped at: Completed 11-02-PLAN.md
+Last session: 2026-03-26T02:36:35.428Z
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None

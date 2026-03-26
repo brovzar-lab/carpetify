@@ -82,7 +82,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — RTDB infrastructure, presence/lock hooks, idle detection, forceBreakLock Cloud Function, RTDB security rules
+- [x] 12-01-PLAN.md — RTDB infrastructure, presence/lock hooks, idle detection, forceBreakLock Cloud Function, RTDB security rules
 - [ ] 12-02-PLAN.md — Collaboration UI components (PresenceAvatar, LockBanner, ForceBreakDialog) and Spanish locale strings
 - [ ] 12-03-PLAN.md — WizardShell/Sidebar/AppHeader integration, useAutoSave lock coordination, sign-out RTDB cleanup
 
@@ -147,7 +147,7 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 9. Validation Stub Completion | v1.0 | 1/1 | Complete | 2026-03-25 |
 | 10. Authentication & Identity | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 12. Real-Time Collaboration | v2.0 | 0/3 | Not started | - |
+| 12. Real-Time Collaboration | v2.0 | 1/3 | In Progress|  |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 0/? | Not started | - |
 | 14. Document Versioning | v2.0 | 0/? | Not started | - |
 | 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |
