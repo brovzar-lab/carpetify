@@ -94,11 +94,11 @@ Plans:
   1. An activity log shows timestamped entries of which user changed which field, viewable by any project member
   2. Inviting a team member sends an email with a link that, when clicked, adds them to the project with the assigned role
   3. An invited user can accept or decline the invitation from the link, and declining does not grant project access
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
+- [ ] 13-01-PLAN.md — Activity log data service, useAutoSave field diff integration, useActivityLog hook, ActivityTab/Entry/Filters UI, WizardShell/Sidebar integration with badge count
+- [ ] 13-02-PLAN.md — Resend email delivery, onDocumentCreated trigger, InvitationPage deep link with 6 states, return URL pattern, invitation locale strings
 
 ### Phase 14: Document Versioning
 **Goal**: Users can track how generated documents evolve over time and recover previous versions
@@ -148,6 +148,6 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 10. Authentication & Identity | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 13. Activity Tracking & Invitation Flow | v2.0 | 0/? | Not started | - |
+| 13. Activity Tracking & Invitation Flow | v2.0 | 0/2 | Not started | - |
 | 14. Document Versioning | v2.0 | 0/? | Not started | - |
 | 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |
