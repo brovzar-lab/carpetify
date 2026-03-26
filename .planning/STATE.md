@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-03-26T00:56:54.040Z"
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-03-26T01:07:33.090Z"
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 6
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 11 (rbac-access-control) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -52,6 +52,8 @@ Plan: 2 of 3
 | Phase 10 P02 | 8min | 2 tasks | 15 files |
 | Phase 10 P03 | 4min | 3 tasks | 6 files |
 | Phase 11-rbac-access-control P01 | 5min | 2 tasks | 8 files |
+| Phase 11-rbac-access-control P03 | 6min | 2 tasks | 12 files |
+| Phase 11-rbac-access-control P02 | 8min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -78,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 11-rbac-access-control]: Document-level roles map (collaborators field) instead of Firebase custom claims for per-project RBAC
 - [Phase 11-rbac-access-control]: requireProjectAccess returns { role, projectData } for downstream permission checks in Cloud Functions
 - [Phase 11-rbac-access-control]: Dual data structure: collaborators map for role lookup in rules + memberUIDs array for array-contains queries
+- [Phase 11-rbac-access-control]: useProjectAccess hook syncs role to Zustand appStore for downstream component access without prop drilling
+- [Phase 11-rbac-access-control]: Hidden-not-disabled pattern (D-05): unauthorized actions conditionally rendered, not shown as disabled
+- [Phase 11-rbac-access-control]: Invitation acceptance uses Firestore runTransaction for atomic collaborator/memberUIDs update
+- [Phase 11-rbac-access-control]: Email normalization (toLowerCase+trim) applied on both server and client for consistent invitation matching
 
 ### Pending Todos
 
@@ -91,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T00:56:54.037Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-03-26T01:07:33.088Z
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None

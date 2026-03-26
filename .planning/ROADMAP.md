@@ -29,7 +29,7 @@
 **Milestone Goal:** Transform Carpetify from a single-user tool into a collaborative platform with multi-user auth, role-based access, real-time collaboration, document versioning, and AI pre-submission review.
 
 - [x] **Phase 10: Authentication & Identity** - Firebase Auth with Google sign-in, session persistence, route protection, Cloud Function auth validation, and v1.0 data migration (completed 2026-03-26)
-- [ ] **Phase 11: RBAC & Project Access Control** - Role-based permissions, project invitations, and Firestore security rules enforcement
+- [x] **Phase 11: RBAC & Project Access Control** - Role-based permissions, project invitations, and Firestore security rules enforcement (completed 2026-03-26)
 - [ ] **Phase 12: Real-Time Collaboration** - Simultaneous project editing with section-level locking, presence indicators, role-based screen access, and conflict notification
 - [ ] **Phase 13: Activity Tracking & Invitation Flow** - Field-level change attribution log and email-based project invitation with accept/decline
 - [ ] **Phase 14: Document Versioning** - Version history for generated documents with inline diff comparison and one-click revert
@@ -66,8 +66,8 @@ Plans:
 
 Plans:
 - [x] 11-01-PLAN.md — Permissions model, data migration (collaborators/memberUIDs), Firestore security rules rewrite, Cloud Function membership guard
-- [ ] 11-02-PLAN.md — Invitation Cloud Functions (invite/accept/decline/revoke), client invitation service, team management UI
-- [ ] 11-03-PLAN.md — Access control UX: useProjectAccess hook, AccessDenied page, WizardShell role gating, read-only banners, dashboard role badges
+- [x] 11-02-PLAN.md — Invitation Cloud Functions (invite/accept/decline/revoke), client invitation service, team management UI
+- [x] 11-03-PLAN.md — Access control UX: useProjectAccess hook, AccessDenied page, WizardShell role gating, read-only banners, dashboard role badges
 
 ### Phase 12: Real-Time Collaboration
 **Goal**: Multiple team members can work on the same project simultaneously with clear visibility into who is editing what
@@ -146,7 +146,7 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 8. Score Estimation & Accuracy Fix | v1.0 | 2/2 | Complete | 2026-03-25 |
 | 9. Validation Stub Completion | v1.0 | 1/1 | Complete | 2026-03-25 |
 | 10. Authentication & Identity | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 11. RBAC & Project Access Control | v2.0 | 1/3 | In Progress|  |
+| 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete   | 2026-03-26 |
 | 12. Real-Time Collaboration | v2.0 | 0/? | Not started | - |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 0/? | Not started | - |
 | 14. Document Versioning | v2.0 | 0/? | Not started | - |
