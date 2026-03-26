@@ -47,12 +47,14 @@ Exceptions: none
 
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
+| Caption | 12px | 400 (regular) | 1.4 |
 | Body | 14px | 400 (regular) | 1.5 |
 | Label | 14px | 600 (semibold) | 1.2 |
 | Heading | 20px | 600 (semibold) | 1.2 |
-| Display | 28px | 600 (semibold) | 1.2 |
 
-Source: Consistent with existing project patterns (EmptyState uses 20px heading at font-semibold, 14px body text).
+3 distinct sizes: 12px, 14px, 20px. 2 weights: 400, 600.
+
+Source: Consistent with existing project patterns (EmptyState uses 20px heading at font-semibold, 14px body text). Caption added for timestamps, secondary badges, and small labels throughout the activity feed and invitation page.
 
 ---
 
@@ -63,12 +65,12 @@ Source: Consistent with existing project patterns (EmptyState uses 20px heading 
 | Dominant (60%) | `var(--background)` oklch(1 0 0) light / oklch(0.145 0 0) dark | Page background, activity feed background |
 | Secondary (30%) | `var(--muted)` oklch(0.97 0 0) light / oklch(0.269 0 0) dark | Feed entry cards, filter pill inactive state, sidebar muted background |
 | Accent (10%) | `var(--primary)` oklch(0.205 0 0) light / oklch(0.922 0 0) dark | Active filter pill, badge count, "Ver invitacion" CTA button |
-| Destructive | `var(--destructive)` oklch(0.577 0.245 27.325) light / oklch(0.704 0.191 22.216) dark | "Rechazar" decline button, email send failure indicator |
+| Destructive | `var(--destructive)` oklch(0.577 0.245 27.325) light / oklch(0.704 0.191 22.216) dark | "Rechazar invitacion" decline button, email send failure indicator |
 
 Accent reserved for:
 - Active filter pill background (team member or event type selected)
 - Badge count on "Actividad" sidebar item (new entries since last viewed)
-- "Aceptar" button on invitation deep link page
+- "Aceptar invitacion" button on invitation deep link page
 - "Ver invitacion" CTA in invitation email
 
 Semantic status colors (existing):
@@ -87,7 +89,7 @@ Semantic status colors (existing):
 | ActivityTab | `src/components/collaboration/ActivityTab.tsx` | ScrollArea, Badge, Skeleton |
 | ActivityEntry | `src/components/collaboration/ActivityEntry.tsx` | Badge |
 | ActivityFilters | `src/components/collaboration/ActivityFilters.tsx` | Button (variant=outline) |
-| InvitationPage | `src/pages/InvitationPage.tsx` | Card, Button, Badge, Skeleton |
+| InvitationPage | `src/pages/InvitationPage.tsx` | Card, Button, Badge, Skeleton, Dialog |
 
 ### Existing Components Modified
 
@@ -113,6 +115,8 @@ No new shadcn components need to be added.
 
 **Entry point:** "Actividad" link in WizardSidebar, below Exportar and above nothing (last item after third separator).
 
+**Focal point:** The scrollable activity feed is the primary focal point. It occupies the majority of the content area below the filter pills and receives immediate visual focus on tab entry. Day group headers and entry rows draw the eye downward through the chronological feed.
+
 **Layout:**
 - Full content area (same width as other wizard screens, fills space right of 240px sidebar)
 - Heading "Actividad" at 20px semibold, top-left
@@ -137,10 +141,10 @@ No new shadcn components need to be added.
 - Layout: horizontal row, 16px padding vertical, bottom border `border-b border-border`
 - Left: User avatar (32px circle, same `PresenceAvatar` pattern -- Google photo or initials fallback, no ring color)
 - Center: Stacked text
-  - Line 1: `[displayName]` at 14px semibold + `[role badge]` as `<Badge variant="outline">` at 12px
+  - Line 1: `[displayName]` at 14px semibold + `[role badge]` as `<Badge variant="outline">` at 12px (Caption)
   - Line 2: Action description (Spanish summary) at 14px regular, `text-foreground`
-  - Line 3 (edit events only): Changed field names in `text-muted-foreground` at 12px, comma-separated
-- Right: Timestamp at 12px `text-muted-foreground`, right-aligned
+  - Line 3 (edit events only): Changed field names in `text-muted-foreground` at 12px (Caption), comma-separated
+- Right: Timestamp at 12px (Caption) `text-muted-foreground`, right-aligned
   - Today: relative ("hace 2 horas", "hace 15 minutos")
   - Older: absolute ("14:30")
 
@@ -169,7 +173,7 @@ No new shadcn components need to be added.
 
 **Badge Count on Sidebar:**
 - Position: Right side of "Actividad" sidebar link, same row
-- Style: `<Badge>` with `bg-primary text-primary-foreground` (solid), `text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center`
+- Style: `<Badge>` with `bg-primary text-primary-foreground` (solid), `text-xs min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center`
 - Content: Number of events since `lastViewedActivity` timestamp
 - Hidden when count is 0
 - Count updates in real-time via `onSnapshot`
@@ -190,7 +194,7 @@ No new shadcn components need to be added.
 - Heading: "Te invitaron a colaborar" at 20px semibold, centered
 - Body: "Inicia sesion con tu cuenta de Google para ver la invitacion." at 14px `text-muted-foreground`, centered
 - CTA: "Iniciar sesion con Google" button, `variant="default"`, full width, same as LoginPage pattern
-- Below CTA: "Carpetify - Lemon Studios" at 12px `text-muted-foreground`, centered
+- Below CTA: "Carpetify - Lemon Studios" at 12px (Caption) `text-muted-foreground`, centered
 
 **State: Signed In, Invitation Valid**
 - Card with `CardHeader` + `CardContent` + `CardFooter`
@@ -201,8 +205,8 @@ No new shadcn components need to be added.
   - "Rol:" `<Badge variant="outline">[rolLabel]</Badge>`
   - "Expira:" `[formatted date]` in `text-muted-foreground`
 - Footer: Two buttons, right-aligned, 8px gap
-  - "Rechazar" -- `variant="outline"` (not destructive, low visual weight)
-  - "Aceptar" -- `variant="default"` (primary action)
+  - "Rechazar invitacion" -- `variant="outline"` (not destructive, low visual weight). Opens confirmation Dialog before calling Cloud Function (see Interaction Contracts).
+  - "Aceptar invitacion" -- `variant="default"` (primary action)
 - Loading state during accept/decline: button text changes, spinner icon, both buttons disabled
 
 **State: Signed In, Email Mismatch (per D-09)**
@@ -258,8 +262,8 @@ All strings MUST be added to `src/locales/es.ts` under a new `activity` section.
 | Entry: update summary (1 field) | `activity.updateSingle` | `(name: string, field: string, screen: string) => \`${name} actualizo ${field} en ${screen}\`` |
 | Entry: update summary (N fields) | `activity.updateMultiple` | `(name: string, count: number, screen: string) => \`${name} actualizo ${count} campos en ${screen}\`` |
 | Entry: generation triggered | `activity.generationTriggered` | `(name: string, passLabel: string) => \`${name} ejecuto ${passLabel}\`` |
-| Entry: generation complete | `activity.generationComplete` | `(name: string, passLabel: string, docCount: number, duration: string) => \`${name} completo ${passLabel} \u2014 ${docCount} documentos en ${duration}\`` |
-| Entry: generation failed | `activity.generationFailed` | `(name: string, passLabel: string, error: string) => \`${name} ejecuto ${passLabel} \u2014 error: ${error}\`` |
+| Entry: generation complete | `activity.generationComplete` | `(name: string, passLabel: string, docCount: number, duration: string) => \`${name} completo ${passLabel} — ${docCount} documentos en ${duration}\`` |
+| Entry: generation failed | `activity.generationFailed` | `(name: string, passLabel: string, error: string) => \`${name} ejecuto ${passLabel} — error: ${error}\`` |
 | Entry: export triggered | `activity.exportTriggered` | `(name: string) => \`${name} exporto la carpeta\`` |
 | Entry: team invited | `activity.teamInvited` | `(inviter: string, invitee: string, role: string) => \`${inviter} invito a ${invitee} como ${role}\`` |
 | Entry: team accepted | `activity.teamAccepted` | `(name: string) => \`${name} acepto la invitacion\`` |
@@ -277,10 +281,14 @@ All strings MUST be added to `src/locales/es.ts` under a new `activity` section.
 | Invitation page: inviter label | `invitation.inviterLabel` | `Invitado por:` |
 | Invitation page: role label | `invitation.roleLabel` | `Rol:` |
 | Invitation page: expires label | `invitation.expiresLabel` | `Expira:` |
-| Invitation page: accept | `invitation.acceptButton` | `Aceptar` |
-| Invitation page: decline | `invitation.declineButton` | `Rechazar` |
+| Invitation page: accept | `invitation.acceptButton` | `Aceptar invitacion` |
+| Invitation page: decline | `invitation.declineButton` | `Rechazar invitacion` |
 | Invitation page: accepting | `invitation.accepting` | `Aceptando...` |
 | Invitation page: declining | `invitation.declining` | `Rechazando...` |
+| Invitation page: decline confirm title | `invitation.declineConfirmTitle` | `Rechazar invitacion` |
+| Invitation page: decline confirm body | `invitation.declineConfirmBody` | `Si rechazas esta invitacion, el productor tendra que enviarte una nueva. Esta seguro?` |
+| Invitation page: decline confirm CTA | `invitation.declineConfirmCTA` | `Si, rechazar invitacion` |
+| Invitation page: decline confirm cancel | `invitation.declineConfirmCancel` | `Cancelar` |
 | Invitation page: email mismatch heading | `invitation.emailMismatchHeading` | `Cuenta incorrecta` |
 | Invitation page: email mismatch body | `invitation.emailMismatchBody` | `(email: string) => \`Esta invitacion fue enviada a ${email}. Inicia sesion con esa cuenta para aceptar.\`` |
 | Invitation page: switch account | `invitation.switchAccount` | `Cambiar cuenta` |
@@ -339,8 +347,21 @@ All strings MUST be added to `src/locales/es.ts` under a new `activity` section.
 3. If signed in but email does not match invitation's `inviteeEmail`: show email mismatch state
 4. If signed in and email matches: show invitation details with Accept/Decline
 5. Accept: calls `acceptInvitation` Cloud Function, shows success toast, redirects to `/project/:projectId`
-6. Decline: calls `declineInvitation` Cloud Function, shows decline toast, redirects to `/`
+6. Decline: opens confirmation Dialog first (see Decline Confirmation below). If confirmed, calls `declineInvitation` Cloud Function, shows decline toast, redirects to `/`
 7. If invitation expired / not found / already accepted: show the appropriate static state
+
+### Decline Confirmation Dialog
+
+1. Clicking "Rechazar invitacion" opens a `<Dialog>` (shadcn) -- does NOT immediately call the Cloud Function
+2. Dialog content:
+   - Title: "Rechazar invitacion" at 20px semibold
+   - Body: "Si rechazas esta invitacion, el productor tendra que enviarte una nueva. Esta seguro?" at 14px regular
+   - Footer: two buttons, right-aligned, 8px gap
+     - "Cancelar" -- `variant="outline"`, closes dialog, no action taken
+     - "Si, rechazar invitacion" -- `variant="destructive"`, calls `declineInvitation` Cloud Function
+3. While the Cloud Function is in flight: "Si, rechazar invitacion" shows spinner and changes text to "Rechazando...", both buttons disabled
+4. On success: dialog closes, decline toast shown, redirect to `/`
+5. On error: dialog stays open, error toast shown, buttons re-enabled
 
 ### Return URL After Auth
 
@@ -387,8 +408,9 @@ No third-party registries declared. No new shadcn components to install.
 | Activity entries | Use `<article>` elements with `aria-label` combining user name + action + timestamp |
 | Badge count | `aria-label` on sidebar link: "Actividad, N nuevas" when count > 0 |
 | Invitation page states | Each state has a clear `h1` heading for screen readers |
-| Accept/Decline buttons | Clear `aria-label` including project name: "Aceptar invitacion a [projectTitle]" |
+| Accept/Decline buttons | Clear `aria-label` including project name: "Aceptar invitacion a [projectTitle]" / "Rechazar invitacion a [projectTitle]" |
 | Loading states | `aria-live="polite"` on the feed container for new entry announcements |
+| Decline confirmation dialog | Dialog traps focus. "Cancelar" receives initial focus (safe default). Escape key closes dialog without action. |
 
 ---
 
