@@ -6,6 +6,7 @@ import { AppHeader } from '@/components/layout/AppHeader'
 import { LoginPage } from '@/components/auth/LoginPage'
 import { OrgSetupPage } from '@/components/auth/OrgSetupPage'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { InvitationPage } from '@/pages/InvitationPage'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { es } from '@/locales/es'
 
@@ -40,6 +41,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/setup" element={<OrgSetupRoute><OrgSetupPage /></OrgSetupRoute>} />
+          <Route path="/invitaciones/:invitationId" element={<InvitationPage />} />
           <Route
             path="/*"
             element={
@@ -50,7 +52,6 @@ function App() {
                     <Route path="/project/:projectId" element={<WizardShell />} />
                     <Route path="/project/:projectId/:screen" element={<WizardShell />} />
                     <Route path="/erpi" element={<ERPISettingsPage />} />
-                    <Route path="/invitation/:invitationId" element={<Navigate to="/" replace />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AppHeader>

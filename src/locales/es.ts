@@ -861,6 +861,40 @@ export const es = {
       `${name} descarto advertencia: "${warningText}"`,
   },
 
+  // -- Invitation Deep Link Page --
+  invitation: {
+    signInHeading: 'Te invitaron a colaborar',
+    signInBody: 'Inicia sesion con tu cuenta de Google para ver la invitacion.',
+    signInCTA: 'Iniciar sesion con Google',
+    detailHeading: 'Invitacion a colaborar',
+    projectLabel: 'Proyecto:',
+    inviterLabel: 'Invitado por:',
+    roleLabel: 'Rol:',
+    expiresLabel: 'Expira:',
+    acceptButton: 'Aceptar invitacion',
+    declineButton: 'Rechazar invitacion',
+    accepting: 'Aceptando...',
+    declining: 'Rechazando...',
+    declineConfirmTitle: 'Rechazar invitacion',
+    declineConfirmBody: 'Si rechazas esta invitacion, el productor tendra que enviarte una nueva. Esta seguro?',
+    declineConfirmCTA: 'Si, rechazar invitacion',
+    declineConfirmCancel: 'Cancelar',
+    emailMismatchHeading: 'Cuenta incorrecta',
+    emailMismatchBody: (email: string) => `Esta invitacion fue enviada a ${email}. Inicia sesion con esa cuenta para aceptar.`,
+    switchAccount: 'Cambiar cuenta',
+    expiredHeading: 'Invitacion expirada',
+    expiredBody: 'Esta invitacion ya no es valida. Solicita una nueva invitacion al productor del proyecto.',
+    notFoundHeading: 'Invitacion no encontrada',
+    notFoundBody: 'El enlace no es valido o la invitacion fue cancelada.',
+    alreadyAcceptedHeading: 'Invitacion ya aceptada',
+    alreadyAcceptedBody: 'Ya eres miembro de este proyecto.',
+    goToProject: 'Ir al proyecto',
+    goToDashboard: 'Ir a Mis Proyectos',
+    acceptedToast: 'Invitacion aceptada. Redirigiendo al proyecto...',
+    declinedToast: 'Invitacion rechazada.',
+    errorToast: 'Error al procesar la invitacion. Intenta de nuevo.',
+  },
+
   // -- Error States --
   errors: {
     firestoreConnection:

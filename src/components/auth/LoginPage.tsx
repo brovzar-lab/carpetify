@@ -28,10 +28,16 @@ export function LoginPage() {
     document.documentElement.classList.toggle('dark', initial)
   }, [])
 
-  // Redirect to dashboard if already signed in
+  // Redirect after sign-in: check for stored return URL first, then dashboard
   useEffect(() => {
     if (user) {
-      navigate('/', { replace: true })
+      const returnUrl = sessionStorage.getItem('carpetify_return_url')
+      if (returnUrl) {
+        sessionStorage.removeItem('carpetify_return_url')
+        navigate(returnUrl, { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
     }
   }, [user, navigate])
 
