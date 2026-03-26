@@ -34,6 +34,7 @@ export interface ActivityLogEntry {
     | 'upload'
     | 'role_change'
     | 'warning_dismissed'
+    | 'revert'
   changedFields: string[]
   summary: string
   createdAt: Date
