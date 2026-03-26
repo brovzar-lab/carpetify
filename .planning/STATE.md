@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 13-01-PLAN.md
-last_updated: "2026-03-26T17:57:40.167Z"
+stopped_at: Completed 13-02-PLAN.md
+last_updated: "2026-03-26T18:05:31.740Z"
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Plan: 3 of 3
 | Phase 12-realtime-collaboration P03 | 5min | 3 tasks | 6 files |
 | Phase 13-activity-tracking P00 | 2min | 2 tasks | 3 files |
 | Phase 13-activity-tracking P01 | 6min | 4 tasks | 11 files |
+| Phase 13-activity-tracking PP02 | 4min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting current work:
 - [Phase 13-activity-tracking]: Client-side field diff using JSON.stringify per-key in useAutoSave for activity logging
 - [Phase 13-activity-tracking]: useRef for user/role in doSave avoids stale closures without adding to useCallback deps
 - [Phase 13-activity-tracking]: Badge count computed inside WizardSidebar via useActivityBadge, not lifted to WizardShell
+- [Phase 13-activity-tracking]: Email send failure tracked on invitation document (emailSent/emailError) but does not throw -- invitation remains valid for in-app acceptance
+- [Phase 13-activity-tracking]: InvitationPage uses standalone route outside ProtectedRoute with sessionStorage return URL for post-auth redirect
 
 ### Pending Todos
 
@@ -117,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T17:57:40.161Z
-Stopped at: Completed 13-01-PLAN.md
+Last session: 2026-03-26T18:05:31.737Z
+Stopped at: Completed 13-02-PLAN.md
 Resume file: None
