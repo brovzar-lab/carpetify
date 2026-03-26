@@ -50,6 +50,7 @@ function App() {
                     <Route path="/project/:projectId" element={<WizardShell />} />
                     <Route path="/project/:projectId/:screen" element={<WizardShell />} />
                     <Route path="/erpi" element={<ERPISettingsPage />} />
+                    <Route path="/invitation/:invitationId" element={<Navigate to="/" replace />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AppHeader>
