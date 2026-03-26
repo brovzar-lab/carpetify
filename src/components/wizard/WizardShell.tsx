@@ -19,6 +19,7 @@ import { canEditScreen } from '@/lib/permissions'
 import { es } from '@/locales/es'
 import { Button } from '@/components/ui/button'
 import type { WizardScreen } from '@/stores/wizardStore'
+import { useAppStore } from '@/stores/appStore'
 
 // Screen components
 import { ProjectSetup } from '@/components/wizard/ProjectSetup'
@@ -30,6 +31,7 @@ import { GenerationScreen } from '@/components/generation/GenerationScreen'
 import { ValidationDashboard } from '@/components/validation/ValidationDashboard'
 import { ExportScreen } from '@/components/export/ExportScreen'
 import { TeamMembers } from '@/components/project/TeamMembers'
+import { ActivityTab } from '@/components/collaboration/ActivityTab'
 
 /**
  * Wizard layout: 240px sidebar + content area.
@@ -52,6 +54,13 @@ export function WizardShell() {
     screen: string
   }>()
   const activeScreen = (screen || 'datos') as WizardScreen
+
+  // Set active project in global store so AppHeader can show presence avatars
+  const setActiveProject = useAppStore((s) => s.setActiveProject)
+  useEffect(() => {
+    setActiveProject(projectId)
+    return () => setActiveProject(null)
+  }, [projectId, setActiveProject])
 
   // RBAC: check project access
   const { hasAccess, role, loading: accessLoading, ownerName, collaborators, ownerId } = useProjectAccess(projectId)
@@ -165,6 +174,8 @@ export function WizardShell() {
         return <ValidationDashboard projectId={projectId} />
       case 'exportar':
         return <ExportScreen projectId={projectId} />
+      case 'actividad':
+        return <ActivityTab projectId={projectId} />
       default:
         return <ProjectSetup projectId={projectId} />
     }
@@ -225,10 +236,10 @@ export function WizardShell() {
   }
 
   // Screens that use full-width layouts (no max-width constraint)
-  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera' || activeScreen === 'generacion' || activeScreen === 'validacion' || activeScreen === 'exportar'
+  const isFullWidth = activeScreen === 'guion' || activeScreen === 'financiera' || activeScreen === 'generacion' || activeScreen === 'validacion' || activeScreen === 'exportar' || activeScreen === 'actividad'
 
   // Generation and validation screens manage their own layout (full-width panels)
-  if (activeScreen === 'generacion' || activeScreen === 'validacion' || activeScreen === 'exportar') {
+  if (activeScreen === 'generacion' || activeScreen === 'validacion' || activeScreen === 'exportar' || activeScreen === 'actividad') {
     return (
       <div className="flex h-screen">
         <WizardSidebar screenStatuses={screenStatuses} presenceList={presenceList} />

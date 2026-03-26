@@ -9,6 +9,7 @@ export type WizardScreen =
   | 'generacion'
   | 'validacion'
   | 'exportar'
+  | 'actividad'
 
 interface WizardState {
   activeScreen: WizardScreen

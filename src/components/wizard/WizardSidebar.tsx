@@ -1,9 +1,22 @@
+import { useEffect, useState, useRef } from 'react'
 import { Link, useParams } from 'react-router'
-import { ArrowLeft, Lock } from 'lucide-react'
+import { ArrowLeft, Lock, Activity } from 'lucide-react'
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  doc,
+  getDoc,
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { useAuth } from '@/contexts/AuthContext'
 import { es } from '@/locales/es'
 import { TrafficLight, type TrafficLightStatus } from '@/components/common/TrafficLight'
 import { SidebarPresenceDot } from '@/components/collaboration/SidebarPresenceDot'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/stores/appStore'
 import { canEditScreen } from '@/lib/permissions'
@@ -38,11 +51,70 @@ interface WizardSidebarProps {
 }
 
 /**
+ * Hook to compute badge count of unseen activity entries.
+ * Subscribes to activity_log and compares against lastViewedActivity timestamp.
+ */
+function useActivityBadge(projectId: string | undefined): number {
+  const { user } = useAuth()
+  const [badgeCount, setBadgeCount] = useState(0)
+  const lastViewedRef = useRef<Date | null>(null)
+
+  // Read lastViewedActivity once on mount
+  useEffect(() => {
+    if (!user || !projectId) return
+    const ref = doc(db, `userProjects/${user.uid}/projects/${projectId}`)
+    getDoc(ref)
+      .then((snap) => {
+        const data = snap.data()
+        if (data?.lastViewedActivity) {
+          lastViewedRef.current = data.lastViewedActivity.toDate?.() ?? new Date(data.lastViewedActivity)
+        } else {
+          lastViewedRef.current = new Date(0) // No previous view -- everything is "new"
+        }
+      })
+      .catch(() => {
+        lastViewedRef.current = new Date(0)
+      })
+  }, [user, projectId])
+
+  // Subscribe to activity_log and count entries newer than lastViewedActivity
+  useEffect(() => {
+    if (!projectId) return
+
+    const q = query(
+      collection(db, `projects/${projectId}/activity_log`),
+      orderBy('createdAt', 'desc'),
+      limit(100),
+    )
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      if (!lastViewedRef.current) {
+        // lastViewedActivity not yet loaded, count all
+        setBadgeCount(snap.docs.length)
+        return
+      }
+
+      const count = snap.docs.filter((d) => {
+        const ts = d.data().createdAt?.toDate?.()
+        return ts && ts > lastViewedRef.current!
+      }).length
+
+      setBadgeCount(count)
+    })
+
+    return unsubscribe
+  }, [projectId])
+
+  return badgeCount
+}
+
+/**
  * Wizard sidebar navigation with screen links and traffic light status.
  * 240px fixed width, full height, muted background.
  * All screens always accessible (free navigation per D-01).
  * Shows lock icon next to screens the user cannot edit (per RBAC role).
  * Shows presence dots next to screens where other users are present (per D-05).
+ * Shows Actividad link with badge count after third separator.
  */
 export function WizardSidebar({ screenStatuses = {}, presenceList = [] }: WizardSidebarProps) {
   const { projectId, screen } = useParams<{
@@ -51,6 +123,7 @@ export function WizardSidebar({ screenStatuses = {}, presenceList = [] }: Wizard
   }>()
   const activeScreen = (screen || 'datos') as WizardScreen
   const currentProjectRole = useAppStore((s) => s.currentProjectRole)
+  const badgeCount = useActivityBadge(projectId)
 
   function renderLink(item: ScreenItem) {
     const isActive = activeScreen === item.key
@@ -95,6 +168,31 @@ export function WizardSidebar({ screenStatuses = {}, presenceList = [] }: Wizard
         {/* Generation/validation/export screens -- separated from intake wizard screens */}
         <Separator className="my-2" />
         {additionalScreens.map(renderLink)}
+
+        {/* Activity tab -- separated from generation/validation/export screens */}
+        <Separator className="my-2" />
+        <Link
+          to={`/project/${projectId}/actividad`}
+          className={cn(
+            'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
+            activeScreen === 'actividad'
+              ? 'bg-primary/10 text-primary font-semibold'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+          )}
+          aria-label={
+            badgeCount > 0
+              ? `${es.wizard.screen9}, ${es.activity.newEntries(badgeCount)}`
+              : es.wizard.screen9
+          }
+        >
+          <Activity className="h-4 w-4" />
+          <span className="flex-1">{es.wizard.screen9}</span>
+          {badgeCount > 0 && (
+            <Badge className="bg-primary text-primary-foreground text-xs min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+              {badgeCount}
+            </Badge>
+          )}
+        </Link>
       </nav>
     </aside>
   )
