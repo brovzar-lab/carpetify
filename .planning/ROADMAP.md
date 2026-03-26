@@ -109,11 +109,12 @@ Plans:
   1. Each time a document is regenerated, the previous version is preserved with timestamp, trigger reason, and who triggered it
   2. User can select any two versions of a document and see an inline diff with additions highlighted in green and deletions in red
   3. User can revert to any previous version with one click, and the reverted content becomes the current active version
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 14-01-PLAN.md — Version snapshot in saveGeneratedDocument with 10-version prune, triggeredBy threading through all 4 pass handlers
+- [ ] 14-02-PLAN.md — Frontend versioning components: diff library, locale strings, version service, 6 UI components (VersionBadge, ProseDiffViewer, StructuredDiffViewer, VersionSelector, VersionHistoryPanel, RevertConfirmDialog)
+- [ ] 14-03-PLAN.md — revertDocumentVersion Cloud Function, DocumentViewer integration (history/compare/revert modes), activity log revert event
 
 ### Phase 15: AI Pre-Submission Review
 **Goal**: Users get an AI-powered assessment of their complete carpeta from the perspective of IMCINE evaluators before submitting
@@ -149,6 +150,6 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 10. Authentication & Identity | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete   | 2026-03-26 |
-| 14. Document Versioning | v2.0 | 0/? | Not started | - |
+| 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
+| 14. Document Versioning | v2.0 | 0/3 | Not started | - |
 | 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |
