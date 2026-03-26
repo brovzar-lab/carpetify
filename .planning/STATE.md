@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 13-00-PLAN.md
-last_updated: "2026-03-26T17:48:46.459Z"
+stopped_at: Completed 13-01-PLAN.md
+last_updated: "2026-03-26T17:57:40.167Z"
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 13 (activity-tracking) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: 2 of 3
 | Phase 12-realtime-collaboration P02 | 3min | 2 tasks | 6 files |
 | Phase 12-realtime-collaboration P03 | 5min | 3 tasks | 6 files |
 | Phase 13-activity-tracking P00 | 2min | 2 tasks | 3 files |
+| Phase 13-activity-tracking P01 | 6min | 4 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,9 @@ Recent decisions affecting current work:
 - [Phase 12-realtime-collaboration]: Sign-out RTDB cleanup is best-effort: 2-minute onDisconnect timeout handles failures
 - [Phase 13-activity-tracking]: Wave 0 test stubs import from non-existent production modules for import-level RED state
 - [Phase 13-activity-tracking]: Firebase trigger tests use vi.mock + dynamic import pattern for proper mock isolation
+- [Phase 13-activity-tracking]: Client-side field diff using JSON.stringify per-key in useAutoSave for activity logging
+- [Phase 13-activity-tracking]: useRef for user/role in doSave avoids stale closures without adding to useCallback deps
+- [Phase 13-activity-tracking]: Badge count computed inside WizardSidebar via useActivityBadge, not lifted to WizardShell
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T17:48:46.456Z
-Stopped at: Completed 13-00-PLAN.md
+Last session: 2026-03-26T17:57:40.161Z
+Stopped at: Completed 13-01-PLAN.md
 Resume file: None
