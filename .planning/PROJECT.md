@@ -78,7 +78,7 @@ Given a screenplay and project data, produce a complete, internally-consistent, 
 
 - **Legal basis:** Artículo 189 LISR, Reglas Generales DOF 12-enero-2024 (modificadas 23-dic-2025), Lineamientos EFICINE Producción enero 2026
 - **Stack:** React 19 + Vite 8 + Tailwind v4 + shadcn/ui frontend, Firebase (Firestore, Storage, Functions v2) backend, Anthropic Claude API (claude-haiku-4-5) for AI generation
-- **No auth:** Single-user by design — Firebase as BaaS only
+- **Auth:** Firebase Auth with Google login, role-based collaboration (v2.0 — Phases 10-13)
 - **Registration periods 2026:** Period 1 (Jan 30 – Feb 13), Period 2 (Jul 1 – Jul 15)
 - **Scoring:** Minimum 90/100 to pass; average winning score (2025 Period 1) was 94.63/100
 - **Key risk (mitigated):** Cross-document inconsistency was the #1 rejection reason. The 17-rule validation engine with real-time traffic lights addresses this.
@@ -124,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 — v2.0 milestone started: multi-user collaboration, co-production engine, AI review, extended modalities*
+*Last updated: 2026-03-26 — Phase 13 complete: activity tracking and invitation email flow (COLLAB-04, COLLAB-06)*
