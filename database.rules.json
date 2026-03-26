@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "presence": {
+      "$projectId": {
+        ".read": "auth != null",
+        "$userId": {
+          ".write": "auth != null && auth.uid === $userId",
+          ".validate": "newData.hasChildren(['displayName', 'screen', 'status'])"
+        }
+      }
+    },
+    "locks": {
+      "$projectId": {
+        ".read": "auth != null",
+        "$screenId": {
+          ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid || data.child('expiresAt').val() < now || !newData.exists())",
+          ".validate": "newData.hasChildren(['userId', 'displayName', 'role', 'acquiredAt', 'expiresAt']) && newData.child('userId').val() === auth.uid"
+        }
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

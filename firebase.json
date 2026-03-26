@@ -1,4 +1,7 @@
 {
+  "database": {
+    "rules": "database.rules.json"
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
@@ -16,12 +19,15 @@
       }
     ]
   },
-  "functions": {
-    "source": "functions",
-    "runtime": "nodejs22",
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run build",
-      "cp -r prompts \"$RESOURCE_DIR/prompts\""
-    ]
-  }
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs20",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build",
+        "cp -r prompts \"$RESOURCE_DIR/prompts\""
+      ]
+    }
+  ]
 }
