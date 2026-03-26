@@ -62,11 +62,12 @@ Plans:
   1. Project owner can assign one of 4 roles (productor, line_producer, abogado, director) when inviting a team member
   2. Users see only projects they own or have been invited to on the dashboard — no access to other projects
   3. Directly navigating to a project URL the user has no access to shows an "access denied" message rather than loading project data
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
+- [ ] 11-01-PLAN.md — Permissions model, data migration (collaborators/memberUIDs), Firestore security rules rewrite, Cloud Function membership guard
+- [ ] 11-02-PLAN.md — Invitation Cloud Functions (invite/accept/decline/revoke), client invitation service, team management UI
+- [ ] 11-03-PLAN.md — Access control UX: useProjectAccess hook, AccessDenied page, WizardShell role gating, read-only banners, dashboard role badges
 
 ### Phase 12: Real-Time Collaboration
 **Goal**: Multiple team members can work on the same project simultaneously with clear visibility into who is editing what
@@ -145,7 +146,7 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 8. Score Estimation & Accuracy Fix | v1.0 | 2/2 | Complete | 2026-03-25 |
 | 9. Validation Stub Completion | v1.0 | 1/1 | Complete | 2026-03-25 |
 | 10. Authentication & Identity | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 11. RBAC & Project Access Control | v2.0 | 0/? | Not started | - |
+| 11. RBAC & Project Access Control | v2.0 | 0/3 | Not started | - |
 | 12. Real-Time Collaboration | v2.0 | 0/? | Not started | - |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 0/? | Not started | - |
 | 14. Document Versioning | v2.0 | 0/? | Not started | - |
