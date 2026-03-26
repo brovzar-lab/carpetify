@@ -17,6 +17,7 @@ import { migrateProjectsAddCollaborators } from './migrations/addCollaboratorsFi
 import { handleInviteToProject } from './invitations/inviteToProject.js';
 import { handleAcceptInvitation, handleDeclineInvitation } from './invitations/acceptInvitation.js';
 import { handleRevokeAccess } from './invitations/revokeAccess.js';
+import { handleForceBreakLock } from './collaboration/forceBreakLock.js';
 import { requireAuth, requireProjectAccess, requireRole } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
@@ -546,3 +547,6 @@ export const revokeProjectAccess = onCall(
     return await handleRevokeAccess(uid, { projectId, targetUserId }, callerRole);
   },
 );
+
+// ---- Phase 12: Real-Time Collaboration ----
+export const forceBreakLock = handleForceBreakLock;
