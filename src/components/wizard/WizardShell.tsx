@@ -20,6 +20,7 @@ import { DocumentUpload } from '@/components/wizard/DocumentUpload'
 import { GenerationScreen } from '@/components/generation/GenerationScreen'
 import { ValidationDashboard } from '@/components/validation/ValidationDashboard'
 import { ExportScreen } from '@/components/export/ExportScreen'
+import { TeamMembers } from '@/components/project/TeamMembers'
 
 /**
  * Wizard layout: 240px sidebar + content area.
@@ -37,7 +38,7 @@ export function WizardShell() {
   const activeScreen = (screen || 'datos') as WizardScreen
 
   // RBAC: check project access
-  const { hasAccess, role, loading: accessLoading, ownerName } = useProjectAccess(projectId)
+  const { hasAccess, role, loading: accessLoading, ownerName, collaborators, ownerId } = useProjectAccess(projectId)
 
   // Auto-save hook for the current screen's metadata
   const { status: saveStatus } = useAutoSave(projectId, 'metadata')
@@ -121,6 +122,12 @@ export function WizardShell() {
           </div>
           {isReadOnly && <ReadOnlyBanner productorName={ownerName ?? undefined} />}
           {renderScreen()}
+          {/* Team management panel — visible to productor on datos screen */}
+          {activeScreen === 'datos' && role === 'productor' && ownerId && (
+            <div className="mt-8 border-t pt-8">
+              <TeamMembers projectId={projectId} collaborators={collaborators} ownerId={ownerId} />
+            </div>
+          )}
         </div>
       </main>
     </div>

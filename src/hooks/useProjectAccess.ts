@@ -11,12 +11,16 @@ interface ProjectAccess {
   role: ProjectRole | null
   loading: boolean
   ownerName: string | null
+  collaborators: Record<string, string>
+  ownerId: string | null
 }
 
 interface ProjectAccessData {
   hasAccess: boolean
   role: ProjectRole | null
   ownerName: string | null
+  collaborators: Record<string, string>
+  ownerId: string | null
 }
 
 /**
@@ -38,31 +42,36 @@ export function useProjectAccess(projectId: string): ProjectAccess {
 
       const snap = await getDoc(doc(db, 'projects', projectId))
       if (!snap.exists()) {
-        return { hasAccess: false, role: null, ownerName: null }
+        return { hasAccess: false, role: null, ownerName: null, collaborators: {}, ownerId: null }
       }
 
       const projectData = snap.data()
+      const collaborators = (projectData.collaborators ?? {}) as Record<string, string>
+      const ownerId = (projectData.ownerId as string) ?? null
 
       // Check if user is owner (productor role)
-      if (projectData.ownerId === user.uid) {
+      if (ownerId === user.uid) {
         return {
           hasAccess: true,
           role: 'productor' as ProjectRole,
           ownerName: user.displayName ?? null,
+          collaborators,
+          ownerId,
         }
       }
 
       // Check if user is a collaborator
-      const collaborators = (projectData.collaborators ?? {}) as Record<string, string>
       if (user.uid in collaborators) {
         return {
           hasAccess: true,
           role: collaborators[user.uid] as ProjectRole,
           ownerName: null,
+          collaborators,
+          ownerId,
         }
       }
 
-      return { hasAccess: false, role: null, ownerName: null }
+      return { hasAccess: false, role: null, ownerName: null, collaborators: {}, ownerId }
     },
     enabled: !!user && !!projectId,
     staleTime: 30_000,
@@ -82,5 +91,7 @@ export function useProjectAccess(projectId: string): ProjectAccess {
     role: data?.role ?? null,
     loading: isLoading,
     ownerName: data?.ownerName ?? null,
+    collaborators: data?.collaborators ?? {},
+    ownerId: data?.ownerId ?? null,
   }
 }
