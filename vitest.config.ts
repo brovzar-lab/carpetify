@@ -13,6 +13,8 @@ export default defineConfig({
     alias: {
       '@': '/src',
       '@functions': path.resolve(__dirname, 'functions/src'),
+      'firebase-admin/firestore': path.resolve(__dirname, 'functions/node_modules/firebase-admin/lib/firestore/index.js'),
+      'firebase-admin/app': path.resolve(__dirname, 'functions/node_modules/firebase-admin/lib/app/index.js'),
     },
   },
 })
