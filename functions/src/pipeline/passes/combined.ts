@@ -32,7 +32,7 @@ import type { ProjectDataForGeneration } from '../orchestrator.js';
 import type { StreamCallback } from './lineProducer.js';
 
 /** Model used for Combined pass prose generation */
-const MODEL = 'claude-sonnet-4-5-20250514';
+const MODEL = 'claude-sonnet-4-5-20250929';
 
 /**
  * Extract a summary from a previously generated document for cross-referencing.
@@ -104,6 +104,7 @@ export async function handleCombinedPass(
   projectId: string,
   project: ProjectDataForGeneration,
   onProgress: StreamCallback,
+  triggeredBy?: string,
 ): Promise<{ success: boolean; completedDocs: string[] }> {
   const pool = createConcurrencyPool(3); // D-04: max 3 concurrent Claude calls
 
@@ -181,6 +182,8 @@ export async function handleCombinedPass(
         'combined',
         'documentos_combinados.md',
         'template',
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A4', status: 'complete' });
       return 'A4';
@@ -207,6 +210,8 @@ export async function handleCombinedPass(
         'combined',
         'a1_resumen_ejecutivo.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A1', status: 'complete' });
       return 'A1';
@@ -233,6 +238,8 @@ export async function handleCombinedPass(
         'combined',
         'a2_sinopsis.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A2', status: 'complete' });
       return 'A2';
@@ -262,6 +269,8 @@ export async function handleCombinedPass(
         'combined',
         'documentos_combinados.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A6', status: 'complete' });
       return 'A6';
@@ -288,6 +297,8 @@ export async function handleCombinedPass(
         'combined',
         'a10_propuesta_exhibicion.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A10', status: 'complete' });
       return 'A10';
@@ -317,6 +328,8 @@ export async function handleCombinedPass(
         'combined',
         'documentos_combinados.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A11', status: 'complete' });
       return 'A11';
@@ -346,6 +359,8 @@ export async function handleCombinedPass(
         'combined',
         'documentos_combinados.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'C4', status: 'complete' });
       return 'C4';
@@ -376,6 +391,8 @@ export async function handleCombinedPass(
         'combined',
         'documentos_combinados.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'PITCH', status: 'complete' });
       return 'PITCH';

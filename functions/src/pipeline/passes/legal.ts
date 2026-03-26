@@ -26,7 +26,7 @@ import type { ProjectDataForGeneration } from '../orchestrator.js';
 import type { StreamCallback } from './lineProducer.js';
 
 /** Model used for Legal pass prose generation */
-const MODEL = 'claude-sonnet-4-5-20250514';
+const MODEL = 'claude-sonnet-4-5-20250929';
 
 /**
  * Execute the Legal pass: generate B3-prod, B3-dir, C2b, C3a, C3b.
@@ -41,6 +41,7 @@ export async function handleLegalPass(
   projectId: string,
   project: ProjectDataForGeneration,
   onProgress: StreamCallback,
+  triggeredBy?: string,
 ): Promise<{ success: boolean; completedDocs: string[] }> {
   const pool = createConcurrencyPool(3); // D-04: max 3 concurrent Claude calls
 
@@ -115,6 +116,8 @@ export async function handleLegalPass(
         'legal',
         'documentos_legales.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'B3-prod', status: 'complete' });
       return 'B3-prod';
@@ -146,6 +149,8 @@ export async function handleLegalPass(
         'legal',
         'documentos_legales.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'B3-dir', status: 'complete' });
       return 'B3-dir';
@@ -177,6 +182,8 @@ export async function handleLegalPass(
         'legal',
         'documentos_legales.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'C2b', status: 'complete' });
       return 'C2b';
@@ -205,6 +212,8 @@ export async function handleLegalPass(
         'legal',
         'documentos_legales.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'C3a', status: 'complete' });
       return 'C3a';
@@ -233,6 +242,8 @@ export async function handleLegalPass(
         'legal',
         'documentos_legales.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'C3b', status: 'complete' });
       return 'C3b';

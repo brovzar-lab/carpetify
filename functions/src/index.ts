@@ -183,7 +183,7 @@ export const runLineProducerPass = onCall(
       }
     };
 
-    return await handleLineProducerPass(projectId, project, onProgress);
+    return await handleLineProducerPass(projectId, project, onProgress, uid);
   },
 );
 
@@ -222,7 +222,7 @@ export const runFinanceAdvisorPass = onCall(
       }
     };
 
-    return await handleFinanceAdvisorPass(projectId, project, onProgress);
+    return await handleFinanceAdvisorPass(projectId, project, onProgress, uid);
   },
 );
 
@@ -261,7 +261,7 @@ export const runLegalPass = onCall(
       }
     };
 
-    return await handleLegalPass(projectId, project, onProgress);
+    return await handleLegalPass(projectId, project, onProgress, uid);
   },
 );
 
@@ -300,7 +300,7 @@ export const runCombinedPass = onCall(
       }
     };
 
-    return await handleCombinedPass(projectId, project, onProgress);
+    return await handleCombinedPass(projectId, project, onProgress, uid);
   },
 );
 

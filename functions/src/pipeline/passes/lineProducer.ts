@@ -27,7 +27,7 @@ import { formatMXN } from '../../shared/formatters.js';
 import type { ProjectDataForGeneration } from '../orchestrator.js';
 
 /** Model used for Line Producer pass prose generation */
-const MODEL = 'claude-sonnet-4-5-20250514';
+const MODEL = 'claude-sonnet-4-5-20250929';
 
 export interface StreamCallback {
   (chunk: {
@@ -49,6 +49,7 @@ export async function handleLineProducerPass(
   projectId: string,
   project: ProjectDataForGeneration,
   onProgress: StreamCallback,
+  triggeredBy?: string,
 ): Promise<{ success: boolean; completedDocs: string[] }> {
   const pool = createConcurrencyPool(3); // D-04: max 3 concurrent Claude calls
   const completedDocs: string[] = [];
@@ -100,6 +101,8 @@ export async function handleLineProducerPass(
         'lineProducer',
         'a7_propuesta_produccion.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A7', status: 'complete' });
       return 'A7';
@@ -123,6 +126,8 @@ export async function handleLineProducerPass(
         'lineProducer',
         'a8_plan_rodaje_y_ruta_critica.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A8a', status: 'complete' });
       return 'A8a';
@@ -146,6 +151,8 @@ export async function handleLineProducerPass(
         'lineProducer',
         'a8_plan_rodaje_y_ruta_critica.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A8b', status: 'complete' });
       return 'A8b';
@@ -198,6 +205,8 @@ export async function handleLineProducerPass(
         'lineProducer',
         'a9_presupuesto.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A9a', status: 'complete' });
       return 'A9a';
@@ -217,6 +226,8 @@ export async function handleLineProducerPass(
         'lineProducer',
         'a9_presupuesto.md',
         'deterministic',
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A9b', status: 'complete' });
       return 'A9b';

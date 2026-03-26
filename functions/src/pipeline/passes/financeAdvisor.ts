@@ -32,7 +32,7 @@ import type { ProjectDataForGeneration } from '../orchestrator.js';
 import type { StreamCallback } from './lineProducer.js';
 
 /** Model used for Finance Advisor pass prose generation */
-const MODEL = 'claude-sonnet-4-5-20250514';
+const MODEL = 'claude-sonnet-4-5-20250929';
 
 /**
  * Execute the Finance Advisor pass: generate A9d, E1, E2.
@@ -46,6 +46,7 @@ export async function handleFinanceAdvisorPass(
   projectId: string,
   project: ProjectDataForGeneration,
   onProgress: StreamCallback,
+  triggeredBy?: string,
 ): Promise<{ success: boolean; completedDocs: string[] }> {
   const pool = createConcurrencyPool(3); // D-04
 
@@ -107,6 +108,8 @@ export async function handleFinanceAdvisorPass(
         'financeAdvisor',
         'documentos_financieros.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'A9d', status: 'complete' });
       return 'A9d';
@@ -140,6 +143,8 @@ export async function handleFinanceAdvisorPass(
         'financeAdvisor',
         'documentos_financieros.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'E1', status: 'complete' });
       return 'E1';
@@ -172,6 +177,8 @@ export async function handleFinanceAdvisorPass(
         'financeAdvisor',
         'documentos_financieros.md',
         MODEL,
+        triggeredBy,
+        'regeneration',
       );
       onProgress({ type: 'progress', docId: 'E2', status: 'complete' });
       return 'E2';
