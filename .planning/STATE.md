@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 10-02-PLAN.md
-last_updated: "2026-03-25T23:33:30.621Z"
+stopped_at: Completed 10-03-PLAN.md
+last_updated: "2026-03-26T00:00:11.193Z"
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -50,6 +50,7 @@ Plan: 3 of 3
 *Updated after each plan completion*
 | Phase 10 P01 | 4min | 2 tasks | 9 files |
 | Phase 10 P02 | 8min | 2 tasks | 15 files |
+| Phase 10 P03 | 4min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [Phase 10]: AuthContext org state added in Task 1 (not Task 2) to satisfy OrgSetupPage compile dependency
 - [Phase 10]: Orchestrator uses legacy singleton fallback for pre-migration projects without orgId
 - [Phase 10]: useValidation ERPI subscription updated to org-scoped path to maintain real-time validation consistency
+- [Phase 10]: Shared requireAuth helper used across all 8 Cloud Functions to prevent auth check drift
+- [Phase 10]: Storage rules use auth-gate only (no Firestore get() available) -- ownership enforced in Cloud Functions layer
+- [Phase 10]: Dev bypass uses mock User object (not Firebase anonymous auth) to avoid affecting Firestore state
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T23:33:30.619Z
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-03-26T00:00:11.190Z
+Stopped at: Completed 10-03-PLAN.md
 Resume file: None

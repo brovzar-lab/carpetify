@@ -13,7 +13,7 @@
 - [ ] **AUTH-04**: Custom claims RBAC with 4 roles: productor (owner), line_producer, abogado, director — each with defined permission set
 - [ ] **AUTH-05**: Project owner (productor) can invite team members by email and assign roles
 - [ ] **AUTH-06**: Firestore security rules enforce per-project access — users can only read/write projects they own or are invited to
-- [ ] **AUTH-07**: All Cloud Functions validate caller authentication and project membership before executing
+- [x] **AUTH-07**: All Cloud Functions validate caller authentication and project membership before executing
 - [x] **AUTH-08**: Existing v1.0 projects are migrated with ownerId field assigned to the first authenticated user
 - [x] **AUTH-09**: ERPI settings migrated from global singleton to per-organization path with user ownership
 
@@ -69,7 +69,7 @@
 | AUTH-04 | Phase 11 | Pending |
 | AUTH-05 | Phase 11 | Pending |
 | AUTH-06 | Phase 11 | Pending |
-| AUTH-07 | Phase 10 | Pending |
+| AUTH-07 | Phase 10 | Complete |
 | AUTH-08 | Phase 10 | Complete |
 | AUTH-09 | Phase 10 | Complete |
 | COLLAB-01 | Phase 12 | Pending |

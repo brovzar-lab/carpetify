@@ -28,7 +28,7 @@
 
 **Milestone Goal:** Transform Carpetify from a single-user tool into a collaborative platform with multi-user auth, role-based access, real-time collaboration, document versioning, and AI pre-submission review.
 
-- [ ] **Phase 10: Authentication & Identity** - Firebase Auth with Google sign-in, session persistence, route protection, Cloud Function auth validation, and v1.0 data migration
+- [x] **Phase 10: Authentication & Identity** - Firebase Auth with Google sign-in, session persistence, route protection, Cloud Function auth validation, and v1.0 data migration (completed 2026-03-26)
 - [ ] **Phase 11: RBAC & Project Access Control** - Role-based permissions, project invitations, and Firestore security rules enforcement
 - [ ] **Phase 12: Real-Time Collaboration** - Simultaneous project editing with section-level locking, presence indicators, role-based screen access, and conflict notification
 - [ ] **Phase 13: Activity Tracking & Invitation Flow** - Field-level change attribution log and email-based project invitation with accept/decline
@@ -52,7 +52,7 @@
 Plans:
 - [x] 10-01-PLAN.md — Firebase Auth init, AuthContext, LoginPage, ProtectedRoute, CLAUDE.md update
 - [x] 10-02-PLAN.md — Organization creation, v1.0 data migration, service layer updates (projects + ERPI)
-- [ ] 10-03-PLAN.md — Cloud Functions auth enforcement, Firestore/Storage security rules, E2E verification
+- [x] 10-03-PLAN.md — Cloud Functions auth enforcement, Firestore/Storage security rules, E2E verification
 
 ### Phase 11: RBAC & Project Access Control
 **Goal**: Project owners can invite team members with specific roles, and Firestore enforces that users only access projects they belong to
@@ -144,7 +144,7 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 7. Document Completeness & Export Gate Fix | v1.0 | 2/2 | Complete | 2026-03-25 |
 | 8. Score Estimation & Accuracy Fix | v1.0 | 2/2 | Complete | 2026-03-25 |
 | 9. Validation Stub Completion | v1.0 | 1/1 | Complete | 2026-03-25 |
-| 10. Authentication & Identity | v2.0 | 2/3 | In Progress|  |
+| 10. Authentication & Identity | v2.0 | 3/3 | Complete   | 2026-03-26 |
 | 11. RBAC & Project Access Control | v2.0 | 0/? | Not started | - |
 | 12. Real-Time Collaboration | v2.0 | 0/? | Not started | - |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 0/? | Not started | - |
