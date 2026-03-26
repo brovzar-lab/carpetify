@@ -52,7 +52,7 @@ Source: Existing Tailwind scale in codebase (standard 8-point grid)
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px | 400 (regular) | 1.5 |
-| Label | 12px | 500 (medium) | 1.4 |
+| Label | 12px | 600 (semibold) | 1.4 |
 | Heading | 20px | 600 (semibold) | 1.2 |
 | Mono (diff content) | 14px | 400 (regular) | 1.6 |
 
@@ -61,12 +61,14 @@ Phase-specific:
 | Context | Size | Weight | Line Height | Class |
 |---------|------|--------|-------------|-------|
 | Version selector label | 14px | 400 | 1.5 | `text-sm` |
-| Version dropdown entry | 13px | 400 | 1.4 | `text-[13px]` |
+| Version dropdown entry | 12px | 400 | 1.4 | `text-xs` |
 | Version metadata (timestamp, user) | 12px | 400 | 1.4 | `text-xs text-muted-foreground` |
 | Diff content (prose) | 14px | 400 | 1.6 | `font-mono text-sm leading-relaxed` |
-| Diff content (structured/table) | 13px | 400 | 1.4 | `font-mono text-[13px]` |
+| Diff content (structured/table) | 12px | 400 | 1.4 | `font-mono text-xs` |
 | Revert dialog heading | 16px | 600 | 1.2 | `text-base font-semibold` |
 | Revert dialog body | 14px | 400 | 1.5 | `text-sm` |
+
+Font sizes: 12px, 14px, 16px, 20px (4 sizes). Font weights: 400 (regular), 600 (semibold) (2 weights).
 
 Source: Existing codebase patterns (DocumentViewer uses `text-xl font-semibold` for headings, `text-sm` for body, `font-mono text-sm` for edit textarea)
 
@@ -136,6 +138,7 @@ Source: CONTEXT.md D-06 (green additions, red deletions), RESEARCH.md Pattern 4 
 | `Skeleton` | Yes | Loading state for version list and diff computation |
 | `Tooltip` | Yes | Truncated version metadata |
 | `Alert` | Yes | Revert warning for manually-edited documents (D-11) |
+| `Table` | Yes | Structured diff table layout |
 
 No new shadcn primitives need to be installed.
 
