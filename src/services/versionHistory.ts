@@ -69,10 +69,10 @@ export async function revertDocumentVersion(
   projectId: string,
   docId: string,
   targetVersion: number,
-): Promise<{ success: boolean; revertedToVersion: number }> {
+): Promise<{ success: boolean; revertedToVersion: number; affectedDocuments: string[] }> {
   const revertFn = httpsCallable<
     { projectId: string; docId: string; targetVersion: number },
-    { success: boolean; revertedToVersion: number }
+    { success: boolean; revertedToVersion: number; affectedDocuments: string[] }
   >(functions, 'revertDocumentVersion');
   const result = await revertFn({ projectId, docId, targetVersion });
   return result.data;

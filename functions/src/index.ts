@@ -19,6 +19,7 @@ import { handleAcceptInvitation, handleDeclineInvitation } from './invitations/a
 import { handleRevokeAccess } from './invitations/revokeAccess.js';
 import { handleForceBreakLock } from './collaboration/forceBreakLock.js';
 import { onInvitationCreated as onInvitationCreatedTrigger } from './triggers/onInvitationCreated.js';
+import { revertDocumentVersion as handleRevertDocumentVersion } from './versioning/revertDocument.js';
 import { requireAuth, requireProjectAccess, requireRole } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
@@ -554,3 +555,6 @@ export const forceBreakLock = handleForceBreakLock;
 
 // ---- Phase 13: Invitation Email Trigger ----
 export const onInvitationCreated = onInvitationCreatedTrigger;
+
+// ---- Phase 14: Document Versioning ----
+export const revertDocumentVersion = handleRevertDocumentVersion;
