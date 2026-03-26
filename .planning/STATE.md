@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 14-00-PLAN.md
-last_updated: "2026-03-26T21:47:32.653Z"
+stopped_at: Completed 14-01-PLAN.md
+last_updated: "2026-03-26T21:54:37.387Z"
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 15
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 14 (document-versioning) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Plan: 2 of 4
 | Phase 13-activity-tracking P01 | 6min | 4 tasks | 11 files |
 | Phase 13-activity-tracking PP02 | 4min | 2 tasks | 10 files |
 | Phase 14-document-versioning PP00 | 4min | 2 tasks | 3 files |
+| Phase 14-document-versioning P01 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase 13-activity-tracking]: InvitationPage uses standalone route outside ProtectedRoute with sessionStorage return URL for post-auth redirect
 - [Phase 14-document-versioning]: diff v4.0.4 already available as transitive dep -- Wave 0 diffCompute tests run as GREEN, not import-error RED stubs
 - [Phase 14-document-versioning]: diffWords tokenizes monetary amounts at comma boundaries -- test assertions check digit groups, not full formatted amounts
+- [Phase 14-document-versioning]: triggeredBy and triggerReason added as optional trailing parameters to preserve backward compatibility
+- [Phase 14-document-versioning]: Version prune threshold >= 10 (not > 10) to maintain exactly 10 max versions per D-04
 
 ### Pending Todos
 
@@ -123,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T21:47:32.651Z
-Stopped at: Completed 14-00-PLAN.md
+Last session: 2026-03-26T21:54:37.384Z
+Stopped at: Completed 14-01-PLAN.md
 Resume file: None
