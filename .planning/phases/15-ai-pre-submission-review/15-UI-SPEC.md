@@ -48,11 +48,12 @@ Exceptions: none. The existing ScoreEstimationPanel uses `p-6` (24px) and `space
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px (text-sm) | 400 (normal) | 1.5 |
-| Label | 12px (text-xs) | 500 (medium) | 1.5 |
+| Label | 12px (text-xs) | 600 (semibold) | 1.5 |
 | Heading | 20px (text-xl) | 600 (semibold) | 1.2 |
 | Mono | 14px (text-sm font-mono) | 600 (semibold) | 1.5 |
 
 Notes:
+- Only two font weights used: 400 (regular) and 600 (semibold). No other weights permitted.
 - All numeric scores use `font-mono text-sm font-semibold tabular-nums` (matches existing ViabilityScoreCard, ArtisticScoreCard patterns).
 - Finding body text uses `text-xs text-muted-foreground` (matches existing PersonaScoreRow rationale pattern).
 - Section headings inside the panel use `text-sm font-semibold` (matches existing category labels), NOT `text-xl` -- reserve `text-xl` for the panel heading only.
@@ -247,7 +248,7 @@ PreSubmissionReviewPanel (inside TabsContent)
 - `Dialog` with:
   - Title: "Re-evaluar carpeta"
   - Body: "Esto generara una nueva evaluacion. Las marcas de progreso actuales se reiniciaran. Continuar?"
-  - Actions: "Cancelar" (outline) | "Re-evaluar" (primary)
+  - Actions: "Mantener revision actual" (outline) | "Re-evaluar carpeta" (primary)
 
 ---
 
@@ -284,8 +285,8 @@ All strings in Mexican Spanish. Added to `src/locales/es.ts` under a new `review
 | Stale warning | `review.staleWarning` | `Resultados desactualizados -- los documentos fueron regenerados despues de esta revision.` |
 | Re-evaluate confirm title | `review.reevaluateConfirmTitle` | `Re-evaluar carpeta` |
 | Re-evaluate confirm body | `review.reevaluateConfirmBody` | `Esto generara una nueva evaluacion. Las marcas de progreso actuales se reiniciaran. Continuar?` |
-| Re-evaluate confirm action | `review.reevaluateConfirmAction` | `Re-evaluar` |
-| Cancel | `review.cancel` | `Cancelar` |
+| Re-evaluate confirm action | `review.reevaluateConfirmAction` | `Re-evaluar carpeta` |
+| Cancel (re-evaluate dialog) | `review.cancel` | `Mantener revision actual` |
 | Disclaimer | `review.disclaimer` | `Revision cualitativa basada en simulacion de evaluadores. No garantiza el resultado del comite evaluador real.` |
 | Role pill: director | `review.roleDirector` | `Director` |
 | Role pill: line_producer | `review.roleLineProducer` | `Line Producer` |
@@ -306,7 +307,7 @@ Each finding follows this exact layout within the 360px panel:
 ```
 +----------------------------------------------+
 | [checkbox] [persona pill] [role pill]         |
-| Criterio: lenguaje cinematografico            |  <- text-xs font-medium
+| Criterio: lenguaje cinematografico            |  <- text-xs font-semibold
 | Debilidad: describes camera movement but      |  <- text-xs text-muted-foreground
 | not color palette or sound design.            |
 | Sugerencia: add 2-3 sentences about color     |  <- text-xs text-muted-foreground
@@ -321,7 +322,7 @@ Each finding follows this exact layout within the 360px panel:
   - Director: `bg-primary/5 text-primary`
   - Line Producer: `bg-primary/5 text-primary`
   - All roles use neutral primary tint -- no role-specific colors beyond the label text
-- Criterion, Weakness, Suggestion: labeled with `text-xs font-medium` for the label, `text-xs text-muted-foreground` for the content
+- Criterion, Weakness, Suggestion: labeled with `text-xs font-semibold` for the label, `text-xs text-muted-foreground` for the content
 - Checked findings: text gets `line-through text-muted-foreground/60` treatment
 - Gap between checkbox and content: 8px (sm)
 - Gap between label rows: 4px (xs)
@@ -357,7 +358,7 @@ Uses existing `Collapsible` pattern from `ValidationDashboard`:
 - ChevronDown icon: `size-4 text-muted-foreground`, rotates 180deg on open
 - Document name: `text-sm font-semibold`
 - Finding count: `Badge variant="outline" text-xs border-transparent`
-- Expanded content: list of `ReviewFindingItem` components with `space-y-3` gap
+- Expanded content: list of `ReviewFindingItem` components with `space-y-2` gap
 
 ---
 
@@ -379,7 +380,7 @@ respetuoso pero el plan de rodaje tiene jornadas de
 - Each contradiction:
   - Persona name: `text-xs font-semibold` (bold, not a badge -- differentiation from the finding pills)
   - Content: `text-xs text-muted-foreground` (italic via `italic` class for quoted speech)
-  - Gap between contradictions: 12px (`space-y-3`)
+  - Gap between contradictions: 8px (`space-y-2`)
 
 ---
 
