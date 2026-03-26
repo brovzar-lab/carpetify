@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 10-03-PLAN.md
-last_updated: "2026-03-26T00:07:15.008Z"
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-26T00:56:54.040Z"
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 6
+  completed_plans: 4
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 10 — authentication-identity
+**Current focus:** Phase 11 — rbac-access-control
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
+Phase: 11 (rbac-access-control) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Plan: Not started
 | Phase 10 P01 | 4min | 2 tasks | 9 files |
 | Phase 10 P02 | 8min | 2 tasks | 15 files |
 | Phase 10 P03 | 4min | 3 tasks | 6 files |
+| Phase 11-rbac-access-control P01 | 5min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Recent decisions affecting current work:
 - [Phase 10]: Shared requireAuth helper used across all 8 Cloud Functions to prevent auth check drift
 - [Phase 10]: Storage rules use auth-gate only (no Firestore get() available) -- ownership enforced in Cloud Functions layer
 - [Phase 10]: Dev bypass uses mock User object (not Firebase anonymous auth) to avoid affecting Firestore state
+- [Phase 11-rbac-access-control]: Document-level roles map (collaborators field) instead of Firebase custom claims for per-project RBAC
+- [Phase 11-rbac-access-control]: requireProjectAccess returns { role, projectData } for downstream permission checks in Cloud Functions
+- [Phase 11-rbac-access-control]: Dual data structure: collaborators map for role lookup in rules + memberUIDs array for array-contains queries
 
 ### Pending Todos
 
@@ -87,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T00:00:11.190Z
-Stopped at: Completed 10-03-PLAN.md
+Last session: 2026-03-26T00:56:54.037Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None
