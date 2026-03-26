@@ -39,6 +39,7 @@ export const es = {
     screen6: 'Generacion',
     screen7: 'Validacion',
     screen8: 'Exportar',
+    screen9: 'Actividad',
     backToDashboard: 'Mis Proyectos',
   },
 
@@ -811,6 +812,53 @@ export const es = {
       viewing: (screen: string) => `Viendo ${screen}`,
       editing: (screen: string) => `Editando ${screen}`,
     },
+  },
+
+  // -- Activity Log --
+  activity: {
+    newEntries: (n: number) => `${n} nuevas`,
+    filterAllMembers: 'Todos',
+    filterAllTypes: 'Todos',
+    filterEdits: 'Ediciones',
+    filterGeneration: 'Generacion',
+    filterTeam: 'Equipo',
+    filterExport: 'Exportacion',
+    today: 'Hoy',
+    yesterday: 'Ayer',
+    loadMore: 'Cargar mas',
+    loadingMore: 'Cargando...',
+    emptyHeading: 'Sin actividad reciente',
+    emptyBody: 'Los cambios realizados por el equipo apareceran aqui.',
+    emailNotSent: 'Email no enviado',
+    updateSingle: (name: string, field: string, screen: string) =>
+      `${name} actualizo ${field} en ${screen}`,
+    updateMultiple: (name: string, count: number, screen: string) =>
+      `${name} actualizo ${count} campos en ${screen}`,
+    generationTriggered: (name: string, passLabel: string) =>
+      `${name} ejecuto ${passLabel}`,
+    generationComplete: (
+      name: string,
+      passLabel: string,
+      docCount: number,
+      duration: string,
+    ) =>
+      `${name} completo ${passLabel} — ${docCount} documentos en ${duration}`,
+    generationFailed: (name: string, passLabel: string, error: string) =>
+      `${name} ejecuto ${passLabel} — error: ${error}`,
+    exportTriggered: (name: string) => `${name} exporto la carpeta`,
+    teamInvited: (inviter: string, invitee: string, role: string) =>
+      `${inviter} invito a ${invitee} como ${role}`,
+    teamAccepted: (name: string) => `${name} acepto la invitacion`,
+    teamRemoved: (remover: string, removed: string) =>
+      `${remover} revoco el acceso de ${removed}`,
+    roleChanged: (changer: string, target: string, newRole: string) =>
+      `${changer} cambio el rol de ${target} a ${newRole}`,
+    projectCreated: (name: string) => `${name} creo el proyecto`,
+    screenplayUploaded: (name: string) => `${name} subio el guion`,
+    documentEdited: (name: string, docName: string) =>
+      `${name} edito ${docName}`,
+    warningDismissed: (name: string, warningText: string) =>
+      `${name} descarto advertencia: "${warningText}"`,
   },
 
   // -- Error States --
