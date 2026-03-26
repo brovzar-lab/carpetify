@@ -14,7 +14,10 @@ import { initClaudeClient } from './claude/client.js';
 import { handleScoreEstimation } from './scoreHandler.js';
 import { handleV1Migration } from './migration/migrateV1Data.js';
 import { migrateProjectsAddCollaborators } from './migrations/addCollaboratorsField.js';
-import { requireAuth, requireProjectAccess } from './auth/requireAuth.js';
+import { handleInviteToProject } from './invitations/inviteToProject.js';
+import { handleAcceptInvitation, handleDeclineInvitation } from './invitations/acceptInvitation.js';
+import { handleRevokeAccess } from './invitations/revokeAccess.js';
+import { requireAuth, requireProjectAccess, requireRole } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
 
@@ -425,5 +428,121 @@ export const migrateAddCollaborators = onCall(
       console.error('migrateAddCollaborators error:', err);
       throw new HttpsError('internal', 'Error al migrar campos de colaboradores.');
     }
+  },
+);
+
+// ---- Phase 11: Invitation Flow ----
+
+/**
+ * inviteToProject: Callable Cloud Function.
+ * Creates an invitation document for a team member.
+ * Only productor can invite (requireRole enforced).
+ * Per D-06: email + role selection.
+ * Per D-10: 7-day expiry on invitations.
+ */
+export const inviteToProject = onCall(
+  {
+    timeoutSeconds: 60,
+    memory: '256MiB',
+    region: 'us-central1',
+  },
+  async (request) => {
+    const uid = requireAuth(request);
+    const { projectId, inviteeEmail, role } = request.data as {
+      projectId: string;
+      inviteeEmail: string;
+      role: string;
+    };
+
+    if (!projectId || !inviteeEmail || !role) {
+      throw new HttpsError(
+        'invalid-argument',
+        'Se requiere projectId, inviteeEmail y role.',
+      );
+    }
+
+    const { role: callerRole, projectData } = await requireProjectAccess(uid, projectId);
+    requireRole(callerRole, ['productor']);
+
+    return await handleInviteToProject(uid, { projectId, inviteeEmail, role }, callerRole, projectData);
+  },
+);
+
+/**
+ * acceptInvitation: Callable Cloud Function.
+ * Accepts a pending invitation and adds the user to the project.
+ * Uses Firestore transaction for atomicity.
+ * Per D-09: email matching safeguard.
+ */
+export const acceptInvitation = onCall(
+  {
+    timeoutSeconds: 60,
+    memory: '256MiB',
+    region: 'us-central1',
+  },
+  async (request) => {
+    const uid = requireAuth(request);
+    const userEmail = request.auth?.token?.email;
+
+    if (!userEmail) {
+      throw new HttpsError('unauthenticated', 'Correo electronico no disponible en el token de autenticacion.');
+    }
+
+    return await handleAcceptInvitation(uid, userEmail, request.data as { invitationId: string });
+  },
+);
+
+/**
+ * declineInvitation: Callable Cloud Function.
+ * Declines a pending invitation without granting access.
+ */
+export const declineInvitation = onCall(
+  {
+    timeoutSeconds: 30,
+    memory: '256MiB',
+    region: 'us-central1',
+  },
+  async (request) => {
+    const uid = requireAuth(request);
+    const userEmail = request.auth?.token?.email;
+
+    if (!userEmail) {
+      throw new HttpsError('unauthenticated', 'Correo electronico no disponible en el token de autenticacion.');
+    }
+
+    return await handleDeclineInvitation(uid, userEmail, request.data as { invitationId: string });
+  },
+);
+
+/**
+ * revokeProjectAccess: Callable Cloud Function.
+ * Removes a collaborator from a project.
+ * Only productor can revoke (requireRole enforced).
+ * Per D-15: atomic removal from collaborators + memberUIDs.
+ */
+export const revokeProjectAccess = onCall(
+  {
+    timeoutSeconds: 30,
+    memory: '256MiB',
+    region: 'us-central1',
+  },
+  async (request) => {
+    const uid = requireAuth(request);
+    const { projectId, targetUserId } = request.data as {
+      projectId: string;
+      targetUserId: string;
+    };
+
+    if (!projectId || !targetUserId) {
+      throw new HttpsError(
+        'invalid-argument',
+        'Se requiere projectId y targetUserId.',
+      );
+    }
+
+    const { role: callerRole } = await requireProjectAccess(uid, projectId);
+    requireRole(callerRole, ['productor']);
+
+    return await handleRevokeAccess(uid, { projectId, targetUserId }, callerRole);
   },
 );
