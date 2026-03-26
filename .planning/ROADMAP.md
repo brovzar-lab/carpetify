@@ -112,7 +112,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 14-00-PLAN.md — Wave 0 test stubs: Spanish prose diff tests (D-07), documentStore version snapshot tests, revertDocument copy-forward tests
+- [x] 14-00-PLAN.md — Wave 0 test stubs: Spanish prose diff tests (D-07), documentStore version snapshot tests, revertDocument copy-forward tests
 - [ ] 14-01-PLAN.md — Version snapshot in saveGeneratedDocument with 10-version prune, triggeredBy threading through all 4 pass handlers
 - [ ] 14-02-PLAN.md — Frontend versioning components: diff library, locale strings, version service, 6 UI components (VersionBadge, ProseDiffViewer, StructuredDiffViewer, VersionSelector, VersionHistoryPanel, RevertConfirmDialog)
 - [ ] 14-03-PLAN.md — revertDocumentVersion Cloud Function with soft downstream warning (D-10 override), DocumentViewer integration (history/compare/revert modes), activity log revert event
@@ -152,5 +152,5 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 14. Document Versioning | v2.0 | 0/4 | Not started | - |
+| 14. Document Versioning | v2.0 | 1/4 | In Progress|  |
 | 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |

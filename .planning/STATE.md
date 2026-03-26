@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 13-02-PLAN.md
-last_updated: "2026-03-26T18:05:31.740Z"
+stopped_at: Completed 14-00-PLAN.md
+last_updated: "2026-03-26T21:47:32.653Z"
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 16
+  completed_plans: 13
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 13 — activity-tracking
+**Current focus:** Phase 14 — document-versioning
 
 ## Current Position
 
-Phase: 13 (activity-tracking) — EXECUTING
-Plan: 3 of 3
+Phase: 14 (document-versioning) — EXECUTING
+Plan: 2 of 4
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Plan: 3 of 3
 | Phase 13-activity-tracking P00 | 2min | 2 tasks | 3 files |
 | Phase 13-activity-tracking P01 | 6min | 4 tasks | 11 files |
 | Phase 13-activity-tracking PP02 | 4min | 2 tasks | 10 files |
+| Phase 14-document-versioning PP00 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,8 @@ Recent decisions affecting current work:
 - [Phase 13-activity-tracking]: Badge count computed inside WizardSidebar via useActivityBadge, not lifted to WizardShell
 - [Phase 13-activity-tracking]: Email send failure tracked on invitation document (emailSent/emailError) but does not throw -- invitation remains valid for in-app acceptance
 - [Phase 13-activity-tracking]: InvitationPage uses standalone route outside ProtectedRoute with sessionStorage return URL for post-auth redirect
+- [Phase 14-document-versioning]: diff v4.0.4 already available as transitive dep -- Wave 0 diffCompute tests run as GREEN, not import-error RED stubs
+- [Phase 14-document-versioning]: diffWords tokenizes monetary amounts at comma boundaries -- test assertions check digit groups, not full formatted amounts
 
 ### Pending Todos
 
@@ -120,6 +123,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T18:05:31.737Z
-Stopped at: Completed 13-02-PLAN.md
+Last session: 2026-03-26T21:47:32.651Z
+Stopped at: Completed 14-00-PLAN.md
 Resume file: None
