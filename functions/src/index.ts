@@ -18,6 +18,7 @@ import { handleInviteToProject } from './invitations/inviteToProject.js';
 import { handleAcceptInvitation, handleDeclineInvitation } from './invitations/acceptInvitation.js';
 import { handleRevokeAccess } from './invitations/revokeAccess.js';
 import { handleForceBreakLock } from './collaboration/forceBreakLock.js';
+import { onInvitationCreated as onInvitationCreatedTrigger } from './triggers/onInvitationCreated.js';
 import { requireAuth, requireProjectAccess, requireRole } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
@@ -550,3 +551,6 @@ export const revokeProjectAccess = onCall(
 
 // ---- Phase 12: Real-Time Collaboration ----
 export const forceBreakLock = handleForceBreakLock;
+
+// ---- Phase 13: Invitation Email Trigger ----
+export const onInvitationCreated = onInvitationCreatedTrigger;
