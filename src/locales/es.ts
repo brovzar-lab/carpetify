@@ -784,6 +784,34 @@ export const es = {
     },
   },
 
+  // -- Collaboration (Presence & Locking) --
+  collaboration: {
+    // Lock messages per D-16
+    lockMessage: (name: string, role: string) =>
+      `Esta seccion esta siendo editada por ${name} (${role}). Puedes ver los datos pero no editarlos hasta que termine.`,
+    // Force-break per D-04
+    forceBreak: 'Desbloquear',
+    forceBreakConfirmTitle: 'Desbloquear seccion',
+    forceBreakConfirmBody: (name: string, role: string) =>
+      `${name} (${role}) tiene esta seccion bloqueada. Los cambios no guardados se perderan. ¿Desbloquear?`,
+    forceBreakConfirm: 'Desbloquear',
+    forceBreakCancel: 'Cancelar',
+    forceBreakSuccess: 'Seccion desbloqueada.',
+    forceBreakError: 'No se pudo desbloquear la seccion.',
+    // Lock lifecycle
+    lockAcquired: 'Seccion bloqueada para edicion.',
+    lockReleased: 'Edicion finalizada.',
+    lockFailed: 'No se pudo bloquear la seccion. Otro usuario la esta editando.',
+    finishEditing: 'Terminar edicion',
+    // Presence labels per D-05, D-06, D-07
+    presence: {
+      online: 'En linea',
+      idle: 'Inactivo',
+      viewing: (screen: string) => `Viendo ${screen}`,
+      editing: (screen: string) => `Editando ${screen}`,
+    },
+  },
+
   // -- Error States --
   errors: {
     firestoreConnection:
