@@ -1,8 +1,13 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Moon, Sun, LogOut } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
+import { ref, remove } from 'firebase/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAppStore } from '@/stores/appStore'
+import { useProjectPresence } from '@/hooks/useProjectPresence'
+import { PresenceAvatarRow } from '@/components/collaboration/PresenceAvatarRow'
+import { rtdb } from '@/lib/firebase'
+import { presencePath } from '@/lib/rtdb'
 import { es } from '@/locales/es'
 
 const STORAGE_KEY = 'carpetify-theme'
@@ -19,11 +24,19 @@ function getInitialDark(): boolean {
  * Manages dark mode with a manual toggle that persists in localStorage (D-13).
  * Falls back to system preference when no override is stored.
  * Shows user avatar and sign-out button when authenticated.
+ *
+ * Collaboration (Plan 12-03):
+ * - Shows presence avatar row when inside a project (D-05)
+ * - Sign-out explicitly cleans up RTDB presence to avoid ghost users (Pitfall 2)
  */
 export function AppHeader({ children }: { children: React.ReactNode }) {
   const [dark, setDark] = useState(false)
   const { user, signOut } = useAuth()
   const queryClient = useQueryClient()
+  const activeProjectId = useAppStore((s) => s.activeProjectId)
+
+  // Presence: read other users' presence for the active project (D-05)
+  const presenceList = useProjectPresence(activeProjectId ?? '')
 
   // Initialize from localStorage / system pref (after mount to avoid SSR mismatch)
   useEffect(() => {
@@ -53,20 +66,35 @@ export function AppHeader({ children }: { children: React.ReactNode }) {
   }, [])
 
   const handleSignOut = useCallback(async () => {
+    // Per Pitfall 2: explicitly remove presence and locks from RTDB before sign-out
+    // onDisconnect only fires on connection drop, not on deliberate sign-out
+    const currentProjectId = useAppStore.getState().activeProjectId
+    if (user && currentProjectId) {
+      try {
+        await remove(ref(rtdb, presencePath(currentProjectId, user.uid)))
+      } catch {
+        // Best-effort cleanup -- sign-out should not fail due to RTDB errors
+      }
+    }
     // Per Pitfall #14: clear Zustand stores on logout
     useAppStore.getState().resetStore()
     // Per Pitfall #15: clear React Query cache on logout
     queryClient.clear()
     await signOut()
-  }, [queryClient, signOut])
+  }, [queryClient, signOut, user])
 
   // User avatar fallback: first letter of displayName or email
   const avatarFallback = user?.displayName?.charAt(0) ?? user?.email?.charAt(0) ?? '?'
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      {/* Top-right controls — user + dark mode toggle */}
+      {/* Top-right controls — presence avatars + user + dark mode toggle */}
       <div className="fixed top-3 right-4 z-50 flex items-center gap-2">
+        {/* Presence avatar row -- shown when inside a project (D-05) */}
+        {activeProjectId && presenceList.length > 0 && (
+          <PresenceAvatarRow entries={presenceList} />
+        )}
+
         {/* User avatar & sign-out */}
         {user && (
           <>
