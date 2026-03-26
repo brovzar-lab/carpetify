@@ -114,7 +114,7 @@ Source: CONTEXT.md D-06 (green additions, red deletions), RESEARCH.md Pattern 4 
 | `VersionSelector` | `src/components/versioning/VersionSelector.tsx` | Horizontal bar with two Select dropdowns: "Version A" (left/older) and "Version B" (right/newer). Default: current version vs immediately previous. Label format per D-08: "v3 -- 22 mar 2026, 14:30 -- Maria (regeneracion Pasada 2)". |
 | `ProseDiffViewer` | `src/components/versioning/ProseDiffViewer.tsx` | Side-by-side prose diff. Left column shows Version A with deletions highlighted red. Right column shows Version B with additions highlighted green. Uses `diffWords` from `diff` library. Content rendered in `font-mono text-sm leading-relaxed whitespace-pre-wrap`. |
 | `StructuredDiffViewer` | `src/components/versioning/StructuredDiffViewer.tsx` | Side-by-side table diff for structured documents (budget, ficha tecnica, flujo de efectivo). Uses existing Table component. Cells: green if value increased, red if decreased, yellow if text changed. Uses `diffJson` from `diff` library for field comparison. |
-| `RevertConfirmDialog` | `src/components/versioning/RevertConfirmDialog.tsx` | shadcn Dialog with destructive confirmation. Shows warning copy, target version summary, and list of downstream documents that will become stale. Two buttons: "Cancelar" (outline) + "Restaurar version" (destructive variant). |
+| `RevertConfirmDialog` | `src/components/versioning/RevertConfirmDialog.tsx` | shadcn Dialog with destructive confirmation. Shows warning copy, target version summary, and list of downstream documents that will become stale. Two buttons: "Mantener version actual" (outline) + "Restaurar version" (destructive variant). |
 | `VersionBadge` | `src/components/versioning/VersionBadge.tsx` | Small Badge showing triggerReason. Three variants: "Regeneracion" (primary/10), "Revertido" (destructive/10), "Pipeline" (muted). |
 
 ### Existing Components Modified
@@ -132,7 +132,7 @@ Source: CONTEXT.md D-06 (green additions, red deletions), RESEARCH.md Pattern 4 
 | `Select` | Yes | Version A / Version B dropdowns |
 | `Dialog` | Yes | Revert confirmation |
 | `Badge` | Yes | Version trigger reason, version number |
-| `Button` | Yes | "Historial", "Comparar", "Restaurar", "Cancelar" |
+| `Button` | Yes | "Historial", "Comparar", "Restaurar version", "Mantener version actual" |
 | `ScrollArea` | Yes | Version list scrolling, diff content scrolling |
 | `Separator` | Yes | Between version list entries |
 | `Skeleton` | Yes | Loading state for version list and diff computation |
@@ -175,19 +175,19 @@ No new shadcn primitives need to be installed.
 | HISTORIAL DE VERSIONES                      [Comparar]        |
 +---------------------------------------------------------------+
 | v5 (actual)                                                   |
-| 22 mar 2026, 14:30 — Maria       [Regeneracion]  [Restaurar] |
+| 22 mar 2026, 14:30 — Maria  [Regeneracion] [Restaurar version]|
 |---------------------------------------------------------------|
 | v4                                                            |
-| 21 mar 2026, 10:15 — Carlos      [Revertido]     [Restaurar] |
+| 21 mar 2026, 10:15 — Carlos [Revertido]    [Restaurar version]|
 |---------------------------------------------------------------|
 | v3                                                            |
-| 20 mar 2026, 16:45 — Maria       [Regeneracion]  [Restaurar] |
+| 20 mar 2026, 16:45 — Maria  [Regeneracion] [Restaurar version]|
 |---------------------------------------------------------------|
 | v2                                                            |
-| 19 mar 2026, 09:00 — Pipeline    [Pipeline]      [Restaurar] |
+| 19 mar 2026, 09:00 — Pipeline [Pipeline]   [Restaurar version]|
 |---------------------------------------------------------------|
 | v1                                                            |
-| 18 mar 2026, 11:30 — Pipeline    [Pipeline]      [Restaurar] |
+| 18 mar 2026, 11:30 — Pipeline [Pipeline]   [Restaurar version]|
 +---------------------------------------------------------------+
 ```
 
@@ -213,6 +213,15 @@ Column headers:
 
 Uses existing Table primitive. Numeric cells right-aligned, `font-mono`. Changed cells get the appropriate diff background color. Currency formatted via `formatMXN()`.
 
+### Focal Points
+
+| Screen | Focal Point | Rationale |
+|--------|-------------|-----------|
+| VersionHistoryPanel | The version list itself, vertically centered in the panel. The "Comparar versiones" button at the top-right of the panel heading row is the primary action affordance, rendered as `variant="default"` (accent) to draw the eye above the neutral-toned version entries. | The user opens the history panel to either browse versions or initiate a comparison. The accent-colored compare button is the single strongest visual signal, anchoring the user's first scan before they read the version entries below. |
+| ProseDiffViewer (compare mode) | The diff content area, specifically the first cluster of highlighted additions (green) and deletions (red) visible without scrolling. The VersionSelector bar above is secondary -- it uses muted tones so the colored diff output dominates. | Color contrast between diff highlights and the neutral background creates an automatic focal point. Users enter compare mode to see what changed, so the changes themselves must be the loudest visual element. |
+| StructuredDiffViewer (compare mode) | The "Diff" column on the far right of the table, where green/red/yellow cell highlights concentrate. The leftmost "Cuenta" label column uses `text-muted-foreground` to reduce its visual weight relative to the colored diff cells. | In a table layout, the rightmost column summarizing changes is where the user's eye naturally lands after scanning row labels. Colored cells in this column are the densest visual signal on the screen. |
+| RevertConfirmDialog | The destructive "Restaurar version" button, positioned at the bottom-right of the dialog per shadcn Dialog convention. The outline "Mantener version actual" button to its left uses lower visual weight (outline variant, no fill). | Destructive dialogs must make the irreversible action visually prominent so the user consciously chooses it. The high-contrast destructive button against the dialog surface is the intended focal point. |
+
 ---
 
 ## Interaction Contract
@@ -235,7 +244,7 @@ Uses existing Table primitive. Numeric cells right-aligned, `font-mono`. Changed
 
 ### Revert Flow
 
-1. User clicks "Restaurar" button next to a historical version in VersionHistoryPanel.
+1. User clicks "Restaurar version" button next to a historical version in VersionHistoryPanel.
 2. If current document has `manuallyEdited: true`, show Alert warning per D-11 first.
 3. RevertConfirmDialog opens showing:
    - Target version summary (version number, date, who generated it)
@@ -254,7 +263,7 @@ Uses existing Table primitive. Numeric cells right-aligned, `font-mono`. Changed
 | Version list loading | 3x Skeleton rows (height 48px each) in VersionHistoryPanel |
 | Diff computing | Skeleton block (full height of content area) with "Calculando diferencias..." label |
 | Revert in progress | "Restaurar version" button shows Loader2 spinner, dialog stays open until complete |
-| Version list empty (v1 only, no history) | Single entry "v1 (actual)" with no "Restaurar" button. "Comparar" button disabled with tooltip "Se necesitan al menos 2 versiones para comparar" |
+| Version list empty (v1 only, no history) | Single entry "v1 (actual)" with no "Restaurar version" button. "Comparar" button disabled with tooltip "Se necesitan al menos 2 versiones para comparar" |
 
 ### Error States
 
@@ -280,7 +289,7 @@ All strings in Mexican Spanish. Added to `src/locales/es.ts` under a new `versio
 | Compare label | `versioning.compareLabel` | `Comparar:` |
 | Compare separator | `versioning.compareSeparator` | `con` |
 | Close compare | `versioning.closeCompare` | `Cerrar comparacion` |
-| Restore button | `versioning.restoreButton` | `Restaurar` |
+| Restore button | `versioning.restoreButton` | `Restaurar version` |
 | Current version label | `versioning.currentLabel` | `(actual)` |
 | Version label | `versioning.versionLabel` | `(n: number) => \`Version ${n}\`` |
 | Trigger: regeneration | `versioning.triggerRegeneration` | `Regeneracion` |
@@ -289,7 +298,7 @@ All strings in Mexican Spanish. Added to `src/locales/es.ts` under a new `versio
 | Revert dialog title | `versioning.revertDialogTitle` | `Restaurar version anterior` |
 | Revert dialog body | `versioning.revertDialogBody` | `(n: number) => \`El contenido actual sera reemplazado por el de la version ${n}. El contenido actual se conservara en el historial.\`` |
 | Revert dialog confirm | `versioning.revertDialogConfirm` | `Restaurar version` |
-| Revert dialog cancel | `versioning.revertDialogCancel` | `Cancelar` |
+| Revert dialog cancel | `versioning.revertDialogCancel` | `Mantener version actual` |
 | Manual edit warning (D-11) | `versioning.manualEditWarning` | `Este documento tiene ediciones manuales. Revertir reemplazara todo el contenido actual, incluyendo tus ediciones.` |
 | Staleness warning | `versioning.stalenessWarning` | `(docs: string) => \`Documentos que se marcaran como desactualizados: ${docs}\`` |
 | Revert success toast | `versioning.revertSuccess` | `Version restaurada exitosamente` |
@@ -322,9 +331,9 @@ No new shadcn primitives need installation. No third-party registries declared. 
 | Concern | Implementation |
 |---------|---------------|
 | Diff color contrast | Green/red diff highlights use `-100` light backgrounds with `-900` text (WCAG AA compliant). Dark mode uses `900/30` backgrounds with `-300` text. Never rely on color alone -- deletions also use `line-through` text decoration. |
-| Keyboard navigation | Version list items are focusable buttons. Tab navigates between versions. Enter triggers "Restaurar" or "Comparar". Select dropdowns use native Radix keyboard support. |
+| Keyboard navigation | Version list items are focusable buttons. Tab navigates between versions. Enter triggers "Restaurar version" or "Comparar". Select dropdowns use native Radix keyboard support. |
 | Screen reader | Diff changes include `aria-label` on spans: "texto agregado: {word}" / "texto eliminado: {word}". Version list uses `role="list"` with `role="listitem"`. |
-| Focus management | Opening RevertConfirmDialog traps focus (Radix Dialog default). Closing returns focus to the "Restaurar" button that triggered it. |
+| Focus management | Opening RevertConfirmDialog traps focus (Radix Dialog default). Closing returns focus to the "Restaurar version" button that triggered it. |
 | Reduced motion | No animations in diff view. Version panel uses no transitions. |
 
 ---
