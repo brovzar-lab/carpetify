@@ -749,7 +749,9 @@ export const es = {
     loadingAccess: 'Verificando acceso...',
     readOnly: {
       banner: (productorName: string) =>
-        `Solo lectura \u2014 contacta a ${productorName} para editar.`,
+        productorName.startsWith('al ')
+          ? `Solo lectura \u2014 contacta ${productorName} para editar.`
+          : `Solo lectura \u2014 contacta a ${productorName} para editar.`,
     },
     team: {
       title: 'Equipo del Proyecto',
@@ -903,5 +905,48 @@ export const es = {
       'Error al subir el archivo. Verifica que sea un PDF valido y menor a 40 MB.',
     generic:
       'Ocurrio un error inesperado. Intenta de nuevo o recarga la pagina.',
+  },
+
+  // -- Versioning (Phase 14) --
+  versioning: {
+    historyButton: 'Historial',
+    closeHistory: 'Cerrar historial',
+    panelHeading: 'Historial de versiones',
+    compareButton: 'Comparar versiones',
+    compareLabel: 'Comparar:',
+    compareSeparator: 'con',
+    closeCompare: 'Cerrar comparacion',
+    restoreButton: 'Restaurar version',
+    currentLabel: '(actual)',
+    versionLabel: (n: number) => `Version ${n}`,
+    triggerRegeneration: 'Regeneracion',
+    triggerRevert: 'Revertido',
+    triggerPipeline: 'Pipeline',
+    revertDialogTitle: 'Restaurar version anterior',
+    revertDialogBody: (n: number) =>
+      `El contenido actual sera reemplazado por el de la version ${n}. El contenido actual se conservara en el historial.`,
+    revertDialogConfirm: 'Restaurar version',
+    revertDialogCancel: 'Mantener version actual',
+    manualEditWarning:
+      'Este documento tiene ediciones manuales. Revertir reemplazara todo el contenido actual, incluyendo tus ediciones.',
+    downstreamWarning: (docs: string) =>
+      `Documentos que podrian verse afectados: ${docs}`,
+    revertSuccess: 'Version restaurada exitosamente',
+    revertError: 'No se pudo restaurar la version. Intenta de nuevo.',
+    fetchError:
+      'No se pudo cargar el historial de versiones. Intenta de nuevo.',
+    diffError:
+      'Error al calcular diferencias. Intenta seleccionar otras versiones.',
+    emptyHeading: 'Sin historial',
+    emptyBody:
+      'Las versiones anteriores apareceran aqui cuando se regenere el documento.',
+    compareMinVersions:
+      'Se necesitan al menos 2 versiones para comparar',
+    diffComputing: 'Calculando diferencias...',
+    versionNotFound: 'La version seleccionada ya no existe.',
+    entryFormat: (v: number, date: string, user: string, reason: string) =>
+      `v${v} — ${date} — ${user} (${reason})`,
+    activityRevert: (user: string, docName: string, version: number) =>
+      `${user} revirtio ${docName} a version ${version}`,
   },
 } as const
