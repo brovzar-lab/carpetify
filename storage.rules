@@ -6,11 +6,17 @@ service firebase.storage {
       allow read, write: if false;
     }
 
-    // Project files: only authenticated users can read/write
-    // Storage rules cannot do Firestore get() calls, so ownership enforcement
-    // relies on: (1) Cloud Functions validate ownership before upload,
-    // (2) Frontend only constructs paths for owned projects.
-    // Phase 11 can add custom claims for tighter per-project access.
+    // Project files: only authenticated users can read/write.
+    //
+    // NOTE: Storage security rules CANNOT call Firestore get() to check
+    // project membership. Membership enforcement for Storage relies on:
+    //   1. Cloud Functions validate project membership before any upload operation
+    //   2. Frontend only constructs paths for projects where the user is a member
+    //   3. Auth-gate (request.auth != null) is the maximum enforcement possible
+    //      in Storage rules without custom claims
+    //
+    // This is a known Firebase limitation documented in Phase 10 (10-03-SUMMARY.md).
+    // Per-project membership enforcement happens at the Cloud Functions layer.
     match /projects/{projectId}/{allPaths=**} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;

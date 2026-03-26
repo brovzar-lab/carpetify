@@ -7,35 +7,65 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Helper: is user the project owner?
-    // Uses get() to read the project document -- costs 1 read per rule evaluation
-    function isProjectOwner(projectId) {
-      return isAuth() &&
-        get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid;
+    // Helper: is the user a member of the project?
+    // Checks both ownerId (always productor) and collaborators map (invited members).
+    // Per D-11: collaborators is a map field, `uid in map` checks key existence.
+    function isProjectMember(projectData) {
+      return request.auth.uid == projectData.ownerId
+        || request.auth.uid in projectData.collaborators;
     }
 
-    // Projects: only owner can read/write
+    // Helper: get the user's role on a project.
+    // Returns 'productor' if owner, otherwise the role string from the collaborators map.
+    function getUserRole(projectData) {
+      return request.auth.uid == projectData.ownerId
+        ? 'productor'
+        : projectData.collaborators[request.auth.uid];
+    }
+
+    // Projects: membership-based access
     match /projects/{projectId} {
-      // Read: owner can read their own project doc
-      // The ownerId check uses resource.data (free -- no extra read)
-      allow read: if isAuth() && resource.data.ownerId == request.auth.uid;
+      // Read: any project member can read
+      allow read: if isAuth() && isProjectMember(resource.data);
+
       // Create: any authenticated user can create (they set themselves as owner)
       allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
-      // Update: only owner
-      allow update: if isAuth() && resource.data.ownerId == request.auth.uid;
-      // Delete: only owner
+
+      // Update: any project member can update
+      // Role-based write restrictions enforced in Cloud Functions and client
+      allow update: if isAuth() && isProjectMember(resource.data);
+
+      // Delete: only the project owner (productor) per D-02
       allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
 
-      // All subcollections: inherit project-level owner check
-      // Uses get() for 1 read to check parent project's ownerId
+      // All subcollections: inherit project-level membership check
+      // Uses get() for 1 read to check parent project's membership
       match /{subcollection}/{docId} {
-        allow read, write: if isProjectOwner(projectId);
+        allow read, write: if isAuth()
+          && isProjectMember(
+            get(/databases/$(database)/documents/projects/$(projectId)).data
+          );
       }
 
       // Nested subcollections (e.g., generated/{docId}/history/{versionId})
       match /{subcollection}/{docId}/{nestedSub}/{nestedDocId} {
-        allow read, write: if isProjectOwner(projectId);
+        allow read, write: if isAuth()
+          && isProjectMember(
+            get(/databases/$(database)/documents/projects/$(projectId)).data
+          );
       }
+    }
+
+    // Invitations: readable by invitee (email match), writable only by Admin SDK
+    match /invitations/{invitationId} {
+      allow read: if isAuth()
+        && resource.data.inviteeEmail == request.auth.token.email;
+      allow write: if false; // Only Cloud Functions via Admin SDK can create/update invitations
+    }
+
+    // Security events: audit trail -- no client read/write per D-17
+    match /security_events/{eventId} {
+      allow read, write: if false; // Only Cloud Functions write
     }
 
     // Organizations: members can read/write
