@@ -32,7 +32,7 @@
 - [x] **Phase 11: RBAC & Project Access Control** - Role-based permissions, project invitations, and Firestore security rules enforcement (completed 2026-03-26)
 - [x] **Phase 12: Real-Time Collaboration** - Simultaneous project editing with section-level locking, presence indicators, role-based screen access, and conflict notification (completed 2026-03-26)
 - [x] **Phase 13: Activity Tracking & Invitation Flow** - Field-level change attribution log and email-based project invitation with accept/decline (completed 2026-03-26)
-- [ ] **Phase 14: Document Versioning** - Version history for generated documents with inline diff comparison and one-click revert (gap closure in progress)
+- [x] **Phase 14: Document Versioning** - Version history for generated documents with inline diff comparison and one-click revert (gap closure in progress) (completed 2026-03-26)
 - [ ] **Phase 15: AI Pre-Submission Review** - IMCINE evaluator simulation producing per-section scores, improvement suggestions, and readiness assessment
 
 ## Phase Details
@@ -126,11 +126,11 @@ Plans:
   1. User can trigger a pre-submission review from the validation dashboard and see progress while it runs
   2. Review results show per-section scores, specific improvement suggestions in Spanish, and an overall readiness assessment
   3. Review results appear alongside the existing score estimation on the validation dashboard, giving users both deterministic and AI-assessed views
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 15-01: TBD
-- [ ] 15-02: TBD
+- [ ] 15-01-PLAN.md — Backend: review types, 5 persona critique prompts, 2-pass review handler, runPreSubmissionReview streaming Cloud Function
+- [ ] 15-02-PLAN.md — Frontend: client review service, usePreSubmissionReview hook, locale strings, 7 UI components, ScoreEstimationPanel "Revision" tab integration
 
 ## Progress
 
@@ -153,5 +153,5 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 11. RBAC & Project Access Control | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
-| 14. Document Versioning | v2.0 | 4/5 | Gap closure | - |
-| 15. AI Pre-Submission Review | v2.0 | 0/? | Not started | - |
+| 14. Document Versioning | v2.0 | 4/5 | Complete    | 2026-03-26 |
+| 15. AI Pre-Submission Review | v2.0 | 0/2 | Not started | - |
