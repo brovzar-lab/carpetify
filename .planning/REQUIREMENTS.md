@@ -22,9 +22,9 @@
 - [x] **COLLAB-01**: Multiple team members can view and edit the same project simultaneously
 - [x] **COLLAB-02**: Section-level locking — when a user is editing a wizard screen, other users see it as locked with the editor's name
 - [x] **COLLAB-03**: Real-time presence indicators show which team members are currently viewing the project and which screen they're on
-- [ ] **COLLAB-04**: Activity log tracks who changed what and when (field-level change attribution)
+- [x] **COLLAB-04**: Activity log tracks who changed what and when (field-level change attribution)
 - [x] **COLLAB-05**: Role-based screen access — line_producer can edit financials and budget, abogado can edit contracts, director can edit creative team and screenplay analysis
-- [ ] **COLLAB-06**: Project invitation flow with email notification and accept/decline via link
+- [x] **COLLAB-06**: Project invitation flow with email notification and accept/decline via link
 - [x] **COLLAB-07**: Conflict notification when two users attempt to edit the same section — second user sees "en uso por [nombre]" message
 
 ### AI Enhancement
@@ -75,9 +75,9 @@
 | COLLAB-01 | Phase 12 | Complete |
 | COLLAB-02 | Phase 12 | Complete |
 | COLLAB-03 | Phase 12 | Complete |
-| COLLAB-04 | Phase 13 | Pending |
+| COLLAB-04 | Phase 13 | Complete |
 | COLLAB-05 | Phase 12 | Complete |
-| COLLAB-06 | Phase 13 | Pending |
+| COLLAB-06 | Phase 13 | Complete |
 | COLLAB-07 | Phase 12 | Complete |
 | AIGEN-V2-01 | Phase 15 | Pending |
 | AIGEN-V2-02 | Phase 15 | Pending |
