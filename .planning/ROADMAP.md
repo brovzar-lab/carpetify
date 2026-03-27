@@ -142,10 +142,10 @@ Plans:
   1. userProjects Firestore security rule allows self-access — activity badge resets correctly after viewing
   2. Phase 12 VERIFICATION.md exists with passed status — all COLLAB requirements formally verified
   3. Phase 11 VERIFICATION.md updated to passed — stale gap resolved
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 16-01: TBD
+- [ ] 16-01-PLAN.md — Fix userProjects Firestore rule, create Phase 12 VERIFICATION.md, re-verify Phase 11 VERIFICATION.md
 
 ## Progress
 
