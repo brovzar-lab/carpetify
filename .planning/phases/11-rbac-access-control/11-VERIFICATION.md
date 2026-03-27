@@ -1,20 +1,10 @@
 ---
 phase: 11-rbac-access-control
 verified: 2026-03-25T00:00:00Z
-status: gaps_found
-score: 2/3 success criteria verified
-gaps:
-  - truth: "Project owner can assign one of 4 roles when inviting a team member"
-    status: failed
-    reason: "TeamMembers component (which hosts InviteModal) is built and exported but never imported or rendered in any wizard screen, page, or route. There is no UI surface in the app where a user can reach the invite flow."
-    artifacts:
-      - path: "src/components/project/TeamMembers.tsx"
-        issue: "ORPHANED — exists, is substantive, but is imported nowhere outside its own directory"
-      - path: "src/components/project/InviteModal.tsx"
-        issue: "ORPHANED via TeamMembers — only reachable if TeamMembers is rendered"
-    missing:
-      - "Import and render <TeamMembers> in a wizard screen accessible to the productor (e.g., the 'datos' screen, a project settings panel, or a new settings tab in WizardShell)"
-      - "The component needs projectId, collaborators, and ownerId props — these are already available from WizardShell via useProjectAccess and a project document fetch"
+re_verification: true
+re_verified: 2026-03-27T05:45:00Z
+status: passed
+score: 3/3 success criteria verified
 human_verification:
   - test: "Accept/decline invitation flow end-to-end"
     expected: "Invited user signs in, sees PendingInvitations banner, clicks Aceptar, gets added to project, can navigate to it"
@@ -27,9 +17,9 @@ human_verification:
 # Phase 11: RBAC Access Control — Verification Report
 
 **Phase Goal:** Project owners can invite team members with specific roles, and Firestore enforces that users only access projects they belong to.
-**Verified:** 2026-03-25
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-03-25 (initial), 2026-03-27 (re-verification)
+**Status:** PASSED
+**Re-verification:** Yes -- gap resolved in Phase 12-03 (TeamMembers wired into WizardShell)
 
 ## Goal Achievement
 
@@ -37,11 +27,11 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|---------|
-| 1 | Project owner can assign one of 4 roles (productor, line_producer, abogado, director) when inviting a team member | ✗ FAILED | InviteModal and TeamMembers are built and correct but never rendered in any app screen. No user can reach the invite flow at runtime. |
+| 1 | Project owner can assign one of 4 roles (productor, line_producer, abogado, director) when inviting a team member | ✓ VERIFIED | TeamMembers imported at WizardShell.tsx line 33 and rendered at line 283 with projectId, collaborators, ownerId props. InviteModal reachable via TeamMembers invite button. Productor can now access the full invitation flow from the datos screen. |
 | 2 | Users see only projects they own or have been invited to on the dashboard | ✓ VERIFIED | `listProjects` uses `where('memberUIDs', 'array-contains', userId)` (line 131 of `src/services/projects.ts`). Firestore rules enforce membership read at `match /projects/{projectId}` with `isProjectMember()`. |
 | 3 | Directly navigating to a project URL the user has no access to shows an access denied message | ✓ VERIFIED | `WizardShell.tsx` calls `useProjectAccess(projectId)` and returns `<AccessDenied />` when `!hasAccess` (lines 61-63). `AccessDenied.tsx` renders the Spanish message from `es.rbac.accessDenied` with a back-to-dashboard link. |
 
-**Score: 2/3 success criteria verified**
+**Score: 3/3 success criteria verified**
 
 ---
 
@@ -66,8 +56,8 @@ human_verification:
 | `functions/src/invitations/acceptInvitation.ts` | ✓ VERIFIED | `runTransaction` atomically updates invitation status AND adds to `collaborators`/`memberUIDs`. D-09 email matching safeguard implemented. Expiration check present. |
 | `functions/src/invitations/revokeAccess.ts` | ✓ VERIFIED | `FieldValue.delete()` removes from collaborators map, `arrayRemove` from memberUIDs. Owner-only restriction enforced. Audit log present. |
 | `src/services/invitations.ts` | ✓ VERIFIED | All 7 operations exported: `getPendingInvitations`, `inviteToProject`, `acceptInvitation`, `declineInvitation`, `revokeAccess`, `getProjectTeamMembers`, `getProjectInvitations`. Each calls the correct Cloud Function via `httpsCallable`. |
-| `src/components/project/InviteModal.tsx` | ⚠️ ORPHANED | Substantive — full form with Zod validation, role dropdown (line_producer/abogado/director), success/error toasts, locale strings. However reachable only through `TeamMembers` which is itself orphaned. |
-| `src/components/project/TeamMembers.tsx` | ⚠️ ORPHANED | Substantive — renders member list with role badges, invite button (productor only), revoke with confirmation, pending invitations section. Exported but never imported in any rendered screen or page. |
+| `src/components/project/InviteModal.tsx` | ✓ VERIFIED | Substantive -- full form with Zod validation, role dropdown (line_producer/abogado/director), success/error toasts, locale strings. Reachable via TeamMembers invite button, which is rendered in WizardShell.tsx at line 283. |
+| `src/components/project/TeamMembers.tsx` | ✓ VERIFIED | Renders member list with role badges, invite button (productor only), revoke with confirmation, pending invitations section. Imported at WizardShell.tsx line 33 and rendered at line 283 within the datos screen section. |
 | `src/components/project/PendingInvitations.tsx` | ✓ VERIFIED | Imported and rendered in `DashboardPage.tsx` (line 144: `<PendingInvitations />`). Queries by user email, renders accept/decline per invitation. |
 
 ### Plan 11-03 Artifacts
@@ -93,7 +83,7 @@ human_verification:
 | `src/stores/appStore.ts` | `src/components/generation/GenerationScreen.tsx` | `currentProjectRole` gates pipeline controls | ✓ WIRED | Line 33-34: `useAppStore((s) => s.currentProjectRole)` + `canRunPipeline(currentProjectRole)`. `showPipelineControls` guards `PipelineControl` render. |
 | `src/services/invitations.ts` | `functions/src/index.ts` | `httpsCallable` for all 4 invitation functions | ✓ WIRED | `inviteToProject`, `acceptInvitation`, `declineInvitation`, `revokeProjectAccess` all registered in `functions/src/index.ts` (lines 443, 477, 499, 523). |
 | `src/components/project/InviteModal.tsx` | `src/services/invitations.ts` | calls `inviteToProject` | ✓ WIRED | Line 24: `import { inviteToProject } from '@/services/invitations'`. Called in `onSubmit`. |
-| `src/components/project/TeamMembers.tsx` | any wizard screen | renders invite flow for productor | ✗ NOT_WIRED | `TeamMembers` is exported but not imported in any screen component, page, or route entry point. No user-visible path to this component. |
+| `src/components/project/TeamMembers.tsx` | `src/components/wizard/WizardShell.tsx` | renders invite flow for productor | ✓ WIRED | Imported at WizardShell.tsx line 33 and rendered at line 283 within the datos screen section with projectId, collaborators, and ownerId props. |
 
 ---
 
@@ -102,23 +92,23 @@ human_verification:
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|---------|
 | AUTH-04 | 11-01, 11-03 | Custom claims RBAC with 4 roles: each with defined permission set | ✓ SATISFIED | `ROLE_PERMISSIONS` constant defines all 4 roles with complete D-02 matrix. UI enforces role permissions via `canEditScreen`, `canRunPipeline`, `canExport`, `canDeleteProject` across WizardShell, GenerationScreen, ExportScreen, ProjectCard. |
-| AUTH-05 | 11-02 | Project owner can invite team members by email and assign roles | ✗ BLOCKED | Cloud Functions, service layer, and UI components all exist and are correct. However `TeamMembers` (which provides the invite entry point) is never rendered in the app. Productor has no reachable path to invite. |
+| AUTH-05 | 11-02 | Project owner can invite team members by email and assign roles | ✓ SATISFIED | Cloud Functions, service layer, and UI components all exist and are correct. TeamMembers is rendered in WizardShell.tsx at line 283 (datos screen), providing the productor with a reachable path to the invite flow via InviteModal. |
 | AUTH-06 | 11-01, 11-03 | Firestore security rules enforce per-project access | ✓ SATISFIED | `firestore.rules` uses `isProjectMember()` checking both `ownerId` and `collaborators` map. `listProjects` uses `array-contains` on `memberUIDs`. `WizardShell` enforces client-side access gate showing `AccessDenied` for non-members. `useProjectAccess` verifies membership before showing project data. |
 
-**AUTH-04: SATISFIED** — 4 roles defined, permission matrix implemented, UI gating active.
-**AUTH-05: BLOCKED** — invitation infrastructure complete, but no UI entry point renders `TeamMembers`/`InviteModal` in the app.
-**AUTH-06: SATISFIED** — Firestore rules membership-based, client-side access gate functional, dashboard filtered to member projects.
+**AUTH-04: SATISFIED** -- 4 roles defined, permission matrix implemented, UI gating active.
+**AUTH-05: SATISFIED** -- invitation infrastructure complete and TeamMembers rendered in WizardShell datos screen (line 283), providing UI entry point for productor invite flow.
+**AUTH-06: SATISFIED** -- Firestore rules membership-based, client-side access gate functional, dashboard filtered to member projects.
 
 ---
 
 ## Anti-Patterns Found
 
-| File | Pattern | Severity | Impact |
+| File | Pattern | Severity | Status |
 |------|---------|----------|--------|
-| `src/components/project/TeamMembers.tsx` | Component exported but never rendered anywhere in app | Blocker | Success criterion 1 and AUTH-05 are unreachable by any user — the invite flow has no UI entry point |
-| `src/components/project/InviteModal.tsx` | Reachable only through orphaned `TeamMembers` | Blocker | Follows from above — invite modal exists but cannot be opened |
+| `src/components/project/TeamMembers.tsx` | Component exported but never rendered anywhere in app | Blocker | RESOLVED -- imported and rendered in WizardShell.tsx at line 33 (import) and line 283 (render) |
+| `src/components/project/InviteModal.tsx` | Reachable only through orphaned `TeamMembers` | Blocker | RESOLVED -- now reachable via TeamMembers which is rendered in WizardShell datos screen |
 
-No stub/placeholder anti-patterns found. All implemented logic is substantive and wired end-to-end where rendered. The issue is a missing render location, not stub code.
+All anti-patterns from the initial verification have been resolved. No remaining blockers.
 
 ---
 
@@ -146,13 +136,14 @@ No stub/placeholder anti-patterns found. All implemented logic is substantive an
 
 ## Gaps Summary
 
-**One gap blocks AUTH-05 and success criterion 1.** The entire invitation infrastructure is built correctly — Cloud Functions (`inviteToProject`, `acceptInvitation`, `declineInvitation`, `revokeProjectAccess`) are registered and compile cleanly. The client service (`src/services/invitations.ts`) is complete. The `InviteModal` component passes Zod validation, role dropdown offers 3 valid roles, and calls the service correctly. The `TeamMembers` component correctly shows the invite button only when `canManageTeam(role)` is true (i.e., for `productor` only).
+**No remaining gaps.** The single gap identified in the initial verification (TeamMembers/InviteModal orphaned components) was resolved during Phase 12-03 shell integration, where TeamMembers was imported and rendered in WizardShell.tsx within the datos screen section.
 
-The single missing piece: `TeamMembers` is never imported or rendered anywhere in the app. There is no wizard screen, settings panel, or page that mounts it. The `PendingInvitations` component (the invitee-facing side of the same flow) is correctly wired into `DashboardPage` and works. But the productor-facing side (the panel where you manage your team and send invitations) has no render location.
-
-**Fix required:** Import and render `<TeamMembers projectId={...} collaborators={...} ownerId={...} />` in a location accessible to the productor — most natural placement would be the `datos` (project setup) screen or a dedicated panel within `WizardShell`. The component is complete and needs only a render location.
+- **Original gap:** TeamMembers never imported or rendered -- productor had no path to invite flow
+- **Resolution:** WizardShell.tsx line 33 imports TeamMembers, line 283 renders it with projectId, collaborators, and ownerId props
+- **Resolved by:** Phase 12-03 Plan execution (commit f9a59b8d)
+- **Re-verified:** 2026-03-27 during Phase 16 milestone gap closure
 
 ---
 
-*Verified: 2026-03-25*
-*Verifier: Claude (gsd-verifier)*
+*Initial verification: 2026-03-25 by Claude (gsd-verifier)*
+*Re-verification: 2026-03-27 by Claude (gsd-executor, gap closure)*
