@@ -8,9 +8,10 @@
  *
  * "Evaluar puntaje" button triggers httpsCallable with 120s client timeout.
  */
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { httpsCallable } from 'firebase/functions'
-import { functions } from '@/lib/firebase'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { functions, db } from '@/lib/firebase'
 import { es } from '@/locales/es'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react'
 import { ViabilityScoreCard } from './ViabilityScoreCard'
 import { ArtisticScoreCard } from './ArtisticScoreCard'
 import { BonusPointsCard } from './BonusPointsCard'
+import { PreSubmissionReviewPanel } from './PreSubmissionReviewPanel'
 import type { ScoreCategory, ImprovementSuggestion, PersonaScore } from '@/validation/scoring'
 
 interface ScoreEstimationPanelProps {
@@ -67,6 +69,25 @@ export function ScoreEstimationPanel({
   const [evaluating, setEvaluating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hasEvaluated, setHasEvaluated] = useState(false)
+
+  // -- Generation completeness check for review gate --
+  const [generationComplete, setGenerationComplete] = useState(false)
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, `projects/${projectId}/meta/generation_state`),
+      (snap) => {
+        if (!snap.exists()) { setGenerationComplete(false); return }
+        const data = snap.data()
+        const passes = data?.passGeneratedAt ?? {}
+        const allComplete = ['lineProducer', 'financeAdvisor', 'legal', 'combined']
+          .every(p => passes[p] != null)
+        setGenerationComplete(allComplete)
+      },
+      () => setGenerationComplete(false),
+    )
+    return unsub
+  }, [projectId])
 
   // -- Manual artistic overrides (local state only) --
   const [overrides, setOverrides] = useState<Record<string, number>>({})
@@ -202,6 +223,9 @@ export function ScoreEstimationPanel({
           <TabsTrigger value="bonus" className="flex-1 text-xs">
             Bonus
           </TabsTrigger>
+          <TabsTrigger value="revision" className="flex-1 text-xs">
+            Revision
+          </TabsTrigger>
         </TabsList>
 
         {/* Viability tab */}
@@ -290,6 +314,16 @@ export function ScoreEstimationPanel({
               bonusPoints={bonusPoints}
               bonusCategory={bonusCategory}
               eligibleCategories={eligibleCategories}
+            />
+          </div>
+        </TabsContent>
+
+        {/* Revision tab */}
+        <TabsContent value="revision">
+          <div className="pt-4">
+            <PreSubmissionReviewPanel
+              projectId={projectId}
+              generationComplete={generationComplete}
             />
           </div>
         </TabsContent>
