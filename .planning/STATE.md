@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 15-00-PLAN.md
-last_updated: "2026-03-27T00:04:25.081Z"
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-03-27T00:14:16.562Z"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 20
-  completed_plans: 18
+  completed_plans: 19
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 15 (ai-pre-submission-review) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Plan: 2 of 3
 | Phase 14-document-versioning PP02 | 4min | 2 tasks | 10 files |
 | Phase 14-document-versioning P03 | 15min | 2 tasks | 6 files |
 | Phase 15-ai-pre-submission-review P00 | 1min | 1 tasks | 2 files |
+| Phase 15-ai-pre-submission-review PP01 | 6min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,9 @@ Recent decisions affecting current work:
 - [Phase 14-document-versioning]: StructuredDiffViewer falls back to ProseDiffViewer when content cannot be parsed as JSON
 - [Phase 14-document-versioning]: Soft cascade warning shown as post-revert toast rather than pre-confirmation blocker per D-10 override
 - [Phase 15-ai-pre-submission-review]: Component test stubs placed in src/__tests__/components/ as new directory for project component testing
+- [Phase 15-ai-pre-submission-review]: createConcurrencyPool(3) for Pass 1 parallel persona calls matching Phase 3 D-04 pattern
+- [Phase 15-ai-pre-submission-review]: Curated user message per persona with ~2000 char doc truncation to control token budget per Pitfall 1
+- [Phase 15-ai-pre-submission-review]: Readiness thresholds from findings: lista(0-3), casi_lista(4-6), necesita_trabajo(7-12), no_lista(>12)
 
 ### Pending Todos
 
@@ -133,6 +137,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-27T00:04:25.076Z
-Stopped at: Completed 15-00-PLAN.md
+Last session: 2026-03-27T00:14:16.549Z
+Stopped at: Completed 15-01-PLAN.md
 Resume file: None

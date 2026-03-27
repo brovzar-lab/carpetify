@@ -130,7 +130,7 @@ Plans:
 
 Plans:
 - [x] 15-00-PLAN.md — Wave 0 test stubs: review handler logic tests (AIGEN-V2-01) and review UI state tests (AIGEN-V2-02)
-- [ ] 15-01-PLAN.md — Backend: review types, 6 persona critique prompts (5 persona + 1 coherence), 2-pass review handler, runPreSubmissionReview streaming Cloud Function
+- [x] 15-01-PLAN.md — Backend: review types, 6 persona critique prompts (5 persona + 1 coherence), 2-pass review handler, runPreSubmissionReview streaming Cloud Function
 - [ ] 15-02-PLAN.md — Frontend: client review service, usePreSubmissionReview hook with activity log integration, locale strings, 7 UI components, ScoreEstimationPanel "Revision" tab integration
 
 ## Progress
@@ -155,4 +155,4 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 14. Document Versioning | v2.0 | 4/5 | Complete    | 2026-03-26 |
-| 15. AI Pre-Submission Review | v2.0 | 1/3 | In Progress|  |
+| 15. AI Pre-Submission Review | v2.0 | 2/3 | In Progress|  |
