@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 EFICINE Carpeta Generator** — Phases 1-9 (shipped 2026-03-25)
-- 🚧 **v2.0 Multi-User & Extended Modalities** — Phases 10-15 (in progress)
+- 🚧 **v2.0 Multi-User & Extended Modalities** — Phases 10-16 (in progress)
 
 ## Phases
 
@@ -133,6 +133,20 @@ Plans:
 - [x] 15-01-PLAN.md — Backend: review types, 6 persona critique prompts (5 persona + 1 coherence), 2-pass review handler, runPreSubmissionReview streaming Cloud Function
 - [x] 15-02-PLAN.md — Frontend: client review service, usePreSubmissionReview hook with activity log integration, locale strings, 7 UI components, ScoreEstimationPanel "Revision" tab integration
 
+### Phase 16: Milestone Gap Closure
+**Goal**: Close all audit gaps: fix userProjects Firestore security rule, verify Phase 12, re-verify Phase 11
+**Depends on**: Phase 15
+**Requirements**: COLLAB-04, COLLAB-01, COLLAB-02, COLLAB-03, COLLAB-05, COLLAB-07
+**Gap Closure**: Closes gaps from v2.0 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. userProjects Firestore security rule allows self-access — activity badge resets correctly after viewing
+  2. Phase 12 VERIFICATION.md exists with passed status — all COLLAB requirements formally verified
+  3. Phase 11 VERIFICATION.md updated to passed — stale gap resolved
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: TBD
+
 ## Progress
 
 **Execution Order:**
@@ -155,4 +169,5 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 12. Real-Time Collaboration | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 14. Document Versioning | v2.0 | 4/5 | Complete    | 2026-03-26 |
-| 15. AI Pre-Submission Review | v2.0 | 3/3 | Complete   | 2026-03-27 |
+| 15. AI Pre-Submission Review | v2.0 | 3/3 | Complete    | 2026-03-27 |
+| 16. Milestone Gap Closure | v2.0 | 0/1 | Planned     | — |
