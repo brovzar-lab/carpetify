@@ -20,6 +20,7 @@ import { handleRevokeAccess } from './invitations/revokeAccess.js';
 import { handleForceBreakLock } from './collaboration/forceBreakLock.js';
 import { onInvitationCreated as onInvitationCreatedTrigger } from './triggers/onInvitationCreated.js';
 import { revertDocumentVersion as handleRevertDocumentVersion } from './versioning/revertDocument.js';
+import { handlePreSubmissionReview } from './review/preSubmissionReview.js';
 import { requireAuth, requireProjectAccess, requireRole } from './auth/requireAuth.js';
 import type { ExtractRequest, ExtractResponse, AnalyzeRequest, AnalyzeResponse } from './screenplay/types.js';
 import type { ScoreEstimationRequest } from './scoreHandler.js';
@@ -558,3 +559,40 @@ export const onInvitationCreated = onInvitationCreatedTrigger;
 
 // ---- Phase 14: Document Versioning ----
 export const revertDocumentVersion = handleRevertDocumentVersion;
+
+// ---- Phase 15: AI Pre-Submission Review ----
+
+/**
+ * runPreSubmissionReview: Streaming Callable Cloud Function.
+ * Runs 5 persona evaluations + cross-document coherence check.
+ * Streams progress chunks as each persona completes.
+ * Per D-05: Two-pass architecture (parallel personas + coherence).
+ * Timeout: 540s (9 min max for callable). Memory: 1GiB.
+ */
+export const runPreSubmissionReview = onCall(
+  {
+    timeoutSeconds: 540,
+    memory: '1GiB',
+    region: 'us-central1',
+    secrets: [anthropicApiKey],
+  },
+  async (request, response) => {
+    const uid = requireAuth(request);
+    const { projectId } = request.data as { projectId: string };
+    if (!projectId) {
+      throw new HttpsError('invalid-argument', 'Se requiere projectId.');
+    }
+
+    await requireProjectAccess(uid, projectId);
+
+    initClaudeClient(anthropicApiKey.value());
+
+    const onProgress = (chunk: unknown) => {
+      if (request.acceptsStreaming && response) {
+        response.sendChunk(chunk);
+      }
+    };
+
+    return await handlePreSubmissionReview(projectId, onProgress);
+  },
+);
