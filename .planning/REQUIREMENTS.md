@@ -29,8 +29,8 @@
 
 ### AI Enhancement
 
-- [ ] **AIGEN-V2-01**: AI pre-submission review simulating 3 IMCINE evaluator personas reviewing the complete carpeta — produces per-section scores, specific improvement suggestions, and an overall readiness assessment
-- [ ] **AIGEN-V2-02**: User can trigger pre-submission review from the validation dashboard and see results alongside existing score estimation
+- [x] **AIGEN-V2-01**: AI pre-submission review simulating 3 IMCINE evaluator personas reviewing the complete carpeta — produces per-section scores, specific improvement suggestions, and an overall readiness assessment
+- [x] **AIGEN-V2-02**: User can trigger pre-submission review from the validation dashboard and see results alongside existing score estimation
 - [x] **AIGEN-V2-03**: Document version history — each regeneration creates a version entry with timestamp, trigger reason, and content snapshot
 - [x] **AIGEN-V2-04**: User can compare any two versions of a generated document with inline diff highlighting (additions in green, deletions in red)
 - [x] **AIGEN-V2-05**: User can revert to a previous document version with one click
@@ -79,8 +79,8 @@
 | COLLAB-05 | Phase 12 | Complete |
 | COLLAB-06 | Phase 13 | Complete |
 | COLLAB-07 | Phase 12 | Complete |
-| AIGEN-V2-01 | Phase 15 | Pending |
-| AIGEN-V2-02 | Phase 15 | Pending |
+| AIGEN-V2-01 | Phase 15 | Complete |
+| AIGEN-V2-02 | Phase 15 | Complete |
 | AIGEN-V2-03 | Phase 14 | Complete |
 | AIGEN-V2-04 | Phase 14 | Complete |
 | AIGEN-V2-05 | Phase 14 | Complete |
