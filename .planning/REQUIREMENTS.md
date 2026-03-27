@@ -72,13 +72,13 @@
 | AUTH-07 | Phase 10 | Complete |
 | AUTH-08 | Phase 10 | Complete |
 | AUTH-09 | Phase 10 | Complete |
-| COLLAB-01 | Phase 12 → 16 | Pending (re-verify) |
-| COLLAB-02 | Phase 12 → 16 | Pending (re-verify) |
-| COLLAB-03 | Phase 12 → 16 | Pending (re-verify) |
-| COLLAB-04 | Phase 13 → 16 | Pending (Firestore rule fix) |
-| COLLAB-05 | Phase 12 → 16 | Pending (re-verify) |
+| COLLAB-01 | Phase 12, verified Phase 16 | Complete |
+| COLLAB-02 | Phase 12, verified Phase 16 | Complete |
+| COLLAB-03 | Phase 12, verified Phase 16 | Complete |
+| COLLAB-04 | Phase 13, fixed Phase 16 | Complete |
+| COLLAB-05 | Phase 12, verified Phase 16 | Complete |
 | COLLAB-06 | Phase 13 | Complete |
-| COLLAB-07 | Phase 12 → 16 | Pending (re-verify) |
+| COLLAB-07 | Phase 12, verified Phase 16 | Complete |
 | AIGEN-V2-01 | Phase 15 | Complete |
 | AIGEN-V2-02 | Phase 15 | Complete |
 | AIGEN-V2-03 | Phase 14 | Complete |
