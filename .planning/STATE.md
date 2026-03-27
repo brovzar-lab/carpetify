@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-03-27T00:14:16.562Z"
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-03-27T00:25:26.614Z"
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 20
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -66,6 +66,7 @@ Plan: 3 of 3
 | Phase 14-document-versioning P03 | 15min | 2 tasks | 6 files |
 | Phase 15-ai-pre-submission-review P00 | 1min | 1 tasks | 2 files |
 | Phase 15-ai-pre-submission-review PP01 | 6min | 2 tasks | 9 files |
+| Phase 15-ai-pre-submission-review PPP02 | 7min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -124,6 +125,10 @@ Recent decisions affecting current work:
 - [Phase 15-ai-pre-submission-review]: createConcurrencyPool(3) for Pass 1 parallel persona calls matching Phase 3 D-04 pattern
 - [Phase 15-ai-pre-submission-review]: Curated user message per persona with ~2000 char doc truncation to control token budget per Pitfall 1
 - [Phase 15-ai-pre-submission-review]: Readiness thresholds from findings: lista(0-3), casi_lista(4-6), necesita_trabajo(7-12), no_lista(>12)
+- [Phase 15-ai-pre-submission-review]: Optimistic local state update for toggleFinding before Firestore write for responsive UX
+- [Phase 15-ai-pre-submission-review]: Staleness compares review generatedDocsTimestamp against all passGeneratedAt values (any newer = stale)
+- [Phase 15-ai-pre-submission-review]: Activity log writes are fire-and-forget (try/catch) to never block review execution
+- [Phase 15-ai-pre-submission-review]: Generation completeness gate checks all 4 passes have timestamps before enabling review trigger
 
 ### Pending Todos
 
@@ -137,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-27T00:14:16.549Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-03-27T00:25:26.612Z
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None
