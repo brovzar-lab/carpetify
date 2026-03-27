@@ -9,10 +9,20 @@
  * numbers from a previous document.
  */
 
+import { createHash } from 'node:crypto';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import type { GeneratedDocument, DocumentId, PassId, VersionTriggerReason } from '../shared/types.js';
 import { DOCUMENT_REGISTRY } from '../shared/types.js';
 import type { BudgetOutput } from '../financial/budgetComputer.js';
+
+/**
+ * Compute a 16-char SHA-256 hex fingerprint of a document's content.
+ * Used to detect identical regenerations and support per-document staleness checks.
+ */
+function computeInputHash(content: unknown): string {
+  const serialized = JSON.stringify(content) ?? '';
+  return createHash('sha256').update(serialized).digest('hex').slice(0, 16);
+}
 
 /**
  * Save a generated document to Firestore.
@@ -93,7 +103,7 @@ export async function saveGeneratedDocument(
     content,
     contentType: registry.contentType,
     generatedAt: FieldValue.serverTimestamp() as unknown as ReturnType<typeof FieldValue.serverTimestamp>,
-    inputHash: '', // TODO: compute from input data
+    inputHash: computeInputHash(content),
     modelUsed,
     promptFile,
     version: newVersion,
