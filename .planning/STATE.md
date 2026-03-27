@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Multi-User & Extended Modalities
 status: unknown
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-03-27T00:25:26.614Z"
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-03-27T05:52:40.937Z"
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 20
-  completed_plans: 20
+  total_phases: 7
+  completed_phases: 7
+  total_plans: 21
+  completed_plans: 21
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Given a screenplay and project data, produce a complete, internally-consistent, EFICINE-compliant carpeta where every amount, title, date, and fee matches across all ~30 documents.
-**Current focus:** Phase 15 — ai-pre-submission-review
+**Current focus:** Phase 16 — milestone-gap-closure
 
 ## Current Position
 
-Phase: 15 (ai-pre-submission-review) — EXECUTING
-Plan: 3 of 3
+Phase: 16 (milestone-gap-closure) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Plan: 3 of 3
 | Phase 15-ai-pre-submission-review P00 | 1min | 1 tasks | 2 files |
 | Phase 15-ai-pre-submission-review PP01 | 6min | 2 tasks | 9 files |
 | Phase 15-ai-pre-submission-review PPP02 | 7min | 2 tasks | 13 files |
+| Phase 16-milestone-gap-closure P01 | 8min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,7 @@ Recent decisions affecting current work:
 - [Phase 15-ai-pre-submission-review]: Staleness compares review generatedDocsTimestamp against all passGeneratedAt values (any newer = stale)
 - [Phase 15-ai-pre-submission-review]: Activity log writes are fire-and-forget (try/catch) to never block review execution
 - [Phase 15-ai-pre-submission-review]: Generation completeness gate checks all 4 passes have timestamps before enabling review trigger
+- [Phase 16-milestone-gap-closure]: userProjects rule uses {document=**} wildcard to cover nested projects/{projectId} subcollection path
 
 ### Pending Todos
 
@@ -142,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-27T00:25:26.612Z
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-03-27T05:52:40.934Z
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None

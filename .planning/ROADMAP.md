@@ -145,7 +145,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 16-01-PLAN.md — Fix userProjects Firestore rule, create Phase 12 VERIFICATION.md, re-verify Phase 11 VERIFICATION.md
+- [x] 16-01-PLAN.md — Fix userProjects Firestore rule, create Phase 12 VERIFICATION.md, re-verify Phase 11 VERIFICATION.md
 
 ## Progress
 
@@ -170,4 +170,4 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 14. Document Versioning | v2.0 | 4/5 | Complete    | 2026-03-26 |
 | 15. AI Pre-Submission Review | v2.0 | 3/3 | Complete    | 2026-03-27 |
-| 16. Milestone Gap Closure | v2.0 | 0/1 | Planned     | — |
+| 16. Milestone Gap Closure | v2.0 | 1/1 | Complete   | 2026-03-27 |
