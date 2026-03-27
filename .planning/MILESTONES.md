@@ -1,5 +1,35 @@
 # Milestones
 
+## v2.0 Multi-User & Extended Modalities (Shipped: 2026-03-27)
+
+**Phases completed:** 7 phases, 21 plans, 46 tasks
+
+**Key accomplishments:**
+
+- Firebase Auth with Google sign-in, AuthProvider context, route protection via ProtectedRoute, branded Spanish login page with dark mode, and AppHeader user avatar with cache-clearing logout
+- Organization creation flow, v1.0 data migration (ownerId/orgId on projects + ERPI to org scope), ownership-filtered project queries, and org-scoped ERPI across frontend, validation, and Cloud Functions orchestrator
+- Shared auth guard on all 8 Cloud Functions, owner-based Firestore security rules for projects/organizations/users, auth-gated Storage rules, and dev bypass login for local testing
+- 4-role permission model with D-02 matrix, membership-based Firestore security rules replacing owner-only access, collaborators migration function, and upgraded Cloud Function guard returning role
+- Complete project invitation flow with 4 Cloud Functions (invite/accept/decline/revoke), client service, and team management UI with pending invitations banner
+- RBAC access gate in WizardShell with AccessDenied page for non-members, ReadOnlyBanner on view-only screens, hidden pipeline/export/delete actions per role, and role badges on dashboard project cards
+- RTDB presence/lock plumbing with 4 hooks (usePresence, useProjectPresence, useSectionLock, useIdleDetection), forceBreakLock Cloud Function, and auth-gated security rules
+- 5 presence/lock UI components (avatar ring colors, lock banner, force-break dialog) plus Spanish collaboration strings in es.ts
+- WizardShell/Sidebar/AppHeader wired with presence hooks, section lock on edit intent, idle auto-release, lock-aware auto-save with flush-before-release, and RTDB sign-out cleanup
+- TDD RED stubs for activity log service (8 tests) and invitation email flow (14 tests) defining behavioral contracts for Plans 01 and 02
+- Field-level activity log with useAutoSave integration, 30-second coalescing, day-grouped feed with filter pills, and sidebar badge count
+- Resend email delivery via onDocumentCreated trigger + InvitationPage deep link with 6 states and return URL pattern
+- 19 test stubs covering diff computation (7 GREEN with Spanish prose), version snapshots (6 RED), and revert logic (6 RED) for Plans 01-03
+- Pre-save document snapshot to Firestore subcollection with 10-version prune and userId threading across all 21 generation callsites
+- 6 versioning UI components with diff library, word-level prose diff (diffWords), cell-level structured diff (diffJson), version history panel, and revert confirmation dialog with D-10/D-11 warnings
+- revertDocumentVersion Cloud Function with copy-forward and soft downstream warning, DocumentViewer with history panel + diff comparison + revert confirmation dialog
+- Replaced 6 expect.fail stubs with real firebase-admin mocked assertions verifying saveGeneratedDocument version snapshot, prune, and atomicity behavior
+- 57 vitest it.todo stubs covering pre-submission review handler logic (personas, parsing, readiness, streaming) and UI states (6 states + readiness badges)
+- 5 AI persona critique prompts with 2-pass review handler (parallel personas + coherence check) and streaming Cloud Function
+- Complete review UI with streaming progress, finding checklist, coherence panel, and readiness badge integrated as fourth ScoreEstimationPanel tab
+- Firestore userProjects self-access rule, Phase 12 formal verification (5/5 COLLAB requirements passed), and Phase 11 re-verification resolving orphaned TeamMembers gap
+
+---
+
 ## v1.0 EFICINE Carpeta Generator (Shipped: 2026-03-25)
 
 **Phases completed:** 11 phases, 31 plans, 63 tasks
