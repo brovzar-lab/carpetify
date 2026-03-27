@@ -35,6 +35,7 @@ export interface ActivityLogEntry {
     | 'role_change'
     | 'warning_dismissed'
     | 'revert'
+    | 'review'
   changedFields: string[]
   summary: string
   createdAt: Date

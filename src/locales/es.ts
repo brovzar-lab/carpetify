@@ -897,6 +897,52 @@ export const es = {
     errorToast: 'Error al procesar la invitacion. Intenta de nuevo.',
   },
 
+  // -- Pre-Submission Review (Phase 15) --
+  review: {
+    ctaButton: 'Revisar carpeta',
+    ctaButtonReevaluate: 'Re-evaluar carpeta',
+    evaluatingState: 'Evaluando carpeta...',
+    progressLoading: 'Cargando datos del proyecto...',
+    progressPersonaComplete: (name: string, n: number, total: number) =>
+      `${name} completo (${n}/${total})`,
+    progressCoherence: 'Verificando coherencia entre documentos...',
+    progressSaving: 'Guardando resultados...',
+    panelHeading: 'Revision Pre-Envio',
+    readinessLista: 'Lista para envio',
+    readinessCasiLista: 'Casi lista',
+    readinessNecesitaTrabajo: 'Necesita trabajo',
+    readinessNoLista: 'No lista para envio',
+    estimatedScore: (n: number) => `Puntuacion estimada: ${n}/100`,
+    checklistHeading: 'Sugerencias de mejora',
+    checklistProgress: (total: number, resolved: number, pending: number) =>
+      `${total} sugerencias -- ${resolved} resueltas, ${pending} pendientes`,
+    coherenceHeading: 'Coherencia entre documentos',
+    coherenceEmpty: 'No se detectaron contradicciones entre documentos.',
+    drilldownHeading: 'Detalle por documento',
+    findingCount: (n: number) => n === 1 ? '1 hallazgo' : `${n} hallazgos`,
+    emptyStateHeading: 'Sin revision',
+    emptyStateBody: 'Ejecuta una revision para obtener retroalimentacion de evaluadores simulados sobre tu carpeta completa.',
+    generationGate: 'Genera todos los documentos antes de solicitar la revision pre-envio.',
+    errorState: 'La revision fallo. Intenta de nuevo.',
+    retry: 'Reintentar revision',
+    staleWarning: 'Resultados desactualizados -- los documentos fueron regenerados despues de esta revision.',
+    reevaluateConfirmTitle: 'Re-evaluar carpeta',
+    reevaluateConfirmBody: 'Esto generara una nueva evaluacion. Las marcas de progreso actuales se reiniciaran. Continuar?',
+    reevaluateConfirmAction: 'Re-evaluar carpeta',
+    cancel: 'Mantener revision actual',
+    disclaimer: 'Revision cualitativa basada en simulacion de evaluadores. No garantiza el resultado del comite evaluador real.',
+    roleDirector: 'Director',
+    roleLineProducer: 'Line Producer',
+    roleEscritor: 'Escritor',
+    roleProductor: 'Productor',
+    roleComercial: 'Comercial',
+    roleEjecutivo: 'Ejecutivo',
+    weaknessLabel: 'Debilidad',
+    suggestionLabel: 'Sugerencia',
+    criterionLabel: 'Criterio',
+    personaLabel: (name: string) => `Evaluador: ${name}`,
+  },
+
   // -- Error States --
   errors: {
     firestoreConnection:
