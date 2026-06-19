@@ -28,3 +28,7 @@ functions/node_modules/
 # OS
 .DS_Store
 Thumbs.db
+
+# Graphify knowledge graph
+graphify-out/
+firebase-debug.log
