@@ -150,6 +150,20 @@ export const es = {
     estimateLow: 'Conservadora',
     estimateMid: 'Estandar',
     estimateHigh: 'Agresiva',
+
+    // Parsed data labels
+    summaryEscenas: 'Escenas',
+    summaryLocaciones: 'Locaciones',
+    summaryPersonajes: 'Personajes',
+    paginas: 'Paginas',
+    diasRodaje: 'Dias de rodaje estimados',
+    locacionesHeading: 'Locaciones',
+    personajesHeading: 'Personajes',
+    locacionPlaceholder: 'Nombre de la locacion',
+    personajePlaceholder: 'Nombre del personaje',
+    protagonista: 'Protagonista',
+    escenasCount: (n: number) => `Escenas (${n})`,
+    personajesSeparados: 'Personajes (separados por coma)',
   },
 
   // -- Screen 3: Equipo Creativo --
@@ -191,6 +205,13 @@ export const es = {
       `Especie total: ${pct}% (maximo 10%)`,
     complianceEFICINECap: (amount: string) =>
       `Monto EFICINE: ${amount} (maximo $25,000,000 MXN)`,
+
+    // Contributor row labels
+    contributorName: 'Nombre del aportante',
+    contributorType: 'Tipo',
+    contributorAmount: 'Monto',
+    efectivo: 'Efectivo',
+    especie: 'Especie',
   },
 
   // -- Screen 5: Documentos --
@@ -215,6 +236,28 @@ export const es = {
     addPriorProject: '+ Agregar proyecto previo',
     solicitudes_periodo_actual: 'Solicitudes en el periodo actual',
     domicilio_fuera_zmcm: 'Domicilio fiscal fuera de la ZMCM',
+
+    // Company form labels
+    razonSocial: 'Razon social',
+    razonSocialPlaceholder: 'Nombre legal de la empresa',
+    rfc: 'RFC',
+    rfcPlaceholder: 'XAXX010101000',
+    representanteLegal: 'Representante legal',
+    representantePlaceholder: 'Nombre completo del representante',
+    domicilioFiscal: 'Domicilio fiscal',
+    domicilioPlaceholder: 'Calle, numero, colonia, alcaldia/municipio, estado, C.P.',
+
+    // Prior projects labels
+    eliminar: 'Eliminar',
+    priorTitulo: 'Titulo',
+    priorTituloPlaceholder: 'Nombre del proyecto',
+    priorAnio: 'Anio',
+    priorAnioPlaceholder: '2025',
+    priorEstatus: 'Estatus',
+    estatusExhibido: 'Exhibido',
+    estatusEnProduccion: 'En produccion',
+    estatusNoExhibido: 'No exhibido',
+    exhibidoLabel: 'Exhibido',
   },
 
   // -- Generation Screen --

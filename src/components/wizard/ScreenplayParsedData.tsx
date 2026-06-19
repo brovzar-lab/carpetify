@@ -128,9 +128,9 @@ export function ScreenplayParsedData({
 
       {/* Summary cards */}
       <div className="grid grid-cols-5 gap-2">
-        <SummaryCard label="Escenas" value={sceneCount} />
-        <SummaryCard label="Locaciones" value={locationCount} />
-        <SummaryCard label="Personajes" value={characterCount} />
+        <SummaryCard label={es.screen2.summaryEscenas} value={sceneCount} />
+        <SummaryCard label={es.screen2.summaryLocaciones} value={locationCount} />
+        <SummaryCard label={es.screen2.summaryPersonajes} value={characterCount} />
         <SummaryCard
           label="INT-EXT"
           value={`${intCount}/${extCount}`}
@@ -146,7 +146,7 @@ export function ScreenplayParsedData({
       {/* General info */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Paginas</Label>
+          <Label>{es.screen2.paginas}</Label>
           <Input
             type="number"
             min={0}
@@ -162,7 +162,7 @@ export function ScreenplayParsedData({
           />
         </div>
         <div className="space-y-1.5">
-          <Label>Dias de rodaje estimados</Label>
+          <Label>{es.screen2.diasRodaje}</Label>
           <Input
             type="number"
             min={0}
@@ -184,7 +184,7 @@ export function ScreenplayParsedData({
       {/* Locations */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Locaciones</h3>
+          <h3 className="text-sm font-semibold">{es.screen2.locacionesHeading}</h3>
           <Button variant="outline" size="sm" onClick={addLocation}>
             {es.screen2.addLocation}
           </Button>
@@ -193,7 +193,7 @@ export function ScreenplayParsedData({
           <div key={i} className="flex items-center gap-2">
             <Input
               value={loc.nombre}
-              placeholder="Nombre de la locacion"
+              placeholder={es.screen2.locacionPlaceholder}
               className="flex-1"
               onChange={(e) => updateLocation(i, 'nombre', e.target.value)}
             />
@@ -224,7 +224,7 @@ export function ScreenplayParsedData({
       {/* Characters */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Personajes</h3>
+          <h3 className="text-sm font-semibold">{es.screen2.personajesHeading}</h3>
           <Button variant="outline" size="sm" onClick={addCharacter}>
             {es.screen2.addCharacter}
           </Button>
@@ -233,7 +233,7 @@ export function ScreenplayParsedData({
           <div key={i} className="flex items-center gap-2">
             <Input
               value={char.nombre}
-              placeholder="Nombre del personaje"
+              placeholder={es.screen2.personajePlaceholder}
               className="flex-1"
               onChange={(e) => updateCharacter(i, 'nombre', e.target.value)}
             />
@@ -251,7 +251,7 @@ export function ScreenplayParsedData({
               }
             />
             <div className="flex items-center gap-1">
-              <Label className="text-xs">Protagonista</Label>
+              <Label className="text-xs">{es.screen2.protagonista}</Label>
               <Switch
                 checked={char.es_protagonista}
                 onCheckedChange={(v) => updateCharacter(i, 'es_protagonista', v)}
@@ -282,7 +282,7 @@ export function ScreenplayParsedData({
           ) : (
             <ChevronRight className="h-4 w-4" />
           )}
-          Escenas ({sceneCount})
+          {es.screen2.escenasCount(sceneCount)}
         </button>
 
         {scenesExpanded &&
@@ -329,7 +329,7 @@ export function ScreenplayParsedData({
               <Input
                 value={scene.personajes.join(', ')}
                 className="h-8"
-                placeholder="Personajes (separados por coma)"
+                placeholder={es.screen2.personajesSeparados}
                 onChange={(e) =>
                   updateScene(
                     i,

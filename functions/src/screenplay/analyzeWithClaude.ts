@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { loadPrompt } from '../utils/promptLoader.js';
+import { loadPrompt } from '../pipeline/promptLoader.js';
 import { validateAnalysisResponse } from './validateAnalysis.js';
 import type { AnalysisResult } from './types.js';
 
@@ -14,7 +14,7 @@ export interface MessagesClient {
 
 /**
  * Calls Claude API with the screenplay analysis prompt.
- * Per D-08: Uses claude-sonnet-4-20250514 (configurable via env var).
+ * Per D-08: Uses claude-haiku-4-5-20251001 (configurable via CLAUDE_MODEL env var).
  * Per D-14: Auto-retries once on failure.
  * Per D-10: Validates response schema; retries once if validation fails.
  * Always keeps raw_response backup for debugging.
@@ -34,7 +34,7 @@ export async function analyzeScreenplayWithClaude(
 ): Promise<{ analysis: AnalysisResult; raw_response: string }> {
   const messages = clientOverride ?? new Anthropic({ apiKey }).messages;
 
-  const model = process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514';
+  const model = process.env.CLAUDE_MODEL || 'claude-haiku-4-5-20251001';
 
   const systemPrompt = loadPrompt('analisis_guion.md', {
     texto_guion: screenplayText,

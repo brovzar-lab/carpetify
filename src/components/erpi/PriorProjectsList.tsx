@@ -60,35 +60,35 @@ export function PriorProjectsList({ projects, onChange }: PriorProjectsListProps
               onClick={() => handleRemove(index)}
             >
               <X className="h-4 w-4" />
-              <span className="sr-only">Eliminar</span>
+              <span className="sr-only">{es.erpi.eliminar}</span>
             </Button>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-8">
               <div className="space-y-1.5">
-                <Label className="text-[14px] font-semibold">Titulo</Label>
+                <Label className="text-[14px] font-semibold">{es.erpi.priorTitulo}</Label>
                 <Input
                   value={project.titulo}
                   onChange={(e) => handleUpdate(index, 'titulo', e.target.value)}
-                  placeholder="Nombre del proyecto"
+                  placeholder={es.erpi.priorTituloPlaceholder}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-[14px] font-semibold">Anio</Label>
+                <Label className="text-[14px] font-semibold">{es.erpi.priorAnio}</Label>
                 <Input
                   type="number"
                   value={project.anio}
                   onChange={(e) =>
                     handleUpdate(index, 'anio', parseInt(e.target.value, 10) || 0)
                   }
-                  placeholder="2025"
+                  placeholder={es.erpi.priorAnioPlaceholder}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-[14px] font-semibold">Estatus</Label>
+                <Label className="text-[14px] font-semibold">{es.erpi.priorEstatus}</Label>
                 <Select
                   value={project.estatus}
                   onValueChange={(v) =>
@@ -99,9 +99,9 @@ export function PriorProjectsList({ projects, onChange }: PriorProjectsListProps
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="exhibido">Exhibido</SelectItem>
-                    <SelectItem value="en_produccion">En produccion</SelectItem>
-                    <SelectItem value="no_exhibido">No exhibido</SelectItem>
+                    <SelectItem value="exhibido">{es.erpi.estatusExhibido}</SelectItem>
+                    <SelectItem value="en_produccion">{es.erpi.estatusEnProduccion}</SelectItem>
+                    <SelectItem value="no_exhibido">{es.erpi.estatusNoExhibido}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -113,7 +113,7 @@ export function PriorProjectsList({ projects, onChange }: PriorProjectsListProps
                     handleUpdate(index, 'exhibido', checked)
                   }
                 />
-                <Label className="text-[14px]">Exhibido</Label>
+                <Label className="text-[14px]">{es.erpi.exhibidoLabel}</Label>
               </div>
             </div>
           </div>

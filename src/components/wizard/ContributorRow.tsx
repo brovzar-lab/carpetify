@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { MXNInput } from '@/components/common/MXNInput'
 import { X } from 'lucide-react'
 import { TIPOS_APORTANTE } from '@/lib/constants'
+import { es } from '@/locales/es'
 import type { Tercero } from '@/schemas/financials'
 
 interface ContributorRowProps {
@@ -32,7 +33,7 @@ export function ContributorRow({
       <div className="flex-1 space-y-1">
         <Input
           value={value.nombre}
-          placeholder="Nombre del aportante"
+          placeholder={es.screen4.contributorName}
           onChange={(e) => onChange({ ...value, nombre: e.target.value })}
         />
       </div>
@@ -45,7 +46,7 @@ export function ContributorRow({
           }
         >
           <SelectTrigger>
-            <SelectValue placeholder="Tipo" />
+            <SelectValue placeholder={es.screen4.contributorType} />
           </SelectTrigger>
           <SelectContent>
             {TIPOS_APORTANTE.map((tipo) => (
@@ -63,7 +64,7 @@ export function ContributorRow({
           onChange={(centavos) =>
             onChange({ ...value, monto_centavos: centavos })
           }
-          placeholder="Monto"
+          placeholder={es.screen4.contributorAmount}
         />
       </div>
 
@@ -81,8 +82,8 @@ export function ContributorRow({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="efectivo">Efectivo</SelectItem>
-            <SelectItem value="especie">Especie</SelectItem>
+            <SelectItem value="efectivo">{es.screen4.efectivo}</SelectItem>
+            <SelectItem value="especie">{es.screen4.especie}</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -12,6 +12,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Anthropic from '@anthropic-ai/sdk';
 import { initClaudeClient, getClaudeClient } from './claude/client.js';
+import { createConcurrencyPool } from './pipeline/concurrencyPool.js';
 
 // ---- Types ----
 
@@ -210,11 +211,12 @@ export async function handleScoreEstimation(
   const userMessage = buildUserMessage(req);
   const errors: string[] = [];
 
-  // Run all 5 persona evaluations in parallel
+  // Run all 5 persona evaluations with concurrency cap (D-04: max 3 simultaneous)
+  const pool = createConcurrencyPool(3);
   const results = await Promise.all(
     PERSONAS.map(async (persona): Promise<PersonaScoreResult | null> => {
       try {
-        return await evaluateWithPersona(persona, userMessage, client);
+        return await pool.run(() => evaluateWithPersona(persona, userMessage, client));
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         console.error(`Error en evaluacion de ${persona.name}:`, message);

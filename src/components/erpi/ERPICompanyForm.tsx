@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { es } from '@/locales/es'
 
 const companyFormSchema = z.object({
@@ -49,46 +50,45 @@ export function ERPICompanyForm({ defaultValues, onSave }: ERPICompanyFormProps)
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="razon_social" className="text-[14px] font-semibold">
-            Razon social
+            {es.erpi.razonSocial}
           </Label>
           <Input
             id="razon_social"
             {...register('razon_social')}
-            placeholder="Nombre legal de la empresa"
+            placeholder={es.erpi.razonSocialPlaceholder}
           />
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="rfc" className="text-[14px] font-semibold">
-            RFC
+            {es.erpi.rfc}
           </Label>
           <Input
             id="rfc"
             {...register('rfc')}
-            placeholder="XAXX010101000"
+            placeholder={es.erpi.rfcPlaceholder}
           />
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="representante_legal" className="text-[14px] font-semibold">
-            Representante legal
+            {es.erpi.representanteLegal}
           </Label>
           <Input
             id="representante_legal"
             {...register('representante_legal')}
-            placeholder="Nombre completo del representante"
+            placeholder={es.erpi.representantePlaceholder}
           />
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="domicilio_fiscal" className="text-[14px] font-semibold">
-            Domicilio fiscal
+            {es.erpi.domicilioFiscal}
           </Label>
-          <textarea
+          <Textarea
             id="domicilio_fiscal"
             {...register('domicilio_fiscal')}
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-[14px] ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Calle, numero, colonia, alcaldia/municipio, estado, C.P."
+            placeholder={es.erpi.domicilioPlaceholder}
           />
         </div>
 
