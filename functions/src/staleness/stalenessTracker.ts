@@ -10,8 +10,8 @@
  * 3. Any pass it depends on is stale (cascade propagation)
  */
 
-import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
-import type { PassId, GenerationState, PassState } from '../shared/types.js';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import type { PassId, GenerationState } from '../shared/types.js';
 import { PASS_DEPENDENCIES, PASS_ORDER, type UpstreamSource } from './dependencyGraph.js';
 
 // ---- Pure computation (testable without Firestore) ----

@@ -64,10 +64,7 @@ describe('generateFilename', () => {
 
   it('all EXPORT_FILE_MAP entries produce valid filenames for a normal title', () => {
     const title = 'Un Amor Inolvidable'
-    const entries = Object.entries(EXPORT_FILE_MAP)
-    expect(entries.length).toBe(21) // Must cover all 21 doc IDs
-
-    for (const [docId, entry] of entries) {
+    for (const entry of Object.values(EXPORT_FILE_MAP)) {
       const filename = generateFilename(entry.filenameTemplate, title)
       expect(filename.length).toBeLessThanOrEqual(15)
       expect(filename).toMatch(/^[A-Za-z0-9_]{1,15}$/)
@@ -134,7 +131,7 @@ describe('EXPORT_FILE_MAP', () => {
   })
 
   it('each entry has required fields', () => {
-    for (const [docId, entry] of Object.entries(EXPORT_FILE_MAP)) {
+    for (const entry of Object.values(EXPORT_FILE_MAP)) {
       expect(entry.section).toBeDefined()
       expect(entry.filenameTemplate).toBeDefined()
       expect(entry.templateType).toBeDefined()

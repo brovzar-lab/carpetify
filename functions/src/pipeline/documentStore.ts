@@ -10,7 +10,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import type { GeneratedDocument, DocumentId, PassId, VersionTriggerReason } from '../shared/types.js';
 import { DOCUMENT_REGISTRY } from '../shared/types.js';
 import type { BudgetOutput } from '../financial/budgetComputer.js';
