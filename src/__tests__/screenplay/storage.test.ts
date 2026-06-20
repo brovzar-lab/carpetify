@@ -67,9 +67,9 @@ const VALID_ANALYSIS = {
 };
 
 function createFakeDb() {
-  const mockSet = vi.fn().mockResolvedValue(undefined);
-  const mockUpdate = vi.fn().mockResolvedValue(undefined);
-  const docSpies: Map<string, { set: typeof mockSet; update: typeof mockUpdate; get: ReturnType<typeof vi.fn> }> = new Map();
+  const _mockSet = vi.fn().mockResolvedValue(undefined);
+  const _mockUpdate = vi.fn().mockResolvedValue(undefined);
+  const docSpies: Map<string, { set: typeof _mockSet; update: typeof _mockUpdate; get: ReturnType<typeof vi.fn> }> = new Map();
 
   const db: FirestoreDb = {
     doc(path: string) {

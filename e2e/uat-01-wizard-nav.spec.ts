@@ -13,7 +13,6 @@ import { TEST_PROJECT_ID } from './helpers'
  */
 
 test.describe('UAT Group 1 · Wizard Navigation + Persistence', () => {
-  let projectUrl: string
 
   // ───────────────────────────────────────────────────────────────────────────
   // Helper: wait for any loading skeletons to disappear
@@ -54,7 +53,6 @@ test.describe('UAT Group 1 · Wizard Navigation + Persistence', () => {
 
     // Should navigate to /project/{id}/datos
     await page.waitForURL(/\/project\/.+\/datos/, { timeout: 20_000 })
-    projectUrl = page.url()
 
     // Screen 1 heading must be in Spanish
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible()

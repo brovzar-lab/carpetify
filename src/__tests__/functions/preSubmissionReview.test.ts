@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 
 describe('preSubmissionReview handler', () => {
   describe('persona parallel execution', () => {

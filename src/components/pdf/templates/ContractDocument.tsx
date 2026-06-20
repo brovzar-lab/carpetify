@@ -29,7 +29,7 @@ export function ContractDocument({
 }: ContractDocumentProps) {
   // Split content into clauses. Look for common clause markers:
   // "PRIMERA.", "SEGUNDA.", numbered "1.", "2.", etc.
-  const clausePattern = /\n(?=(?:PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SEPTIMA|OCTAVA|NOVENA|DECIMA|UNDECIMA|DUODECIMA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|\d+)\s*[.:\-])/i
+  const clausePattern = /\n(?=(?:PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SEPTIMA|OCTAVA|NOVENA|DECIMA|UNDECIMA|DUODECIMA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|\d+)\s*[.:-])/i
   const clauses = content.split(clausePattern).filter((c) => c.trim().length > 0)
 
   return (
@@ -54,14 +54,14 @@ export function ContractDocument({
             return (
               <View key={idx}>
                 {/* Check for heading-style content (all-caps line) */}
-                {trimmed.match(/^[A-Z\u00C0-\u00DC\s]+[.:\-]/) ? (
+                {trimmed.match(/^[A-Z\u00C0-\u00DC\s]+[.:-]/) ? (
                   <Text style={pdfStyles.legalHeading}>
                     {trimmed.split('\n')[0]}
                   </Text>
                 ) : null}
 
                 <Text style={pdfStyles.legalClause}>
-                  {trimmed.match(/^[A-Z\u00C0-\u00DC\s]+[.:\-]/)
+                  {trimmed.match(/^[A-Z\u00C0-\u00DC\s]+[.:-]/)
                     ? trimmed.split('\n').slice(1).join('\n')
                     : trimmed}
                 </Text>

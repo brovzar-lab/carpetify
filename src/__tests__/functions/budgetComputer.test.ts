@@ -4,7 +4,6 @@ import { IMCINE_ACCOUNTS } from '@functions/financial/ratesTables';
 import {
   computeBudget,
   type BudgetInput,
-  type BudgetOutput,
 } from '@functions/financial/budgetComputer';
 import { buildCashFlow } from '@functions/financial/cashFlowBuilder';
 import { computeFinancialScheme } from '@functions/financial/financialScheme';

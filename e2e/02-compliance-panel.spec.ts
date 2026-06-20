@@ -59,7 +59,7 @@ test.describe('Compliance Panel', () => {
 
     // Look for read-only or disabled in-kind total inputs
     const readOnlyInputs = page.locator('input[readonly], input[disabled]')
-    const count = await readOnlyInputs.count()
+    void await readOnlyInputs.count()
 
     // There should be at least one read-only field (in-kind from team)
     // If not found, check for text display of in-kind total

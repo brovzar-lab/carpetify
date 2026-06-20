@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { es } from '@/locales/es'
 
-const companyFormSchema = z.object({
+const _companyFormSchema = z.object({
   razon_social: z.string(),
   rfc: z.string(),
   representante_legal: z.string(),
@@ -15,7 +15,7 @@ const companyFormSchema = z.object({
   domicilio_fuera_zmcm: z.boolean().default(false),
 })
 
-type CompanyFormData = z.infer<typeof companyFormSchema>
+type CompanyFormData = z.infer<typeof _companyFormSchema>
 
 interface ERPICompanyFormProps {
   defaultValues: CompanyFormData

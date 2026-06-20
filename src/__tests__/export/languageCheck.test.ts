@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { runLanguageCheck } from '@/lib/export/languageCheck'
-import type { LanguageCheckResult } from '@/lib/export/languageCheck'
 
 // Helper to make doc input
 function makeDoc(docId: string, content: string, docName?: string) {

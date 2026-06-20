@@ -15,11 +15,11 @@ import { es } from '@/locales/es'
 
 const STORAGE_KEY = 'carpetify-theme'
 
-const orgNameSchema = z.object({
+const _orgNameSchema = z.object({
   name: z.string().min(1).max(100),
 })
 
-type OrgNameForm = z.infer<typeof orgNameSchema>
+type OrgNameForm = z.infer<typeof _orgNameSchema>
 
 function getInitialDark(): boolean {
   const stored = localStorage.getItem(STORAGE_KEY)

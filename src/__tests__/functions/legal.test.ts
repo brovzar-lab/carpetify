@@ -75,7 +75,7 @@ vi.mock('@functions/pipeline/concurrencyPool', () => ({
 }));
 
 import { handleLegalPass } from '@functions/pipeline/passes/legal';
-import { sampleProjectData, sampleBudgetOutput, noopProgress } from './helpers/fixtures';
+import { sampleProjectData, noopProgress } from './helpers/fixtures';
 
 describe('handleLegalPass', () => {
   beforeEach(() => {

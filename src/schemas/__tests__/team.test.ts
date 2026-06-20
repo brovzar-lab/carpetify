@@ -23,7 +23,7 @@ describe('teamMemberSchema', () => {
   })
 
   it('rejects missing nombre_completo', () => {
-    const { nombre_completo, ...noName } = validMember
+    const { nombre_completo: _nombre_completo, ...noName } = validMember
     const result = teamMemberSchema.safeParse(noName)
     expect(result.success).toBe(false)
   })

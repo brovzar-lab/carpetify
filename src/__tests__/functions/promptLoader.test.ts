@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { readFileSync } from 'fs';
-import path from 'path';
 
 // We'll mock fs to control what prompt files and guardrail content are returned
 vi.mock('fs', () => ({
@@ -47,7 +46,7 @@ describe('promptLoader', () => {
     vi.clearAllMocks();
     // Default: mock the guardrail file read and a simple prompt
     const mockReadFileSync = vi.mocked(readFileSync);
-    mockReadFileSync.mockImplementation((filepath: any, _encoding?: any) => {
+    mockReadFileSync.mockImplementation((filepath: string | URL | number) => {
       const fp = String(filepath);
       if (fp.includes('politica_idioma')) {
         return MOCK_POLITICA;
@@ -71,7 +70,7 @@ describe('promptLoader', () => {
 
   it('should handle Handlebars conditional blocks ({{#if}} when true)', async () => {
     const mockReadFileSync = vi.mocked(readFileSync);
-    mockReadFileSync.mockImplementation((filepath: any, _encoding?: any) => {
+    mockReadFileSync.mockImplementation((filepath: string | URL | number) => {
       const fp = String(filepath);
       if (fp.includes('politica_idioma')) return MOCK_POLITICA;
       return 'Pelicula: {{titulo_proyecto}}\n{{#if es_animacion}}Esta es animacion.{{/if}}';
@@ -87,7 +86,7 @@ describe('promptLoader', () => {
 
   it('should handle Handlebars conditional blocks ({{#if}} when false)', async () => {
     const mockReadFileSync = vi.mocked(readFileSync);
-    mockReadFileSync.mockImplementation((filepath: any, _encoding?: any) => {
+    mockReadFileSync.mockImplementation((filepath: string | URL | number) => {
       const fp = String(filepath);
       if (fp.includes('politica_idioma')) return MOCK_POLITICA;
       return 'Pelicula: {{titulo_proyecto}}\n{{#if es_animacion}}Esta es animacion.{{/if}}';
@@ -103,7 +102,7 @@ describe('promptLoader', () => {
 
   it('should handle {{#each}} blocks for iterating over arrays', async () => {
     const mockReadFileSync = vi.mocked(readFileSync);
-    mockReadFileSync.mockImplementation((filepath: any, _encoding?: any) => {
+    mockReadFileSync.mockImplementation((filepath: string | URL | number) => {
       const fp = String(filepath);
       if (fp.includes('politica_idioma')) return MOCK_POLITICA;
       return 'Fuentes:\n{{#each fuentes}}- {{this.nombre}}: ${{this.monto}} MXN\n{{/each}}';

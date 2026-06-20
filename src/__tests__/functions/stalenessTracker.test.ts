@@ -2,13 +2,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   PASS_DEPENDENCIES,
-  type UpstreamSource,
 } from '@functions/staleness/dependencyGraph';
 import {
   getStalePasses,
   type TimestampMap,
 } from '@functions/staleness/stalenessTracker';
-import type { PassId } from '@functions/shared/types';
 
 // Helper to create a date N minutes ago
 function minutesAgo(n: number): Date {

@@ -58,7 +58,7 @@ test.describe('UAT Group 2 · Financial Compliance Panel', () => {
 
     const body = await page.locator('body').textContent()
     // Compliance panel must contain one of these Spanish compliance keywords
-    const hasCompliance = /cumplimiento|regla|requi|eficine|porcentaje|\%/i.test(body ?? '')
+    const hasCompliance = /cumplimiento|regla|requi|eficine|porcentaje|%/i.test(body ?? '')
     console.log('Compliance panel keywords found:', hasCompliance)
 
     // Page must render substantial content

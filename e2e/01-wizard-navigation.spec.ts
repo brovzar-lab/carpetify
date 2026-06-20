@@ -25,7 +25,7 @@ test.describe('Wizard Navigation', () => {
       { path: `${BASE}/documentos`, heading: /documentos/i },
     ]
 
-    for (const { path, heading } of screens) {
+    for (const { path } of screens) {
       await page.goto(path)
       await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible()
       // Page must render something (not blank)

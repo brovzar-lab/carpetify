@@ -22,7 +22,7 @@ describe('projectMetadataSchema', () => {
   })
 
   it('rejects missing titulo_proyecto', () => {
-    const { titulo_proyecto, ...noTitle } = validProject
+    const { titulo_proyecto: _titulo_proyecto, ...noTitle } = validProject
     const result = projectMetadataSchema.safeParse(noTitle)
     expect(result.success).toBe(false)
   })
