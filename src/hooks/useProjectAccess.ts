@@ -37,7 +37,7 @@ export function useProjectAccess(projectId: string): ProjectAccess {
     queryKey: ['project-access', projectId, user?.uid],
     queryFn: async (): Promise<ProjectAccessData> => {
       if (!user) {
-        return { hasAccess: false, role: null, ownerName: null }
+        return { hasAccess: false, role: null, ownerName: null, collaborators: {}, ownerId: null }
       }
 
       const snap = await getDoc(doc(db, 'projects', projectId))
