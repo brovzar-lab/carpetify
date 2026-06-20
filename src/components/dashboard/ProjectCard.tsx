@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { Copy, Trash2 } from 'lucide-react'
+import { Copy, Trash2, Users } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,8 @@ interface ProjectCardProps {
   id: string
   metadata: ProjectMetadata
   userRole: ProjectRole | null
+  collaborators?: Record<string, string>
+  currentUserId?: string
   onDelete: (id: string) => void
   onClone: (id: string) => void
 }
@@ -46,7 +48,7 @@ function getDaysRemaining(periodo: string): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
-export function ProjectCard({ id, metadata, userRole, onDelete, onClone }: ProjectCardProps) {
+export function ProjectCard({ id, metadata, userRole, collaborators, currentUserId, onDelete, onClone }: ProjectCardProps) {
   const navigate = useNavigate()
   const daysLeft = getDaysRemaining(metadata.periodo_registro)
   const periodLabel =
@@ -75,6 +77,26 @@ export function ProjectCard({ id, metadata, userRole, onDelete, onClone }: Proje
     ).length
   }, [report])
 
+  // Collaborator info for shared indicator
+  const ROLE_INITIALS: Record<string, string> = {
+    productor: 'P',
+    line_producer: 'LP',
+    abogado: 'A',
+    director: 'D',
+  }
+  const collaboratorEntries = useMemo(() => {
+    if (!collaborators) return []
+    return Object.entries(collaborators)
+      .filter(([uid]) => uid !== currentUserId)
+      .map(([uid, role]) => ({
+        uid,
+        role,
+        initial: ROLE_INITIALS[role] || role.charAt(0).toUpperCase(),
+      }))
+  }, [collaborators, currentUserId])
+  const isShared = collaboratorEntries.length > 0
+  const totalMembers = collaborators ? Object.keys(collaborators).length : 1
+
   return (
     <Card
       className="cursor-pointer hover:border-primary/30 transition-colors"
@@ -99,6 +121,32 @@ export function ProjectCard({ id, metadata, userRole, onDelete, onClone }: Proje
               </Badge>
             )}
           </div>
+
+          {/* Shared project indicator */}
+          {isShared && (
+            <div className="flex items-center gap-1.5">
+              <Users className="h-3 w-3 text-blue-500" />
+              <span className="text-xs text-blue-600 font-medium">
+                Compartido · {totalMembers} miembros
+              </span>
+              <div className="flex -space-x-1.5 ml-1">
+                {collaboratorEntries.slice(0, 3).map((c) => (
+                  <div
+                    key={c.uid}
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-semibold text-blue-700 ring-1 ring-white"
+                    title={`${es.rbac.roles[c.role as keyof typeof es.rbac.roles] || c.role}`}
+                  >
+                    {c.initial}
+                  </div>
+                ))}
+                {collaboratorEntries.length > 3 && (
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-200 text-[10px] font-semibold text-blue-800 ring-1 ring-white">
+                    +{collaboratorEntries.length - 3}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Completion bar */}

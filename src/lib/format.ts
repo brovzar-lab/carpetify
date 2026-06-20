@@ -24,9 +24,23 @@ export function parseMXNInput(input: string): number {
 
 /**
  * Format a Date in Spanish: "15 de julio de 2026"
+ * Accepts Date objects, Firestore Timestamps (with .toDate()), ISO strings, or epoch ms.
  */
-export function formatDateES(date: Date): string {
-  return format(date, "d 'de' MMMM 'de' yyyy", { locale: es })
+export function formatDateES(date: unknown): string {
+  let d: Date
+  if (date instanceof Date) {
+    d = date
+  } else if (date && typeof date === 'object' && 'toDate' in date && typeof (date as { toDate: () => Date }).toDate === 'function') {
+    d = (date as { toDate: () => Date }).toDate()
+  } else if (typeof date === 'string') {
+    d = new Date(date)
+  } else if (typeof date === 'number') {
+    d = new Date(date)
+  } else {
+    return '—'
+  }
+  if (isNaN(d.getTime())) return '—'
+  return format(d, "d 'de' MMMM 'de' yyyy", { locale: es })
 }
 
 /**

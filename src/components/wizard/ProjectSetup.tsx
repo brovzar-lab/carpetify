@@ -23,6 +23,9 @@ import {
 } from '@/lib/constants'
 import { getProject, updateProjectMetadata } from '@/services/projects'
 import { AutoSaveIndicator } from '@/components/common/AutoSaveIndicator'
+import { coalesceOrCreate } from '@/services/activityLog'
+import { useAuth } from '@/contexts/AuthContext'
+import { useAppStore } from '@/stores/appStore'
 
 /**
  * Form schema for Screen 1 — Datos del Proyecto.
@@ -127,6 +130,11 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
+  // Activity logging refs
+  const { user } = useAuth()
+  const currentProjectRole = useAppStore((s) => s.currentProjectRole)
+  const lastSavedRef = useRef<Record<string, unknown>>({})
+
   const save = useCallback(
     (formValues: ProjectFormData) => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
@@ -158,6 +166,31 @@ export function ProjectSetup({ projectId }: ProjectSetupProps) {
           })
           setSaveStatus('saved')
           setTimeout(() => setSaveStatus((s) => (s === 'saved' ? 'idle' : s)), 3000)
+
+          // Activity logging: compute changed fields and write entry
+          const changedFields = Object.keys(formValues).filter(
+            (key) =>
+              JSON.stringify((formValues as Record<string, unknown>)[key]) !==
+              JSON.stringify(lastSavedRef.current[key]),
+          )
+          if (changedFields.length > 0 && user) {
+            coalesceOrCreate(
+              projectId,
+              {
+                userId: user.uid,
+                displayName: user.displayName ?? user.email ?? 'Usuario',
+                photoURL: user.photoURL ?? null,
+                userRole: currentProjectRole ?? 'productor',
+                screen: 'datos',
+                action: 'update',
+                changedFields,
+              },
+              user,
+            ).catch((err: unknown) =>
+              console.warn('Activity log write failed:', err),
+            )
+          }
+          lastSavedRef.current = { ...(formValues as Record<string, unknown>) }
         } catch (err) {
           console.error('[ProjectSetup] Save failed:', err)
           setSaveStatus('error')

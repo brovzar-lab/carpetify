@@ -39,6 +39,8 @@ export function PeriodGroup({ period, projects, userId, onDelete, onClone }: Per
             id={project.id}
             metadata={project.metadata}
             userRole={getUserRole(project)}
+            collaborators={project.collaborators}
+            currentUserId={userId}
             onDelete={onDelete}
             onClone={onClone}
           />

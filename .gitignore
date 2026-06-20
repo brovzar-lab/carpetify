@@ -31,4 +31,19 @@ Thumbs.db
 
 # Graphify knowledge graph
 graphify-out/
+
+# Playwright reports and test results
+playwright-report/
+test-results/
+.playwright-mcp/
+
+# Dev seed scripts and debug notes
+scripts/
+test-docs/
+functions/seedUATProject.js
+.planning/debug/
+
+# Agent config and backups
+.agents/
+.claude-md-backups/
 firebase-debug.log

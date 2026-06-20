@@ -18,7 +18,7 @@ export async function sendInvitationEmail(
   const acceptUrl = `${appUrl}/invitaciones/${invitation.invitationId}`
 
   const { error } = await resend.emails.send({
-    from: 'Carpetify <noreply@lemon-studios.mx>',
+    from: 'Carpetify <noreply@lemonfilms.com>',
     to: [invitation.inviteeEmail],
     subject: `Te invitaron a colaborar en "${invitation.projectTitle}"`,
     html: buildInvitationEmailHtml({

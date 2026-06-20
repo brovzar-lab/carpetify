@@ -170,4 +170,4 @@ Note: Phases 14 and 15 depend only on Phase 10 (not on 12/13), so they could the
 | 13. Activity Tracking & Invitation Flow | v2.0 | 3/3 | Complete    | 2026-03-26 |
 | 14. Document Versioning | v2.0 | 4/5 | Complete    | 2026-03-26 |
 | 15. AI Pre-Submission Review | v2.0 | 3/3 | Complete    | 2026-03-27 |
-| 16. Milestone Gap Closure | v2.0 | 1/1 | Complete   | 2026-03-27 |
+| 16. Milestone Gap Closure | v2.0 | 1/1 | Complete    | 2026-03-27 |
