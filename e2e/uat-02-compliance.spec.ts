@@ -40,7 +40,7 @@ test.describe('UAT Group 2 · Financial Compliance Panel', () => {
   // Test 2b: ERPI input section visible
   // ───────────────────────────────────────────────────────────────────────────
   test('2b · ERPI contribution input section is visible on Screen 4', async ({ page }) => {
-    await page.goto(`/project/${PROJECT_ID}/financiera`)
+    await page.goto(`/project/${TEST_PROJECT_ID}/financiera`)
     await waitForContentReady(page)
 
     const body = await page.locator('body').textContent()
@@ -53,7 +53,7 @@ test.describe('UAT Group 2 · Financial Compliance Panel', () => {
   // Test 2c: Compliance panel is present on Screen 4
   // ───────────────────────────────────────────────────────────────────────────
   test('2c · Compliance panel section exists on Screen 4', async ({ page }) => {
-    await page.goto(`/project/${PROJECT_ID}/financiera`)
+    await page.goto(`/project/${TEST_PROJECT_ID}/financiera`)
     await waitForContentReady(page)
 
     const body = await page.locator('body').textContent()
@@ -89,7 +89,7 @@ test.describe('UAT Group 2 · Financial Compliance Panel', () => {
   // Test 2e: In-kind total field on Screen 4 is marked read-only
   // ───────────────────────────────────────────────────────────────────────────
   test('2e · In-kind total from team is read-only on Screen 4', async ({ page }) => {
-    await page.goto(`/project/${PROJECT_ID}/financiera`)
+    await page.goto(`/project/${TEST_PROJECT_ID}/financiera`)
     await waitForContentReady(page)
 
     // Find readonly inputs
@@ -111,7 +111,7 @@ test.describe('UAT Group 2 · Financial Compliance Panel', () => {
   // Test 2f: Entering values in financial inputs doesn't crash the page
   // ───────────────────────────────────────────────────────────────────────────
   test('2f · Typing in financial fields does not crash Screen 4', async ({ page }) => {
-    await page.goto(`/project/${PROJECT_ID}/financiera`)
+    await page.goto(`/project/${TEST_PROJECT_ID}/financiera`)
     await waitForContentReady(page)
 
     // Find any editable text inputs on the financial screen

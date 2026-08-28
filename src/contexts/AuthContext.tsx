@@ -16,15 +16,37 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
+const E2E_MODE = import.meta.env.DEV && import.meta.env.VITE_E2E === 'true'
+
+const DEV_USER = {
+  uid: 'dev-user-001',
+  email: 'dev@lemonstudios.mx',
+  displayName: 'Dev User',
+  photoURL: null,
+  emailVerified: true,
+  isAnonymous: false,
+  metadata: {},
+  providerData: [],
+  refreshToken: '',
+  tenantId: null,
+  phoneNumber: null,
+  providerId: 'google.com',
+  delete: async () => {},
+  getIdToken: async () => 'dev-token',
+  getIdTokenResult: async () => ({ token: 'dev-token', claims: {}, authTime: '', expirationTime: '', issuedAtTime: '', signInProvider: null, signInSecondFactor: null }),
+  reload: async () => {},
+  toJSON: () => ({}),
+} as unknown as User
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [orgId, setOrgId] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(E2E_MODE ? DEV_USER : null)
+  const [loading, setLoading] = useState(!E2E_MODE)
+  const [orgId, setOrgId] = useState<string | null>(E2E_MODE ? 'dev-org-001' : null)
   const [needsOrgSetup, setNeedsOrgSetup] = useState(false)
   const [orgLoading, setOrgLoading] = useState(false)
 
   useEffect(() => {
+    if (E2E_MODE) return
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser)
       if (!firebaseUser) {
@@ -36,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check organization membership when user changes
   useEffect(() => {
+    if (E2E_MODE) return
     if (!user) {
       setOrgId(null)
       setNeedsOrgSetup(false)
@@ -82,26 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const devBypassLogin = useCallback(async () => {
     if (!import.meta.env.DEV) return
     // Mock user object — skips Firebase Auth entirely for dev testing
-    const mockUser = {
-      uid: 'dev-user-001',
-      email: 'dev@lemonstudios.mx',
-      displayName: 'Dev User',
-      photoURL: null,
-      emailVerified: true,
-      isAnonymous: false,
-      metadata: {},
-      providerData: [],
-      refreshToken: '',
-      tenantId: null,
-      phoneNumber: null,
-      providerId: 'google.com',
-      delete: async () => {},
-      getIdToken: async () => 'dev-token',
-      getIdTokenResult: async () => ({ token: 'dev-token', claims: {}, authTime: '', expirationTime: '', issuedAtTime: '', signInProvider: null, signInSecondFactor: null }),
-      reload: async () => {},
-      toJSON: () => ({}),
-    } as unknown as User
-    setUser(mockUser)
+    setUser(DEV_USER)
     setLoading(false)
   }, [])
 
