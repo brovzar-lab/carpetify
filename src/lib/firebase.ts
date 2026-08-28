@@ -1,9 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, browserLocalPersistence, setPersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { disableNetwork, getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
-import { getDatabase } from 'firebase/database';
+import { getDatabase, goOffline } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -23,6 +23,11 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
 export const rtdb = getDatabase(app);
+
+if (import.meta.env.DEV && import.meta.env.VITE_E2E === 'true') {
+  void disableNetwork(db);
+  goOffline(rtdb);
+}
 
 // Uncomment for local development with emulator:
 // import { connectFunctionsEmulator } from 'firebase/functions';

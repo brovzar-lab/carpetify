@@ -36,6 +36,16 @@ export function useProjectAccess(projectId: string): ProjectAccess {
   const { data, isLoading } = useQuery<ProjectAccessData>({
     queryKey: ['project-access', projectId, user?.uid],
     queryFn: async (): Promise<ProjectAccessData> => {
+      if (import.meta.env.DEV && import.meta.env.VITE_E2E === 'true') {
+        return {
+          hasAccess: true,
+          role: 'productor',
+          ownerName: user?.displayName ?? null,
+          collaborators: { [user!.uid]: 'productor' },
+          ownerId: user!.uid,
+        }
+      }
+
       if (!user) {
         return { hasAccess: false, role: null, ownerName: null, collaborators: {}, ownerId: null }
       }
